@@ -10,7 +10,7 @@ const NetworkSection = () => {
           <p>LOCATIONS COVERED</p>
         </div>
         <div className="stat-card">
-          <h3>750,000+</h3>
+          <h3>10,000+</h3>
           <p>PROFESSIONAL DRIVERS</p>
         </div>
         <div className="stat-card">

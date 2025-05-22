@@ -7,24 +7,33 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className='header'>
-      <div className="nav-container">
-        <div className="logo">
-          <img src={logo} alt="Logo" />
-        </div>
-
-        <nav className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
-          <a href="#">Home</a>
-          <a href="#welcome-section">About Us</a>
-          <a href="#service">Services</a>
-          <a href="#contact">Contact</a>
-        </nav>
-
-        <div className="hamburger" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          {isMenuOpen ? <FaTimes /> : <FaBars />}
-        </div>
+    <>
+      {/* Top Strip Header */}
+      <div className="top-header">
+        <h1>Mokshaambani Tech Service Private LMT</h1>
       </div>
-    </header>
+
+      {/* Main Header */}
+      <header className='header'>
+        <div className="nav-container">
+          <div className="logo">
+            <img src={logo} alt="Logo" />
+            <h1>Delivery</h1>
+          </div>
+
+          <nav className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
+            <a href="#">Home</a>
+            <a href="#welcome-section">About Us</a>
+            <a href="#service">Services</a>
+            <a href="#contact">Contact</a>
+          </nav>
+
+          <div className="hamburger" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <FaTimes /> : <FaBars />}
+          </div>
+        </div>
+      </header>
+    </>
   );
 };
 

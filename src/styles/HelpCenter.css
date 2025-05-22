@@ -1,0 +1,79 @@
+.help-center-section {
+  padding: 60px 20px;
+  background-color: #f8f9fa;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.title {
+  font-size: 32px;
+  margin-bottom: 16px;
+  color: #2c3e50;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 40px;
+}
+
+.support-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+.text-heading .subtext{
+  color:white;
+  font-size: 3rem;
+  font-weight: 700;
+  position:relative;
+  top:-25px;
+  left:320px;
+}
+
+.support-card {
+  background-color: #fff;
+  padding: 24px;
+  width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  text-align: left;
+  transition: transform 0.2s ease-in-out;
+}
+
+.support-card:hover {
+  transform: translateY(-5px);
+  background-color: blue;
+  color:white;
+}
+
+.support-card:hover h3{
+    color:white;
+}
+.support-card:hover p{
+    color:white;
+}
+.support-card:hover a{
+    color:white;
+}
+.support-card h3 {
+  margin-bottom: 10px;
+  color: blue;
+  font-size: 18px;
+}
+
+.support-card p {
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.support-card a {
+  text-decoration: none;
+  color: #007BFF;
+}
+
+.support-card a:hover {
+  text-decoration: underline;
+}

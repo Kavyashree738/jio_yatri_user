@@ -31,14 +31,14 @@
   background-color: white;
 }
 .feature-card:hover h3{
-    color:blue;
+    color:black !important;
 }
 .feature-card:hover p{
     color:blue;
 }
 .feature-card h3 {
   font-size: 1.2rem;
-  color: white;
+  color: white !important;
   margin-bottom: 10px;
 }
 

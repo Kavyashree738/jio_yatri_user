@@ -1,0 +1,55 @@
+.estimate-wrapper {
+  background: #f5f5f5bd;
+  padding: 40px 20px;
+  border-radius: 16px;
+  max-width: 100%;
+  margin: 40px auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.estimate-title {
+  font-size: 28px;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color:blue;
+}
+
+.estimate-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+
+.estimate-form input,
+.estimate-form select {
+  padding: 12px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  min-width: 180px;
+  font-size: 14px;
+  background: white;
+  transition: border 0.3s;
+}
+
+.estimate-form input:focus,
+.estimate-form select:focus {
+  border-color: blue;
+  outline: none;
+}
+
+.estimate-form button {
+  padding: 12px 24px;
+  background-color: blue;
+  color: white;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.estimate-form button:hover {
+  background-color: rgba(0, 0, 255, 0.753);
+}
