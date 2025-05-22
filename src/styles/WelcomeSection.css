@@ -1,0 +1,205 @@
+.welcome-section {
+  padding: 40px 20px;
+  background-color: #fffef7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.welcome-content {
+  max-width: 900px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 40px;
+}
+
+.text-side {
+  flex: 1;
+  min-width: 300px;
+}
+
+.image-side {
+  flex: 1;
+  min-width: 300px;
+}
+
+.image-side img {
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.brand {
+  color: #0044FF;
+}
+
+.text-side h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.text-side h2 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.text-side p {
+  font-size: 1.1rem;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.book-button {
+  padding: 15px 20px;
+  font-size: 1rem;
+  background-color: #0749ffb4;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  margin-bottom: 30px;
+ transition: transform 0.9s ease-out;
+}
+.book-button:hover{
+    background-color: #0749ff;
+    font-weight: 500;
+    transform: translateY(-10px);
+  
+}
+
+.stats {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stat h3 {
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+  color: #222;
+}
+
+.stat p {
+  font-size: 1rem;
+  color: #555;
+}
+
+.stat {
+  position: relative;
+  overflow: hidden;
+  flex: 1 1 140px;
+  background-color: #fff;
+  padding: 5px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  z-index: 1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ::before creates the background fill effect */
+.stat::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: #0044FF; /* your highlight color */
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease-out;
+  z-index: -1;
+  border-radius: 12px;
+}
+
+/* On hover: fill from left to right */
+.stat:hover::before {
+  transform: scaleX(1);
+}
+
+/* Keep text visible above the background */
+.stat h3,
+.stat p {
+  position: relative;
+  z-index: 2;
+  color: #333;
+  transition: color 0.3s;
+}
+
+/* Optional: change text color when hovered */
+.stat:hover h3,
+.stat:hover p {
+  color: white;
+}
+
+/* Scroll animation base */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(70px);
+  transition: all 0.8s ease;
+}
+
+.animate-left {
+  transform: translateX(-70px);
+}
+
+.animate-right {
+  transform: translateX(70px);
+}
+
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateX(0) translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .welcome-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .text-side,
+  .image-side {
+    min-width: 100%;
+  }
+
+  .text-side h1 {
+    font-size: 2rem;
+  }
+
+  .text-side h2 {
+    font-size: 1.4rem;
+  }
+
+  .text-side p {
+    font-size: 1rem;
+  }
+
+  .book-button {
+    width: 100%;
+    padding: 15px 0;
+    font-size: 1.1rem;
+  }
+
+  .stats {
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .stat {
+    flex: 1 1 140px;
+    padding: 10px 5px;
+  }
+
+  .stat h3 {
+    font-size: 1.3rem;
+  }
+
+  .stat p {
+    font-size: 0.9rem;
+  }
+}
