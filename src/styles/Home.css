@@ -84,7 +84,8 @@
   display: none;
   font-size: 28px;
   cursor: pointer;
-  position: static; /* Removed relative positioning */
+  position: relative;
+  bottom:50px; /* Removed relative positioning */
 }
 
 /* Responsive Styles */

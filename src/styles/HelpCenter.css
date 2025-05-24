@@ -1,79 +1,40 @@
 .help-center-section {
-  padding: 60px 20px;
-  background-color: #f8f9fa;
+  width: 100%;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #f9fafb;
+  border-radius: 8px;
   text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.title {
-  font-size: 32px;
-  margin-bottom: 16px;
-  color: #2c3e50;
+.help-center-section .title {
+  font-size: 2rem;
+  color:blue;
+  margin-bottom: 15px;
 }
 
-.subtitle {
-  font-size: 16px;
+.help-center-section .subtitle {
+  font-size: 1.1rem;
   color: #555;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
+  line-height: 1.5;
 }
 
-.support-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-}
-.text-heading .subtext{
-  color:white;
-  font-size: 3rem;
-  font-weight: 700;
-  position:relative;
-  top:-25px;
-  left:320px;
-}
-
-.support-card {
-  background-color: #fff;
-  padding: 24px;
-  width: 500px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-  text-align: left;
-  transition: transform 0.2s ease-in-out;
-}
-
-.support-card:hover {
-  transform: translateY(-5px);
-  background-color: blue;
-  color:white;
-}
-
-.support-card:hover h3{
-    color:white;
-}
-.support-card:hover p{
-    color:white;
-}
-.support-card:hover a{
-    color:white;
-}
-.support-card h3 {
-  margin-bottom: 10px;
-  color: blue;
-  font-size: 18px;
-}
-
-.support-card p {
-  font-size: 14px;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.support-card a {
+.know-more-btn {
+  display: inline-block;
+  padding: 12px 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background-color: #007bff; /* Bootstrap blue */
+  border-radius: 6px;
   text-decoration: none;
-  color: #007BFF;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
 }
 
-.support-card a:hover {
-  text-decoration: underline;
+.know-more-btn:hover {
+  background-color: #0056b3;
 }

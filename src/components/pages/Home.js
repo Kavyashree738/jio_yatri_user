@@ -12,8 +12,8 @@ import NetworkSection from './NetworkSection';
 import WhyChoosePorter from './WhyChoosePorter';
 import FAQSection from './FAQSection';
 import BookingPorterSection from './BookingPorterSection';
-import EstimateForm from './EstimateForm';
 import HelpCenter from './HelpCenter';
+import HouseShiftingFeatures from './HouseShiftingFeatures';
 const Home = () => {
   return (
     <div>
@@ -22,12 +22,12 @@ const Home = () => {
       <WelcomeSection/>
        <ServiceSection/>
        <HelpCenter/>
-       <EstimateForm/>
        <WhyChoosePorter/>
        <PorterPromo/>
        <BookingPorterSection/>
       <TestimonialsSection/>
       <NetworkSection/>
+      <HouseShiftingFeatures/>
       <Contact/>
       <FAQSection/>
       <Footer/> 

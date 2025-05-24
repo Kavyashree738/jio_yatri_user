@@ -1,0 +1,83 @@
+/* Container Styling */
+.shifting-container {
+  max-width: 1100px;
+  margin: 60px auto;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+  color: #222;
+  border-radius: 16px;
+  text-align: center;
+}
+
+/* Section Title */
+.shifting-container h2 {
+  font-size: 1.5rem;
+  color:blue;
+  margin-bottom: 40px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-bottom: 3px solid #3949ab;
+  display: inline-block;
+  padding-bottom: 10px;
+}
+
+/* Cards Container */
+.feature-cards {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+/* Individual Card */
+.feature-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(26, 35, 126, 0.1);
+  flex: 1 1 30%;
+  padding: 30px 20px;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(26, 35, 126, 0.2);
+}
+
+/* Icon */
+.icon-placeholder {
+  font-size: 3.5rem;
+  color: #3f51b5;
+  margin-bottom: 18px;
+}
+
+/* Card Heading */
+.feature-card h3 {
+  font-size: 1.4rem;
+  color: #1a237e;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+/* Card Description */
+.feature-card p {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .feature-cards {
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .feature-card {
+    width: 100%;
+  }
+}

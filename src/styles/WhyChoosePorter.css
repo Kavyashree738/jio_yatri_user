@@ -26,6 +26,7 @@
   cursor: pointer;
 }
 
+
 .feature-card:hover {
   transform: translateY(-5px);
   background-color: white;
@@ -38,7 +39,7 @@
 }
 .feature-card h3 {
   font-size: 1.2rem;
-  color: white !important;
+  color: blue !important;
   margin-bottom: 10px;
 }
 

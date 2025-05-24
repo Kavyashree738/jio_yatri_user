@@ -73,11 +73,8 @@
   align-items: center;
   flex-direction: column;
 }
-.text h2{
-  font-size: 3rem;
-  position: relative;
-  right:
-}
+
+
 .hero-form {
   flex: 1 1 350px;
   max-width: 400px;
