@@ -2,7 +2,9 @@ import React from 'react';
 import axios from 'axios';
 import '../styles/components.css';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 function Summary({ shipmentData, onBack, onSubmit }) {
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -12,6 +14,11 @@ function Summary({ shipmentData, onBack, onSubmit }) {
     setError(null);
 
     try {
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+
       console.log('Submitting with payload:', {
         sender: {
           name: shipmentData.sender.name,
@@ -30,13 +37,14 @@ function Summary({ shipmentData, onBack, onSubmit }) {
         cost: shipmentData.cost
       });
       await axios.post('http://localhost:5000/api/shipments', {
+        userId: user.uid,
         sender: {
           name: shipmentData.sender.name,
           phone: shipmentData.sender.phone,
           email: shipmentData.sender.email,
           address: {
             addressLine1: shipmentData.sender.address.addressLine1
-        }
+          }
         },
         receiver: {
           name: shipmentData.receiver.name,
@@ -44,7 +52,7 @@ function Summary({ shipmentData, onBack, onSubmit }) {
           email: shipmentData.receiver.email,
           address: {
             addressLine1: shipmentData.receiver.address.addressLine1
-        }
+          }
         },
         vehicleType: shipmentData.vehicleType,
         distance: shipmentData.distance,
