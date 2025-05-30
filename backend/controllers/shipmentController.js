@@ -72,7 +72,6 @@ exports.createShipment = async (req, res) => {
     const trackingNumber = uuidv4().split('-')[0].toUpperCase();
 
     const newShipment = new Shipment({
-      userId,
       senderName: sender.name,
       senderPhone: sender.phone,
       senderEmail: sender.email || '',
@@ -102,20 +101,4 @@ exports.createShipment = async (req, res) => {
   }
 };
 
-exports.getUserShipments = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    
-    if (!userId) {
-      return res.status(400).json({ message: 'User ID is required' });
-    }
-
-    const shipments = await Shipment.find({ userId }).sort({ createdAt: -1 });
-    
-    res.status(200).json(shipments);
-  } catch (error) {
-    console.error('Error fetching shipments:', error);
-    res.status(500).json({ message: 'Failed to fetch shipments' });
-  }
-};
 
