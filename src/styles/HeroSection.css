@@ -39,7 +39,7 @@
   padding-top: 10vh;
   flex-wrap: wrap;
   padding: 30px;
-  margin-top:155px;
+  margin-top:140px;
 }
 
 .hero-text {
@@ -167,7 +167,193 @@
   height: 20px;
   color: black;
 }
+/* Add these styles to your existing HeroSection.css */
 
+/* General container */
+.container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 25px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+/* Phone input */
+.input {
+  width: 100%;
+  padding: 12px 10px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.input:focus {
+  border-color: #007bff;
+}
+
+/* Error style for inputs */
+.error {
+  border-color: #e74c3c !important;
+}
+
+/* Send Code Button */
+.button {
+  width: 100%;
+  background-color: #000;  /* black */
+  color: white;
+  font-weight: 600;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover:not(.disabled) {
+  background-color: #1a1a1a;
+}
+
+.button.disabled {
+  background-color: #181818;
+  cursor: not-allowed;
+}
+
+/* Message styles */
+.message {
+  margin-top: 15px;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+}
+
+.success {
+  background-color: #d4edda;
+  color: #07166e;
+  border: 1px solid #c3e6cb;
+}
+
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* OTP Overlay */
+.otp-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* OTP Modal */
+.otp-modal {
+  background: white;
+  border-radius: 10px;
+  padding: 30px 25px;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* OTP Title */
+.otp-title {
+  margin-bottom: 20px;
+  font-size: 20px;
+  color: #004085;
+  font-weight: 600;
+}
+
+/* OTP Input Box */
+.otp-input {
+  width: 100%;
+  padding: 14px 10px;
+  font-size: 20px;
+  border: 2px solid #007bff;  /* blue border */
+  border-radius: 8px;
+  text-align: center;
+  letter-spacing: 8px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+.otp-input:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px #0056b3;
+}
+
+/* OTP Buttons */
+.otp-button {
+  width: 100%;
+  background-color: #007bff; /* bootstrap blue */
+  color: white;
+  font-weight: 600;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.otp-button:hover:not(.disabled) {
+  background-color: #0056b3;
+}
+
+.otp-button.disabled {
+  background-color: #1d1d1d;
+  cursor: not-allowed;
+}
+
+/* Cancel Button */
+.cancel-button {
+  width: 100%;
+  padding: 10px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid #007bff;
+  background-color: white;
+  color: #007bff;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cancel-button:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+@keyframes button-loading-spinner {
+    from {
+        transform: rotate(0turn);
+    }
+    to {
+        transform: rotate(1turn);
+    }
+}
 /* Responsive styling */
 @media (max-width: 1024px) {
   .hero-text h1 {
@@ -226,4 +412,43 @@
   .hero-text h2 {
     font-size: 1.1rem;
   }
+}
+/* Logout Button Styles */
+.logout-button {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 15px;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+.logout-button:hover {
+    background-color: #cc0000;
+}
+
+/* Welcome Message Styles */
+.welcome-message {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.welcome-message h3 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+.welcome-message p {
+    color: #666;
+    margin-bottom: 20px;
 }

@@ -18,7 +18,6 @@ const BookingPorterSection = () => {
         <p className="subtitle">
           Book a bike, van, or truck in minutes with our seamless online platform – available across multiple cities.
         </p>
-
         <div className="vehicles">
           <h3>Available Vehicle Options</h3>
           <div className="vehicle-cards">

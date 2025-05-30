@@ -3,3 +3,8 @@
   padding:0;
   margin:0;
 }
+#welcome-section,
+#service,
+#contact {
+  scroll-margin-top: 100px; /* adjust based on header height */
+}

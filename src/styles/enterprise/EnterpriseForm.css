@@ -1,0 +1,135 @@
+/* Assume the header height is 80px */
+.enterprise-section {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 50px;
+    padding: 190px 40px 60px; /* 100px top to clear header + bottom padding */
+    background:#1b7ffa;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    flex-wrap: wrap; /* allow stack on small screens */
+}
+
+/* Text container on the right */
+.text-container {
+    flex: 1;
+    max-width: 500px;
+    text-align: left;
+}
+
+.text-container h3 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.text-container h4 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color:white;
+    margin-bottom: 30px;
+}
+
+.text-container h5 {
+    font-size: 1.2rem;
+    margin: 10px 0;
+    background:  #1d4ed8;
+    display: inline-block;
+    padding: 10px 30px; /* more horizontal padding for shape */
+    color:white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: background 0.3s, transform 0.3s;
+    cursor: pointer;
+
+    /* Slanted parallelogram shape */
+    clip-path: polygon(15px 0%, 100% 0%, calc(100% - 15px) 100%, 0% 100%);
+}
+
+/* Hover effect */
+.text-container h5:hover {
+    background:white;
+    color: #1d4ed8;
+    transform: translateY(-3px);
+}
+
+
+
+/* Form container on the left */
+.form-container {
+    flex: 1;
+    max-width: 500px;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.form-container h2 {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    font-weight: 600;
+    color: #1d4ed8;
+    text-align: center;
+}
+
+form .input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-group .input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #1d4ed8;
+    font-size: 1.1rem;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.2);
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    background: #1d4ed8;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+}
+
+button[type="submit"]:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .enterprise-section {
+        flex-direction: column-reverse;
+        align-items: center;
+        padding: 100px 20px 60px;
+    }
+
+    .form-container, .text-container {
+        max-width: 100%;
+    }
+}
