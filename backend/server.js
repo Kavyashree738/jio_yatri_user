@@ -10,6 +10,16 @@ const shipmentRoutes = require('./routes/shipmentRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const cors = require('cors');
+const admin = require('firebase-admin'); 
+
+const serviceAccount = require('./config/firebase-service-account.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  projectId: 'authentication-e6bd0' // Add your project ID here
+});
+
+
+
 app.use(cors({
   origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -22,24 +32,9 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
-const admin = require('firebase-admin');
 
-const verifyFirebaseToken = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  
-  if (!token) {
-    return res.status(401).json({ message: 'No token provided' });
-  }
-  
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    console.error('Token verification failed:', error);
-    return res.status(403).json({ message: 'Invalid token' });
-  }
-};
+
+
 
 // Use it in your routes
 

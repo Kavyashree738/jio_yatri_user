@@ -3,7 +3,7 @@ import axios from 'axios';
 import '../styles/components.css';
 
 const vehicleTypes = [
-  { type: 'bicycle', name: 'Bicycle', rate: 10, emoji: '🚲' },
+  { type: 'bicycle', name: 'Bicycle', rate: 10, emoji: '🏍️' },
   { type: 'car', name: 'Car', rate: 20, emoji: '🚗' },
   { type: 'van', name: 'Van', rate: 30, emoji: '🚐' }
 ];

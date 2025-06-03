@@ -64,10 +64,8 @@ const { v4: uuidv4 } = require('uuid');
 
 exports.createShipment = async (req, res) => {
   try {
-    const { userId,sender, receiver, vehicleType, distance, cost } = req.body;
-    if (!userId) {
-      return res.status(400).json({ message: 'User ID is required' });
-    }
+    const { sender, receiver, vehicleType, distance, cost } = req.body;
+    const userId = req.user.uid; 
 
     const trackingNumber = uuidv4().split('-')[0].toUpperCase();
 
@@ -85,7 +83,9 @@ exports.createShipment = async (req, res) => {
       vehicleType,
       distance,
       cost,
-      trackingNumber
+      trackingNumber,
+      userId, 
+      createdAt: new Date()
     });
 
     const savedShipment = await newShipment.save();
@@ -101,4 +101,13 @@ exports.createShipment = async (req, res) => {
   }
 };
 
-
+exports.getUserShipments = async (req, res) => {
+  try {
+    const userId = req.user.uid;
+    const shipments = await Shipment.find({ userId }).sort({ createdAt: -1 });
+    res.json(shipments);
+  } catch (error) {
+    console.error('Fetch shipments error:', error);
+    res.status(500).json({ message: 'Failed to fetch shipments' });
+  }
+};

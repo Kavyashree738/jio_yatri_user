@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const shipmentSchema = new mongoose.Schema({
   // Sender details
+   userId: { type: String, required: true }, // Store the Firebase UID
   senderName: { type: String, required: true },
   senderPhone: { type: String, required: true },
   senderEmail: { type: String, default: '' },
@@ -19,6 +20,7 @@ const shipmentSchema = new mongoose.Schema({
   cost: { type: Number, required: true },
   trackingNumber: { type: String, required: true, unique: true },
 
+  
   createdAt: { type: Date, default: Date.now }
 });
 

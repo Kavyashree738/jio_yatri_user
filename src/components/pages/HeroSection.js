@@ -86,6 +86,16 @@ const HeroSection = () => {
     };
   }, []);
 
+  const storeToken = async (user) => {
+    try {
+      const token = await user.getIdToken();
+      localStorage.setItem('token', token);
+      console.log('Token stored successfully');
+    } catch (error) {
+      console.error('Error storing token:', error);
+    }
+  };
+
   const verifyOtp = async () => {
     if (otp.length !== 6) {
       setMessage({ text: 'Please enter a 6-digit code.', isError: true });
@@ -96,7 +106,9 @@ const HeroSection = () => {
       setIsLoading(true);
       setMessage({ text: 'Verifying code...', isError: false });
 
-      await confirmationResult.confirm(otp);
+      const result = await confirmationResult.confirm(otp);
+      await storeToken(result.user);
+
       setMessage({ text: 'Verification successful!', isError: false });
       setShowOtpComponent(false);
       setPhoneNumber('');
@@ -142,7 +154,8 @@ const HeroSection = () => {
   const signInWithGoogle = async () => {
     try {
       setIsLoading(true);
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      await storeToken(result.user);
       setMessage({ text: 'Google sign-in successful!', isError: false });
     } catch (error) {
       console.error('Google sign-in error:', error);

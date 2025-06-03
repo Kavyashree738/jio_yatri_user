@@ -1,11 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const shipmentController = require('../controllers/shipmentController');
+const verifyFirebaseToken = require('../middleware/verifyFirebaseToken');
 
-// POST /api/shipments/calculate-distance
+// Debugging check
+console.log('[Debug] Middleware type:', typeof verifyFirebaseToken);
+console.log('[Debug] Controller methods:', {
+  calculateDistance: typeof shipmentController.calculateDistance,
+  createShipment: typeof shipmentController.createShipment,
+  getUserShipments: typeof shipmentController.getUserShipments
+});
+
+// Routes
 router.post('/calculate-distance', shipmentController.calculateDistance);
-
-// POST /api/shipments
-router.post('/', shipmentController.createShipment);
+router.post('/', verifyFirebaseToken, shipmentController.createShipment);
+router.get('/my-shipments', verifyFirebaseToken, shipmentController.getUserShipments);
 
 module.exports = router;

@@ -15,7 +15,7 @@ import BookingPorterSection from './BookingPorterSection';
 import HelpCenter from './HelpCenter';
 import HouseShiftingFeatures from './HouseShiftingFeatures';
 import GroupedCitiesAndDistricts from './GroupedCitiesAndDistricts';
-// import UserShipment from '../UserShipments'
+
 const Home = () => {
   return (
     <div>
@@ -33,7 +33,7 @@ const Home = () => {
       <GroupedCitiesAndDistricts/>
       <Contact/>
       <FAQSection/>
-       {/* <UserShipment/> */}
+       
       <Footer/> 
        
     </div>

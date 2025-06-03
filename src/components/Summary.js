@@ -2,55 +2,49 @@ import React from 'react';
 import axios from 'axios';
 import '../styles/components.css';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 function Summary({ shipmentData, onBack, onSubmit }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-
+  const { user } = useAuth();
   const handleSubmit = async () => {
+    if (!user) {
+      setError('Please login to create shipments');
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
 
     try {
-      console.log('Submitting with payload:', {
+      const token = await user.getIdToken();
+      const payload = {
         sender: {
           name: shipmentData.sender.name,
           phone: shipmentData.sender.phone,
           email: shipmentData.sender.email,
-          address: shipmentData.sender.address.addressLine1
+          address: { addressLine1: shipmentData.sender.address.addressLine1 }
         },
         receiver: {
           name: shipmentData.receiver.name,
           phone: shipmentData.receiver.phone,
           email: shipmentData.receiver.email,
-          address: shipmentData.receiver.address.addressLine1
+          address: { addressLine1: shipmentData.receiver.address.addressLine1 }
         },
         vehicleType: shipmentData.vehicleType,
         distance: shipmentData.distance,
         cost: shipmentData.cost
-      });
-      await axios.post('http://localhost:5000/api/shipments', {
-        sender: {
-          name: shipmentData.sender.name,
-          phone: shipmentData.sender.phone,
-          email: shipmentData.sender.email,
-          address: {
-            addressLine1: shipmentData.sender.address.addressLine1
+      };
+      console.log('Token being sent:', token); // Add this before the axios call
+      const response = await axios.post('http://localhost:5000/api/shipments', payload, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
         }
-        },
-        receiver: {
-          name: shipmentData.receiver.name,
-          phone: shipmentData.receiver.phone,
-          email: shipmentData.receiver.email,
-          address: {
-            addressLine1: shipmentData.receiver.address.addressLine1
-        }
-        },
-        vehicleType: shipmentData.vehicleType,
-        distance: shipmentData.distance,
-        cost: shipmentData.cost
       });
-
+      console.log(response)
+      console.log(token)
       setSuccess(true);
       onSubmit();
     } catch (error) {
