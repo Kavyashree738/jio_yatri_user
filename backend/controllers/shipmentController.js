@@ -111,3 +111,18 @@ exports.getUserShipments = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch shipments' });
   }
 };
+
+// Get order status for users
+exports.getOrderStatus = async (req, res) => {
+  try {
+    const order = await Shipment.findById(req.params.orderId);
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json({ 
+      status: order.status,
+      driverId: order.assignedDriver,
+      trackingNumber: order.trackingNumber 
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch order status' });
+  }
+};

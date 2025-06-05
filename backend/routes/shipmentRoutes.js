@@ -15,5 +15,5 @@ console.log('[Debug] Controller methods:', {
 router.post('/calculate-distance', shipmentController.calculateDistance);
 router.post('/', verifyFirebaseToken, shipmentController.createShipment);
 router.get('/my-shipments', verifyFirebaseToken, shipmentController.getUserShipments);
-
+router.get('/:orderId/status', verifyFirebaseToken, shipmentController.getOrderStatus);
 module.exports = router;
