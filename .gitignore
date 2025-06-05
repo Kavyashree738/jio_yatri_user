@@ -4,7 +4,9 @@
 /node_modules
 /.pnp
 .pnp.js
-
+firenase.js
+.env*
+backend/config/firebase-service-account.json
 # testing
 /coverage
 
