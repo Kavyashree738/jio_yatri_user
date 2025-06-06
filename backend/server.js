@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 5000;
 const cors = require('cors');
 const admin = require('firebase-admin'); 
 
-const serviceAccount = require(process.env.FIREBASE_CONFIG);
+const serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   projectId: 'authentication-e6bd0' // Add your project ID here
