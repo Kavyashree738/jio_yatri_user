@@ -37,7 +37,7 @@ const Footer = () => {
       {/* Bottom Info */}
       <div className="footer-bottom">
          <p>CIN:U62020KA2025PTC197886</p>
-         <h3>Mokshaambani tech Service private lmt</h3>
+         <h3>Mokshambani Tech Services PVT LTD</h3>
         <div className="footer-links">
           <a href="#">About Us</a>
           <a href="#">Careers</a>

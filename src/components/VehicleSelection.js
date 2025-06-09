@@ -45,7 +45,7 @@ function VehicleSelection({
     setError(null);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/shipments/calculate-distance', {
+      const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments/calculate-distance', {
         origin: senderAddress.coordinates,
         destination: receiverAddress.coordinates
       });

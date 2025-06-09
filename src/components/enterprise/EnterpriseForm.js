@@ -22,7 +22,7 @@ export default function EnterpriseForm() {
     e.preventDefault();
 
     try {
-        const res = await axios.post('http://localhost:5000/api/enterprise', formData);
+        const res = await axios.post('https://jio-yatri-user.onrender.com/api/enterprise', formData);
         toast.success('Form submitted successfully!', { position: 'bottom-center' });
 
         setFormData({

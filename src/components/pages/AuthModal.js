@@ -65,7 +65,7 @@ const AuthModal = ({ onClose }) => {
       const user = result.user;
 
       // Call backend to register or login user
-      await axios.post('http://localhost:5000/api/register', {
+      await axios.post('https://jio-yatri-user.onrender.com/api/register', {
         email: user.email,
         phone: user.phoneNumber || '', // might be null
         password: 'google-oauth', // special marker or handle differently in backend
@@ -89,7 +89,7 @@ const AuthModal = ({ onClose }) => {
       // Call backend to register user with phone from Firebase auth
       const currentUserPhone = auth.currentUser?.phoneNumber || phone;
 
-      await axios.post('http://localhost:5000/api/register', {
+      await axios.post('https://jio-yatri-user.onrender.com/api/register', {
         email,
         password,
         phone: currentUserPhone,

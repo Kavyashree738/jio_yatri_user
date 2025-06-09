@@ -15,7 +15,7 @@ function ShipmentDetails() {
     const fetchShipmentDetails = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/shipments/${trackingNumber}`,
+          `https://jio-yatri-user.onrender.com/api/shipments/${trackingNumber}`,
           {
             headers: {
               Authorization: `Bearer ${user.token}`

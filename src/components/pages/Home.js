@@ -14,8 +14,6 @@ import FAQSection from './FAQSection';
 import BookingPorterSection from './BookingPorterSection';
 import HelpCenter from './HelpCenter';
 import HouseShiftingFeatures from './HouseShiftingFeatures';
-import GroupedCitiesAndDistricts from './GroupedCitiesAndDistricts';
-
 const Home = () => {
   return (
     <div>
@@ -30,10 +28,8 @@ const Home = () => {
       <TestimonialsSection/>
       <NetworkSection/>
       <HouseShiftingFeatures/>
-      <GroupedCitiesAndDistricts/>
       <Contact/>
       <FAQSection/>
-       
       <Footer/> 
        
     </div>

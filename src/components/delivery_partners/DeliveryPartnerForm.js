@@ -23,7 +23,7 @@ export default function DeliveryPartnerForm() {
         e.preventDefault();
 
         try {
-            const res = await axios.post('http://localhost:5000/api/partners', formData);
+            const res = await axios.post('https://jio-yatri-user.onrender.com/api/partners', formData);
             toast.success('Form submitted successfully!');
             setFormData({
                 name: '',

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const GOOGLE_MAPS_API_KEY = 'AIzaSyDbz4GPnMSZQZjNLrgrfcIV_bVCP0UQZVM'; // Replace with your API key
+const GOOGLE_MAPS_API_KEY =process.env.REACT_APP_GOOGLE_API_KEY; // Replace with your API key
 
 // Load Google Maps script dynamically for autocomplete
 function loadScript(url) {

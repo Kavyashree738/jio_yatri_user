@@ -37,7 +37,7 @@ function Summary({ shipmentData, onBack, onSubmit }) {
         cost: shipmentData.cost
       };
       console.log('Token being sent:', token); // Add this before the axios call
-      const response = await axios.post('http://localhost:5000/api/shipments', payload, {
+      const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments', payload, {
         headers: {
           'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

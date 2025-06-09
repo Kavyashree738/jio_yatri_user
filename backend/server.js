@@ -3,9 +3,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const partnerRoutes = require('./routes/partnerRoutes');
 const enterpriseRoutes = require('./routes/enterpriseRoutes');
-const userRoutes=require("./routes/userRoutes")
-const addressRoutes=require("./routes/addressRoutes")
-const createOrGetUser=require('./controllers/userController')
 const shipmentRoutes = require('./routes/shipmentRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -41,9 +38,6 @@ mongoose.connect(process.env.MONGO_URI, {
 app.use(express.json());
 app.use('/api', partnerRoutes);
 app.use('/api', enterpriseRoutes);
-// Routes
-app.use('/api/users', userRoutes);
-app.use('/api/address', addressRoutes);
 app.use('/api/shipments', shipmentRoutes);
 // app.use('/api/user', userRoutes);
 

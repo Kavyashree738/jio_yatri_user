@@ -23,7 +23,7 @@ const CheckPriceForm = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/api/check-price', {
+      const res = await axios.post('https://jio-yatri-user.onrender.com/api/check-price', {
         pickup: pickup.label,
         drop: drop.label,
         phone,
