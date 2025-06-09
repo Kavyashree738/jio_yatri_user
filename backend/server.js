@@ -9,20 +9,28 @@ const PORT = process.env.PORT || 5000;
 const cors = require('cors');
 const admin = require('firebase-admin'); 
 
-const serviceAccount = require('./config/firebase-service-account.json');
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   projectId: 'authentication-e6bd0' // Add your project ID here
 });
 
-
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://jioyatriuser.netlify.app'
+];
 
 app.use(cors({
-  origin: 'http://localhost:3000',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true // if you're using cookies/auth
 }));
+
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
