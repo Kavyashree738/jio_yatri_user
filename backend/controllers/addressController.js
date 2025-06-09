@@ -1,6 +1,6 @@
 const { Client } = require('@googlemaps/google-maps-services-js');
 const client = new Client({});
-const GOOGLE_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+const GOOGLE_API_KEY=process.env.GOOGLE_MAPS_API_KEY;
 
 // Enhanced with better error handling and response formatting
 exports.autocomplete = async (req, res) => {
