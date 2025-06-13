@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
 import '../styles/components.css';
 
-function AddressAutocomplete({ onSelect }) {
-    const [query, setQuery] = useState('');
+function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
+    const [query, setQuery] = useState(initialValue);
     const [suggestions, setSuggestions] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
 
     useEffect(() => {
+        setQuery(initialValue);
+    }, [initialValue]);
+
+    useEffect(() => {
         if (query.length > 2) {
             const timer = setTimeout(() => {
-                axios.get('https://jio-yatri-user.onrender.com/api/address/autocomplete', {
+                axios.get('http://localhost:5000/api/address/autocomplete', {
                     params: {
                         input: query,
-                        country: 'in' // Optional: restrict to India
+                        country: 'in'
                     }
                 })
                     .then(res => {
@@ -34,55 +39,59 @@ function AddressAutocomplete({ onSelect }) {
         setShowDropdown(false);
 
         try {
-            const response = await axios.get('https://jio-yatri-user.onrender.com/api/address/geocode', {
-                params: {
-                    place_id: suggestion.place_id
-                }
+            const response = await axios.get('http://localhost:5000/api/address/geocode', {
+                params: { place_id: suggestion.place_id }
             });
 
-            console.log('Geocode API response:', response.data);
-
-            // Check if result exists and has geometry data
-            if (response.data.result && response.data.result.geometry && response.data.result.geometry.location) {
-                const location = response.data.result.geometry.location;
-
-                onSelect({
+            const location = response.data.result?.geometry?.location;
+            if (location) {
+                const addressData = {
                     address: suggestion.description,
-                    coordinates: {
-                        lat: location.lat,
-                        lng: location.lng
-                    }
-                });
-            } else {
-                console.warn('No geocoding results found for place_id:', suggestion.place_id);
+                    coordinates: { lat: location.lat, lng: location.lng }
+                };
+                onSelect(addressData);
             }
         } catch (error) {
-            console.error('Geocoding error:', error);
+            console.error('Geocoding failed:', error);
         }
     };
+    
     return (
-        <div className="autocomplete">
-            <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Enter address..."
-                required
-            />
+        <div className="address-autocomplete-container">
+            <div className="search-header">
+                {/* <button className="back-button" onClick={onBackClick}>
+                    <FaArrowLeft />
+                </button> */}
+                <div className="address-autocomplete">
+                    <div className="input-with-icon">
+                        <FaMapMarkerAlt className="location-icon" />
+                        <input
+                            type="text"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            placeholder="Enter address..."
+                            required
+                        />
+                    </div>
 
-            {showDropdown && suggestions.length > 0 && (
-                <div className="autocomplete-dropdown">
-                    {suggestions.map((suggestion, index) => (
-                        <div
-                            key={index}
-                            className="dropdown-item"
-                            onClick={() => handleSelect(suggestion)}
-                        >
-                            {suggestion.description}
+                    {showDropdown && suggestions.length > 0 && (
+                        <div className="suggestions-dropdown-container">
+                            <ul className="suggestions-dropdown">
+                                {suggestions.map((suggestion, index) => (
+                                    <li
+                                        key={index}
+                                        className="suggestion-item"
+                                        onClick={() => handleSelect(suggestion)}
+                                    >
+                                        <FaMapMarkerAlt className="suggestion-icon" />
+                                        <span>{suggestion.description}</span>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
-                    ))}
+                    )}
                 </div>
-            )}
+            </div>
         </div>
     );
 }

@@ -1,0 +1,53 @@
+/* Minimal Select Address Page Styles */
+.simple-address-container {
+    padding: 20px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.simple-address-container button {
+    background: none;
+    border: none;
+    color: #0066cc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.simple-address-container h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+}
+.address-page-container {
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.address-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #4a6fa5;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* If you want the search bar to take remaining space */
+.address-header > .address-autocomplete-container {
+    flex-grow: 1;
+}

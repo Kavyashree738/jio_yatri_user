@@ -51,6 +51,8 @@ import FrequentQuestions from './components/delivery_partners/faq/FrequentQuesti
 import ShipmentPage from './components/pages/ShipmentPage';
 import { AuthProvider } from './context/AuthContext';
 import UserShipments from './components/UserShipments'
+import EnterAddressPage from './components/EnterAddressPage';
+import SelectAddressPage from './components/SelectAddressPage';
 function App() {
   return (
     <div className="App">
@@ -66,6 +68,7 @@ function App() {
             <Route path="/faq" element={<FrequentQuestions />} />
             <Route path="/shipment" element={<ShipmentPage/>} />
             <Route path="/orders" element={<UserShipments/>}/>
+            <Route path="/select-address" element={<SelectAddressPage />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
