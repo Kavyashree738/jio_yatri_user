@@ -51,7 +51,6 @@ import FrequentQuestions from './components/delivery_partners/faq/FrequentQuesti
 import ShipmentPage from './components/pages/ShipmentPage';
 import { AuthProvider } from './context/AuthContext';
 import UserShipments from './components/UserShipments'
-import EnterAddressPage from './components/EnterAddressPage';
 import SelectAddressPage from './components/SelectAddressPage';
 function App() {
   return (
