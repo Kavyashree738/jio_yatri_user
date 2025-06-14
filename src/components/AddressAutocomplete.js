@@ -15,7 +15,7 @@ function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
     useEffect(() => {
         if (query.length > 2) {
             const timer = setTimeout(() => {
-                axios.get('https://jio-yatri-user.onrender/api/address/autocomplete', {
+                axios.get('https://jio-yatri-user.onrender.com/api/address/autocomplete', {
                     params: {
                         input: query,
                         country: 'in'
@@ -39,7 +39,7 @@ function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
         setShowDropdown(false);
 
         try {
-            const response = await axios.get('https://jio-yatri-user.onrender/api/address/geocode', {
+            const response = await axios.get('https://jio-yatri-user.onrender.com/api/address/geocode', {
                 params: { place_id: suggestion.place_id }
             });
 
