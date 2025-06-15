@@ -18,7 +18,9 @@ admin.initializeApp({
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://jioyatri.com/
+  'https://jioyatri.com'
+
+
 ];
 
 app.use(cors({
