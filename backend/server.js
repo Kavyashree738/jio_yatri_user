@@ -18,7 +18,7 @@ admin.initializeApp({
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://jioyatriuser.netlify.app'
+  'https://jioyatri.com/
 ];
 
 app.use(cors({
