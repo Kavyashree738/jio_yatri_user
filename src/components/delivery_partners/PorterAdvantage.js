@@ -22,7 +22,7 @@ const PorterAdvantage = () => {
 
   return (
     <section className="porter-advantage-section">
-      <h2 className="section-title">🚛 PORTER ADVANTAGE</h2>
+      <h2 className="section-title">🚛 JIOYATRI DELIVERY ADVANTAGE</h2>
       <div className="advantage-cards">
         {advantages.map((item, index) => (
           <div className="advantage-card" key={index}>
