@@ -52,7 +52,7 @@ export default function EnterpriseForm() {
     return (
         <section className="enterprise-section">
             <div className="text-container">
-                <h3>PORTER ENTERPRISE</h3>
+                <h3>JIOYATRI DELIVERY ENTERPRISE</h3>
                 <h4>Secure & Consistent Goods Movement with Full Control</h4>
                 <div>
                     <h5>Stress-Free Business Logistics</h5>
