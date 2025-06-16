@@ -9,7 +9,7 @@ const PorterPromo = () => {
       <p className="porter-promo-subtitle">The easiest way to send your packages anywhere.</p>
       <div className="qr-section">
         <img src={qr} alt="Porter App QR Code" className="qr-code-image" />
-        <p className="qr-caption">Get the Porter app now and start shipping!</p>
+        <p className="qr-caption">Get the JioYatri Delivery app now and start shipping!</p>
       </div>
     </div>
   );
