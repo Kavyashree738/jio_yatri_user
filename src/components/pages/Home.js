@@ -11,7 +11,7 @@ import PorterPromo from './PorterPromo';
 import NetworkSection from './NetworkSection';
 import WhyChoosePorter from './WhyChoosePorter';
 import FAQSection from './FAQSection';
-import BookingPorterSection from './BookingPorterSection';
+
 import HelpCenter from './HelpCenter';
 import HouseShiftingFeatures from './HouseShiftingFeatures';
 const Home = () => {
@@ -24,7 +24,7 @@ const Home = () => {
        <HelpCenter/>
        <WhyChoosePorter/>
        <PorterPromo/>
-       <BookingPorterSection/>
+    
       <TestimonialsSection/>
       <NetworkSection/>
       <HouseShiftingFeatures/>
