@@ -19,7 +19,7 @@ export default function OwnVehiclesSection() {
         <h2>MANAGE YOUR FLEET WITH EASE</h2>
         <p>
           Own several vehicles? Managing them efficiently can be overwhelming.<br />
-          Join Porter to simplify fleet tracking and maximize your business potential effortlessly.
+          Join Jioyatri delivery to simplify fleet tracking and maximize your business potential effortlessly.
         </p>
         <button onClick={scrollToTop} className="contact-us-btn">
           REACH OUT TO US
