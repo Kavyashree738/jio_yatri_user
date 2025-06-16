@@ -4,7 +4,7 @@ import '../../styles/WhyChoosePorter.css';
 const WhyChoosePorter = () => {
   return (
     <section className="why-choose-porter">
-      <h2>Why Choose Porter for Pickup & Drop Services?</h2>
+      <h2>Why Choose Jioyatri Delivery for Pickup & Drop Services?</h2>
       <div className="features">
         <div className="feature-card">
           <h3>Comprehensive Local Solutions</h3>
