@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const cors = require('cors');
 const admin = require('firebase-admin'); 
-
+const authRoutes=require('./routes/authRoutes')
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -51,6 +51,8 @@ app.use('/api', partnerRoutes);
 app.use('/api', enterpriseRoutes);
 app.use('/api/shipments', shipmentRoutes);
 app.use('/api/address', addressRoutes); 
+app.use('/api/auth', authRoutes);
+
 // app.use('/api/user', userRoutes);
 
 app.listen(PORT, () => {
