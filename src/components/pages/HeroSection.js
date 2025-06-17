@@ -83,7 +83,7 @@ const HeroSection = () => {
       setIsLoading(true);
       setMessage({ text: '', isError: false });
 
-      const data = await handleApiRequest(`${process.env.REACT_APP_API_URL}/api/auth/send-otp`, {
+      const data = await handleApiRequest(`https://jio-yatri-user.onrender.com/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phoneNumber })
@@ -119,7 +119,7 @@ const HeroSection = () => {
 
     try {
       setIsLoading(true);
-      const data = await handleApiRequest(`${process.env.REACT_APP_API_URL}/api/auth/verify-otp`, {
+      const data = await handleApiRequest(`https://jio-yatri-user.onrender.com/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
