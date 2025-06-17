@@ -176,7 +176,7 @@ const HeroSection = () => {
             <h1>JIO YATRI</h1>
             <h2>Delivery</h2>
           </div>
-          <h2>Door-to-Door Intercity Courier from Bangalore</h2>
+          <h2>Intercity collection and delivery service connecting multiple cities</h2>
           <p>
             Connect with 19,000+ destinations across India through our smooth and affordable courier service.
           </p>
