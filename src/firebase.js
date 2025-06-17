@@ -5,6 +5,7 @@ import {
   signInWithPopup,
   signInWithPhoneNumber,
   RecaptchaVerifier,
+  signInWithCustomToken,
   signOut,  // ✅ you were missing this import!
 } from 'firebase/auth';
 
@@ -26,6 +27,7 @@ export {
   googleProvider,
   signInWithPopup,
   signInWithPhoneNumber,
+  signInWithCustomToken,
   RecaptchaVerifier,
   signOut,
 };
