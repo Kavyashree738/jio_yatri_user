@@ -464,43 +464,51 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .otp-modal {
   background-color: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 12px;
-  width: 90%;
+  width: 100%;
   max-width: 400px;
+  min-width: 280px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   text-align: center;
+  box-sizing: border-box;
 }
 
 .otp-title {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 4vw, 1.5rem);
   margin-bottom: 0.5rem;
   color: #333;
 }
 
 .otp-subtitle {
   color: #666;
-  margin-bottom: 2rem;
-  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
+  line-height: 1.4;
 }
 
 /* OTP Input Boxes */
 .otp-container {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .otp-input {
-  width: 45px;
-  height: 55px;
+  flex: 1;
+  min-width: 40px;
+  max-width: 55px;
+  height: clamp(45px, 10vw, 55px);
   text-align: center;
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 4vw, 1.5rem);
   border: 2px solid #ddd;
   border-radius: 8px;
   outline: none;
@@ -521,9 +529,9 @@
   background-color: #4a90e2;
   color: white;
   border: none;
-  padding: 12px 24px;
+  padding: clamp(10px, 3vw, 12px) clamp(16px, 4vw, 24px);
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 3vw, 1rem);
   font-weight: 500;
   cursor: pointer;
   width: 100%;
@@ -544,9 +552,9 @@
   background: none;
   border: none;
   color: #4a90e2;
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
   cursor: pointer;
-  padding: 8px 16px;
+  padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
   border-radius: 6px;
   transition: all 0.3s;
 }
@@ -567,7 +575,7 @@
   background: none;
   border: none;
   color: #666;
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
   cursor: pointer;
   text-decoration: underline;
 }
@@ -579,8 +587,25 @@
 /* Error Message */
 .otp-error {
   color: #e74c3c;
-  font-size: 0.9rem;
+  font-size: clamp(0.8rem, 3vw, 0.9rem);
   margin-top: -1rem;
   margin-bottom: 1rem;
   min-height: 1.2rem;
+}
+
+/* Responsive adjustments for very small screens */
+@media (max-width: 350px) {
+  .otp-container {
+    gap: 5px;
+  }
+  
+  .otp-input {
+    min-width: 35px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+  
+  .otp-modal {
+    padding: 1rem;
+  }
 }
