@@ -1,15 +1,11 @@
-// src/components/HeroSection.js
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { FcGoogle } from 'react-icons/fc';
 import { FaApple } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
-import {
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-  signInWithPopup,
-} from 'firebase/auth';
+import PhoneInput from 'react-phone-input-2';
+import { signInWithCustomToken, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 import 'react-phone-input-2/lib/style.css';
 import '../../styles/HeroSection.css';
@@ -18,10 +14,11 @@ import { useAuth } from '../../context/AuthContext';
 const HeroSection = () => {
   const controls = useAnimation();
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [confirmationResult, setConfirmationResult] = useState(null);
+  const [isValidPhone, setIsValidPhone] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showOtpComponent, setShowOtpComponent] = useState(false);
   const [otp, setOtp] = useState('');
+  const [otpResendTime, setOtpResendTime] = useState(0);
   const { user, message, setMessage } = useAuth();
 
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
@@ -37,129 +34,128 @@ const HeroSection = () => {
     visible: { opacity: 1, y: 0 },
   };
 
-  const initializeRecaptcha = () => {
-    try {
-      if (!window.recaptchaVerifier) {
-        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          size: 'invisible',
-          callback: () => {
-            console.log('reCAPTCHA verified');
-          },
-          'expired-callback': () => {
-            setMessage({ text: 'Security check expired. Please try again.', isError: true });
-            resetRecaptcha();
-          },
-        });
-      }
-    } catch (error) {
-      console.error('reCAPTCHA initialization failed:', error);
-      setMessage({
-        text: 'Failed to initialize security check. Please refresh the page.',
-        isError: true,
-      });
-    }
+  const validatePhoneNumber = (value) => {
+    // Strict validation for E.164 format
+    const isValid = /^\+[1-9]\d{1,14}$/.test(value);
+    setIsValidPhone(isValid);
+    return isValid;
   };
 
-  const resetRecaptcha = () => {
-    if (window.recaptchaVerifier) {
-      try {
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = null;
-      } catch (error) {
-        console.error('Error resetting reCAPTCHA:', error);
-      }
-    }
-    initializeRecaptcha();
+  const handlePhoneChange = (value, country) => {
+    // Force international format
+    const formattedValue = value.startsWith('+') ? value : `+${value}`;
+    setPhoneNumber(formattedValue);
+    validatePhoneNumber(formattedValue);
   };
 
-  useEffect(() => {
-    initializeRecaptcha();
-    return () => {
-      if (window.recaptchaVerifier) {
-        try {
-          window.recaptchaVerifier.clear();
-          window.recaptchaVerifier = null;
-        } catch (error) {
-          console.error('Error cleaning up reCAPTCHA:', error);
+  const startResendTimer = () => {
+    setOtpResendTime(30);
+    const timer = setInterval(() => {
+      setOtpResendTime((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
         }
-      }
-    };
-  }, []);
-
-  const storeToken = async (user) => {
-    try {
-      const token = await user.getIdToken();
-      localStorage.setItem('token', token);
-      console.log('Token stored successfully');
-    } catch (error) {
-      console.error('Error storing token:', error);
-    }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
-  const verifyOtp = async () => {
-    if (otp.length !== 6) {
-      setMessage({ text: 'Please enter a 6-digit code.', isError: true });
+  const handleApiRequest = async (url, options) => {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Request failed');
+    }
+    return response.json();
+  };
+
+  const sendCode = async () => {
+    if (!validatePhoneNumber(phoneNumber)) {
+      setMessage({
+        text: 'Please enter a valid international phone number (e.g., +91XXXXXXXXXX)',
+        isError: true
+      });
       return;
     }
 
     try {
       setIsLoading(true);
-      setMessage({ text: 'Verifying code...', isError: false });
+      setMessage({ text: '', isError: false });
 
-      const result = await confirmationResult.confirm(otp);
-      await storeToken(result.user);
+      const data = await handleApiRequest(`${process.env.REACT_APP_API_URL}/api/auth/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber })
+      });
 
-      setMessage({ text: 'Verification successful!', isError: false });
-      setShowOtpComponent(false);
-      setPhoneNumber('');
-      setOtp('');
+      console.log(data)
+      console.log(phoneNumber)
+      setMessage({
+        text: `OTP sent to ${phoneNumber}`,
+        isError: false
+      });
+      setShowOtpComponent(true);
+      startResendTimer();
+
+      if (process.env.NODE_ENV === 'development' && data.otp) {
+        console.log(`[DEV] OTP: ${data.otp}`);
+      }
     } catch (error) {
-      setMessage({ text: 'Verification failed: ' + error.message, isError: true });
+      setMessage({
+        text: error.message || 'Failed to send OTP',
+        isError: true
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const sendCode = async () => {
+  const verifyOtp = async () => {
+    if (!otp || otp.length !== 6) {
+      setMessage({ text: 'Please enter a 6-digit code', isError: true });
+      return;
+    }
+
     try {
       setIsLoading(true);
-      setMessage({ text: 'Sending verification code...', isError: false });
+      const data = await handleApiRequest(`${process.env.REACT_APP_API_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phoneNumber,
+          otp
+        })
+      });
 
-      const formattedPhoneNumber = phoneNumber.startsWith('+')
-        ? phoneNumber
-        : `+91${phoneNumber.replace(/\D/g, '')}`;
-
-      if (formattedPhoneNumber.length < 12) {
-        throw new Error('Please enter a valid phone number');
-      }
-
-      if (!window.recaptchaVerifier) {
-        initializeRecaptcha();
-      }
-
-      const confirmation = await signInWithPhoneNumber(auth, formattedPhoneNumber, window.recaptchaVerifier);
-      setConfirmationResult(confirmation);
-
-      setMessage({ text: `Verification code sent to ${formattedPhoneNumber}`, isError: false });
-      setShowOtpComponent(true);
+      const userCredential = await signInWithCustomToken(auth, data.token);
+      setMessage({ text: 'Verification successful!', isError: false });
+      setShowOtpComponent(false);
     } catch (error) {
-      console.error('Error sending code:', error);
-      setMessage({ text: `Failed to send code: ${error.message}`, isError: true });
-      resetRecaptcha();
+      setMessage({
+        text: error.message || 'OTP verification failed',
+        isError: true
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const resendOtp = async () => {
+    if (otpResendTime > 0) return;
+    await sendCode();
   };
 
   const signInWithGoogle = async () => {
     try {
       setIsLoading(true);
       const result = await signInWithPopup(auth, googleProvider);
-      await storeToken(result.user);
       setMessage({ text: 'Google sign-in successful!', isError: false });
     } catch (error) {
-      console.error('Google sign-in error:', error);
-      setMessage({ text: `Google sign-in failed: ${error.message}`, isError: true });
+      setMessage({
+        text: `Google sign-in failed: ${error.message}`,
+        isError: true
+      });
     } finally {
       setIsLoading(false);
     }
@@ -198,20 +194,26 @@ const HeroSection = () => {
               <h3>Register Now</h3>
 
               <div className="phone-input-group">
-                <input
-                  type="tel"
-                  placeholder="Enter phone number"
+                <PhoneInput
+                  country={'in'}
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className={`input ${message.isError ? 'error' : ''}`}
+                  onChange={handlePhoneChange}
+                  placeholder="+91 9876543210"
+                  inputClass={`phone-input ${!isValidPhone && phoneNumber ? 'error' : ''}`}
+                  containerClass="phone-input-container"
                 />
+                {!isValidPhone && phoneNumber && (
+                  <p className="phone-error-message">
+                    Please enter in international format (e.g., +91XXXXXXXXXX)
+                  </p>
+                )}
               </div>
 
               <button
                 onClick={sendCode}
                 type="button"
-                disabled={!phoneNumber || isLoading}
-                className={`button ${(!phoneNumber || isLoading) ? 'disabled' : ''}`}
+                disabled={!isValidPhone || isLoading}
+                className={`button ${(!isValidPhone || isLoading) ? 'disabled' : ''}`}
               >
                 {isLoading ? 'Sending...' : 'Send Verification Code'}
               </button>
@@ -240,8 +242,6 @@ const HeroSection = () => {
             </div>
           )}
 
-          <div id="recaptcha-container" style={{ visibility: 'hidden' }}></div>
-
           {message.text && (
             <div className={`message ${message.isError ? 'error' : 'success'}`}>
               {message.text}
@@ -253,23 +253,73 @@ const HeroSection = () => {
           <div className="otp-overlay">
             <div className="otp-modal">
               <h3 className="otp-title">Enter Verification Code</h3>
-              <input
-                type="text"
-                placeholder="6-digit code"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="otp-input"
-                maxLength={6}
-              />
+              <p className="otp-subtitle">Sent to {phoneNumber}</p>
+
+              {/* 6-digit OTP input boxes */}
+              <div className="otp-container">
+                {[...Array(6)].map((_, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    maxLength="1"
+                    value={otp[index] || ''}
+                    onChange={(e) => {
+                      const newOtp = otp.split('');
+                      newOtp[index] = e.target.value.replace(/\D/g, '');
+                      setOtp(newOtp.join('').slice(0, 6));
+
+                      // Auto focus next input
+                      if (e.target.value && index < 5) {
+                        document.getElementById(`otp-input-${index + 1}`).focus();
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      // Handle backspace to move to previous input
+                      if (e.key === 'Backspace' && !otp[index] && index > 0) {
+                        document.getElementById(`otp-input-${index - 1}`).focus();
+                      }
+                    }}
+                    className={`otp-input ${otp[index] ? 'filled' : ''}`}
+                    id={`otp-input-${index}`}
+                    inputMode="numeric"
+                  />
+                ))}
+              </div>
+
+              {message.isError && (
+                <div className="otp-error">
+                  {message.text}
+                </div>
+              )}
+
               <button
                 onClick={verifyOtp}
-                disabled={isLoading}
-                className={`otp-button ${isLoading ? 'disabled' : ''}`}
+                disabled={isLoading || otp.length !== 6}
+                className={`otp-button ${isLoading || otp.length !== 6 ? 'disabled' : ''}`}
               >
-                {isLoading ? 'Verifying...' : 'Verify Code'}
+                {isLoading ? (
+                  <>
+                    <span className="spinner"></span> Verifying...
+                  </>
+                ) : (
+                  'Verify Code'
+                )}
               </button>
+
               <button
-                onClick={() => setShowOtpComponent(false)}
+                onClick={resendOtp}
+                disabled={otpResendTime > 0}
+                className="resend-button"
+              >
+                {otpResendTime > 0 ? `Resend in ${otpResendTime}s` : 'Resend Code'}
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowOtpComponent(false);
+                  setOtp('');
+                  setMessage({ text: '', isError: false });
+                }}
                 className="cancel-button"
               >
                 Cancel
