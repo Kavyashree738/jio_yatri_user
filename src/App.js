@@ -52,6 +52,7 @@ import ShipmentPage from './components/pages/ShipmentPage';
 import { AuthProvider } from './context/AuthContext';
 import UserShipments from './components/UserShipments'
 import SelectAddressPage from './components/SelectAddressPage';
+import UserProfile from './components/UserProfile'
 function App() {
   return (
     <div className="App">
@@ -68,6 +69,7 @@ function App() {
             <Route path="/shipment" element={<ShipmentPage/>} />
             <Route path="/orders" element={<UserShipments/>}/>
             <Route path="/select-address" element={<SelectAddressPage />} />
+    <Route path="/profile" element={<UserProfile/>} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
