@@ -8,9 +8,9 @@ import '../../styles/components.css';
 import { FaMapMarkerAlt, FaChevronRight } from 'react-icons/fa';
 
 const vehicleTypes = [
-  { type: 'two-wheeler', name: '2 Wheeler', rate: 20, emoji: '🛵', capacity: 'Up to 8kg' },
-  { type: 'three-wheeler', name: '3 Wheeler', rate: 30, emoji: '🛺', capacity: 'Up to 500kg' },
-  { type: 'pickup-8ft', name: 'Pickup 8ft', rate: 40, emoji: '🚚', capacity: 'Up to 1200kg' }
+  { type: 'TwoWheeler', name: '2 Wheeler', rate: 20, emoji: '🛵', capacity: 'Up to 8kg' },
+  { type: 'ThreeWheeler', name: '3 Wheeler', rate: 30, emoji: '🛺', capacity: 'Up to 500kg' },
+  { type: 'Truck', name: 'Truck', rate: 40, emoji: '🚚', capacity: 'Up to 1200kg' }
 ];
 
 function ShipmentPage() {
@@ -113,7 +113,7 @@ function ShipmentPage() {
     setError(null);
 
     try {
-      const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments/calculate-distance', {
+      const response = await axios.post('http://localhost:5000/api/shipments/calculate-distance', {
         origin: sender.address.coordinates,
         destination: receiver.address.coordinates
       });
@@ -188,7 +188,7 @@ function ShipmentPage() {
           cost: shipmentData.cost
         };
         console.log(payload)
-        const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments', payload, {
+        const response = await axios.post('http://localhost:5000/api/shipments', payload, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
