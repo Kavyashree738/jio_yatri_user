@@ -10,7 +10,7 @@ import { auth, googleProvider } from '../../firebase';
 import 'react-phone-input-2/lib/style.css';
 import '../../styles/HeroSection.css';
 import { useAuth } from '../../context/AuthContext';
-
+import delivery from '../../assets/images/delivery-service.png'
 const HeroSection = () => {
   const controls = useAnimation();
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -20,6 +20,9 @@ const HeroSection = () => {
   const [otp, setOtp] = useState('');
   const [otpResendTime, setOtpResendTime] = useState(0);
   const { user, message, setMessage } = useAuth();
+const [showWelcomeMessage, setShowWelcomeMessage] = useState(
+    localStorage.getItem('welcomeMessageShown') !== 'true'
+  );
 
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
 
@@ -29,11 +32,35 @@ const HeroSection = () => {
     }
   }, [isInView, controls]);
 
+
   const variants = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0 },
   };
 
+   useEffect(() => {
+    let timer;
+    
+    if (user) {
+      // Only show welcome message if it hasn't been shown before
+      const shouldShowWelcome = localStorage.getItem('welcomeMessageShown') !== 'true';
+      setShowWelcomeMessage(shouldShowWelcome);
+      
+      if (shouldShowWelcome) {
+        // Set timeout to hide welcome message after 1 minute (60000ms)
+        timer = setTimeout(() => {
+          setShowWelcomeMessage(false);
+          localStorage.setItem('welcomeMessageShown', 'true');
+        }, 1000);
+      }
+    }
+
+    // Cleanup the timer when component unmounts or user changes
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [user]);
+  
   const validatePhoneNumber = (value) => {
     // Strict validation for E.164 format
     const isValid = /^\+[1-9]\d{1,14}$/.test(value);
@@ -83,7 +110,7 @@ const HeroSection = () => {
       setIsLoading(true);
       setMessage({ text: '', isError: false });
 
-      const data = await handleApiRequest(`https://jio-yatri-user.onrender.com/api/auth/send-otp`, {
+      const data = await handleApiRequest(`${process.env.REACT_APP_API_URL}/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phoneNumber })
@@ -119,7 +146,7 @@ const HeroSection = () => {
 
     try {
       setIsLoading(true);
-      const data = await handleApiRequest(`https://jio-yatri-user.onrender.com/api/auth/verify-otp`, {
+      const data = await handleApiRequest(`${process.env.REACT_APP_API_URL}/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -176,7 +203,10 @@ const HeroSection = () => {
             <h1>JIO YATRI</h1>
             <h2>Delivery</h2>
           </div>
-          <h2>Intercity collection and delivery service connecting multiple cities</h2>
+          <h2>Door-to-Door Intercity Courier from Bangalore</h2>
+          <p>
+            Connect with 19,000+ destinations across India through our smooth and affordable courier service.
+          </p>
         </motion.div>
 
         <motion.div
@@ -232,10 +262,18 @@ const HeroSection = () => {
                 </button>
               </div>
             </form>
-          ) : (
+          ) :  showWelcomeMessage ? (
             <div className="welcome-message">
               <h3>Login Successful!</h3>
               <p>You can now access all features.</p>
+            </div>
+          ) : (
+            <div className="post-login-image">
+              <img 
+                src={delivery} 
+                alt="Welcome to our service"
+                className="login-success-img"
+              />
             </div>
           )}
 
