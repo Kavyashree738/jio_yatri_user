@@ -1,8 +1,5 @@
 const axios = require('axios');
 const Shipment = require('../models/Shipment');
-const User = require('../models/userModel');
-const Address = require('../models/Address');
-
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 exports.calculateDistance = async (req, res) => {
@@ -22,7 +19,7 @@ exports.calculateDistance = async (req, res) => {
       'https://maps.googleapis.com/maps/api/directions/json',
       {
         params: {
-          origin: `${origin.lat},${origin.lng}`,
+          origin:` ${origin.lat},${origin.lng}`,
           destination: `${destination.lat},${destination.lng}`,
           key: GOOGLE_MAPS_API_KEY,
           units: 'metric'
@@ -65,27 +62,33 @@ const { v4: uuidv4 } = require('uuid');
 exports.createShipment = async (req, res) => {
   try {
     const { sender, receiver, vehicleType, distance, cost } = req.body;
-    const userId = req.user.uid; 
+    const userId = req.user.uid;
 
     const trackingNumber = uuidv4().split('-')[0].toUpperCase();
 
     const newShipment = new Shipment({
-      senderName: sender.name,
-      senderPhone: sender.phone,
-      senderEmail: sender.email || '',
-      senderAddressLine1: sender.address.addressLine1,
-
-      receiverName: receiver.name,
-      receiverPhone: receiver.phone,
-      receiverEmail: receiver.email || '',
-      receiverAddressLine1: receiver.address.addressLine1,
-
+      sender: {
+        name: sender.name,
+        phone: sender.phone,
+        address: {
+          addressLine1: sender.address.addressLine1,
+          coordinates: sender.address.coordinates
+        }
+      },
+      receiver: {
+        name: receiver.name,
+        phone: receiver.phone,
+        address: {
+          addressLine1: receiver.address.addressLine1,
+          coordinates: receiver.address.coordinates
+        }
+      },
       vehicleType,
       distance,
       cost,
       trackingNumber,
-      userId, 
-      createdAt: new Date()
+      userId,
+      status: 'pending'
     });
 
     const savedShipment = await newShipment.save();
@@ -97,7 +100,11 @@ exports.createShipment = async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating shipment:', error);
-    res.status(500).json({ message: 'Failed to create shipment' });
+    res.status(500).json({ 
+      message: 'Failed to create shipment',
+      error: error.message,
+      details: error.errors
+    });
   }
 };
 
@@ -126,3 +133,5 @@ exports.getOrderStatus = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch order status' });
   }
 };
+
+
