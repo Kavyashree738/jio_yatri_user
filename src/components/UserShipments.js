@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import '../styles/UserShipments.css';
-import Header from './pages/Header'
-import Footer from './pages/Footer'
+import Header from './pages/Header';
+import Footer from './pages/Footer';
+
 const UserShipments = () => {
   const [shipments, setShipments] = useState([]);
   const [error, setError] = useState('');
@@ -25,6 +26,7 @@ const UserShipments = () => {
         }
       );
 
+      console.log(response.data)
       setShipments(response.data);
     } catch (err) {
       if (err.response?.status === 401 && attempt < 2) {
@@ -76,64 +78,62 @@ const UserShipments = () => {
 
   return (
     <>
-    <Header/>
-    <div className="shipments-container">
-      <h2>Your Shipments</h2>
-      
-      {shipments.length === 0 ? (
-        <div className="no-shipments">
-          <p>No shipments found.</p>
-          <a href="/new-shipment">Create your first shipment</a>
-        </div>
-      ) : (
-        <div className="shipments-list">
-          {shipments.map((shipment) => (
-            <div key={shipment._id} className="shipment-card">
-              <div className="shipment-header">
-                <h3>Tracking #: {shipment.trackingNumber}</h3>
-                {/* <span className="status-badge">{shipment.status || 'Processing'}</span> */}
-                <span className="created-date">
-                  {new Date(shipment.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
-              </div>
-              
-              <div className="shipment-details-grid">
-                <div className="sender-details">
-                  <h4>Sender</h4>
-                  <p><strong>Name:</strong> {shipment.senderName}</p>
-                  <p><strong>Phone:</strong> {shipment.senderPhone}</p>
-                  {shipment.senderEmail && <p><strong>Email:</strong> {shipment.senderEmail}</p>}
-                  <p><strong>Address:</strong> {shipment.senderAddressLine1}</p>
+      <Header />
+      <div className="shipments-container">
+        <h2>Your Shipments</h2>
+        
+        {shipments.length === 0 ? (
+          <div className="no-shipments">
+            <p>No shipments found.</p>
+            <a href="/new-shipment">Create your first shipment</a>
+          </div>
+        ) : (
+          <div className="shipments-list">
+            {shipments.map((shipment) => (
+              <div key={shipment._id} className="shipment-card">
+                <div className="shipment-header">
+                  <h3>Tracking #: {shipment.trackingNumber}</h3>
+                  <span className="created-date">
+                    {new Date(shipment.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
                 </div>
                 
-                <div className="receiver-details">
-                  <h4>Receiver</h4>
-                  <p><strong>Name:</strong> {shipment.receiverName}</p>
-                  <p><strong>Phone:</strong> {shipment.receiverPhone}</p>
-                  {shipment.receiverEmail && <p><strong>Email:</strong> {shipment.receiverEmail}</p>}
-                  <p><strong>Address:</strong> {shipment.receiverAddressLine1}</p>
-                </div>
-                
-                <div className="shipment-meta">
-                  <h4>Shipment Details</h4>
-                  <p><strong>Vehicle Type:</strong> {shipment.vehicleType}</p>
-                  <p><strong>Distance:</strong> {shipment.distance} km</p>
-                  <p><strong>Cost:</strong> ₹{shipment.cost?.toFixed(2) || '0.00'}</p>
+                <div className="shipment-details-grid">
+                  <div className="sender-details">
+                    <h4>Sender</h4>
+                    <p><strong>Name:</strong> {shipment.sender.name}</p>
+                    <p><strong>Phone:</strong> {shipment.sender.phone}</p>
+                    {shipment.sender.email && <p><strong>Email:</strong> {shipment.sender.email}</p>}
+                    <p><strong>Address:</strong> {shipment.sender.address?.addressLine1 || 'N/A'}</p>
+                  </div>
+                  
+                  <div className="receiver-details">
+                    <h4>Receiver</h4>
+                    <p><strong>Name:</strong> {shipment.receiver.name}</p>
+                    <p><strong>Phone:</strong> {shipment.receiver.phone}</p>
+                    {shipment.receiver.email && <p><strong>Email:</strong> {shipment.receiver.email}</p>}
+                    <p><strong>Address:</strong> {shipment.receiver.address?.addressLine1 || 'N/A'}</p>
+                  </div>
+                  
+                  <div className="shipment-meta">
+                    <h4>Shipment Details</h4>
+                    <p><strong>Vehicle Type:</strong> {shipment.vehicleType}</p>
+                    <p><strong>Distance:</strong> {shipment.distance} km</p>
+                    <p><strong>Cost:</strong> ₹{shipment.cost?.toFixed(2) || '0.00'}</p>
+                  </div>
                 </div>
               </div>
-              
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-    <Footer/>
+            ))}
+          </div>
+        )}
+      </div>
+      <Footer />
     </>
   );
 };
