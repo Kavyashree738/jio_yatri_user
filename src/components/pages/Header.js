@@ -48,21 +48,20 @@ const Header = () => {
             <Link to="/partners" onClick={handleLinkClick}>Delivery Partners</Link>
             <Link to="/shipment" onClick={handleLinkClick}>Shipment</Link>
             <Link to="/orders" onClick={handleLinkClick}>Orders</Link>
-            {user && (
-              <div className="user-controls">
-                <button 
-                  className="profile-icon" 
-                  onClick={handleProfileClick}
-                  aria-label="User profile"
-                >
-                  <FaUserCircle size={24} />
-                </button>
-                {/* <button onClick={handleLogout} className="logout-button">
-                  Logout
-                </button> */}
-              </div>
-            )}
           </nav>
+
+          {/* User controls moved outside nav-links */}
+          {user && (
+            <div className="user-controls">
+              <button 
+                className="profile-icon" 
+                onClick={handleProfileClick}
+                aria-label="User profile"
+              >
+                <FaUserCircle size={24} />
+              </button>
+            </div>
+          )}
 
           <div
             className="hamburger"
