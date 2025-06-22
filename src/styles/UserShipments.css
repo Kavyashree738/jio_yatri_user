@@ -232,3 +232,55 @@
     gap: 0.5rem;
   }
 }
+
+.tracking-view {
+  margin-top: 20px;
+}
+
+.tracking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.stop-tracking-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.stop-tracking-btn:hover {
+  background-color: #d32f2f;
+}
+
+.shipment-actions {
+  margin-top: 15px;
+  text-align: right;
+}
+
+.track-shipment-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.track-shipment-btn:hover {
+  background-color: #388E3C;
+}
+
+/* Make sure the map container has proper dimensions */
+.location-tracker-container {
+  margin-top: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
