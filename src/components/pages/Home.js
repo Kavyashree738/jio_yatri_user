@@ -11,25 +11,33 @@ import PorterPromo from './PorterPromo';
 import NetworkSection from './NetworkSection';
 import WhyChoosePorter from './WhyChoosePorter';
 import FAQSection from './FAQSection';
-
+import BookingPorterSection from './BookingPorterSection';
 import HelpCenter from './HelpCenter';
 import HouseShiftingFeatures from './HouseShiftingFeatures';
+import UserProfile from '../UserProfile'
+import ShipmentPage from './ShipmentPage';
+import { auth } from '../../firebase';
+import { useAuth } from '../../context/AuthContext';
 const Home = () => {
+  const { user } = useAuth();
   return (
     <div>
       <Header/>
+      
      <HeroSection/> 
+      {user && <ShipmentPage />}
       <WelcomeSection/>
        <ServiceSection/>
        <HelpCenter/>
        <WhyChoosePorter/>
        <PorterPromo/>
-    
+       <BookingPorterSection/>
       <TestimonialsSection/>
       <NetworkSection/>
       <HouseShiftingFeatures/>
       <Contact/>
       <FAQSection/>
+      {/* <UserProfile/> */}
       <Footer/> 
        
     </div>
