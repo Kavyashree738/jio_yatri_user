@@ -113,7 +113,7 @@ function ShipmentPage() {
     setError(null);
 
     try {
-      const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments/calculate-distance', {
+      const response = await axios.post('http://localhost:5000/api/shipments/calculate-distance', {
         origin: sender.address.coordinates,
         destination: receiver.address.coordinates
       });
@@ -188,7 +188,7 @@ function ShipmentPage() {
           cost: shipmentData.cost
         };
         console.log(payload)
-        const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments', payload, {
+        const response = await axios.post('http://localhost:5000/api/shipments', payload, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -236,7 +236,7 @@ function ShipmentPage() {
   if (showSummary) {
     return (
       <div className="page-container">
-        <Header />
+        {/* <Header /> */}
         <div className="content-wrap">
           <div className="summary-container">
             <h2>Order Summary</h2>
@@ -453,7 +453,7 @@ function ShipmentPage() {
           </div>
         </form>
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
