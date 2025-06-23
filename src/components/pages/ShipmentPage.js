@@ -236,7 +236,7 @@ function ShipmentPage() {
   if (showSummary) {
     return (
       <div className="page-container">
-        {/* <Header /> */}
+        <Header />
         <div className="content-wrap">
           <div className="summary-container">
             <h2>Order Summary</h2>
