@@ -5,6 +5,8 @@ const partnerRoutes = require('./routes/partnerRoutes');
 const enterpriseRoutes = require('./routes/enterpriseRoutes');
 const shipmentRoutes = require('./routes/shipmentRoutes');
 const addressRoutes=require('./routes/addressRoutes')
+const paymentRoutes=require('./routes/paymentRoutes')
+const driverRoutes = require('./routes/driverRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const cors = require('cors');
@@ -52,6 +54,8 @@ app.use('/api', enterpriseRoutes);
 app.use('/api/shipments', shipmentRoutes);
 app.use('/api/address', addressRoutes); 
 app.use('/api/auth', authRoutes);
+app.use('/api/payment',paymentRoutes)
+app.use('/api/driver',driverRoutes)
 
 // app.use('/api/user', userRoutes);
 
