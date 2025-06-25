@@ -294,14 +294,14 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
     };
 
 
-    const handleCashPayment = async () => {
+   const handleCashPayment = async () => {
         setLoading(true);
         setError('');
         console.log('Processing cash payment');
 
         try {
             const res = await axios.post(
-                `http://localhost:5000/api/payment/${shipment._id}/cash`,
+                `https://jio-yatri-user.onrender.com/api/payment/${shipment._id}/cash`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
