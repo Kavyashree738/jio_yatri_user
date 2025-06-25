@@ -164,7 +164,7 @@ const UserShipments = () => {
       setLoading(true);
       setError('');
 
-      const response = await axios.get('http://localhost:5000/api/shipments/my-shipments', {
+      const response = await axios.get('https://jio-yatri-user.onrender.com/api/shipments/my-shipments', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
