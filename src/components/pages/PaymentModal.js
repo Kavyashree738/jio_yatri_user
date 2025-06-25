@@ -355,8 +355,4 @@ export default PaymentModal;
 
 
 
-};
-
-export default PaymentModal;
-
 
