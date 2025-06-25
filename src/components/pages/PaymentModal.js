@@ -199,7 +199,7 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
             const {
                 data: { data: order }
             } = await axios.post(
-                `http://localhost:5000/api/payment/${shipment._id}/initiate`,
+                `https://jio-yatri-user.onrender.com/api/payment/${shipment._id}/initiate`,
                 {},
                 {
                     headers: { Authorization: `Bearer ${token}` },
@@ -301,7 +301,7 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
 
         try {
             const res = await axios.post(
-                `http://localhost:5000/api/payment/${shipment._id}/cash`,
+                `https://jio-yatri-user.onrender.com/api/payment/${shipment._id}/cash`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
