@@ -234,7 +234,7 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
                     try {
                         console.log('[8] Verifying payment with backend');
                         const verifyRes = await axios.post(
-                            'http://localhost:5000/api/payment/verify',
+                            'https://jio-yatri-user.onrender.com/api/payment/verify',
                             {
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_order_id: response.razorpay_order_id,
