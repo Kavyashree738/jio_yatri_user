@@ -14,8 +14,6 @@
   margin-bottom: 2rem;
   text-align: center;
   position: relative;
-  margin-top: 25px;
-
 }
 
 .shipments-container h2::after {
@@ -233,6 +231,8 @@
   }
 }
 
+/* Add these styles to your existing UserShipments.css */
+
 .tracking-view {
   margin-top: 20px;
 }
@@ -284,3 +284,190 @@
   border-radius: 8px;
   overflow: hidden;
 }
+
+.payment-status.paid {
+  color: green;
+  font-weight: bold;
+}
+
+.payment-status.pending {
+  color: orange;
+  font-weight: bold;
+}
+
+.payment-status.failed {
+  color: red;
+  font-weight: bold;
+}
+
+.payment-info p {
+  margin: 4px 0;
+}
+/* Payment Modal Overlay */
+.payment-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Payment Modal Content */
+.payment-modal-content {
+  background-color: #fff;
+  padding: 30px 25px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Heading and Shipment Info */
+.payment-modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 22px;
+  color: #333;
+}
+
+.payment-modal-content p {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.payment-amount {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Payment Buttons */
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.payment-option {
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Razorpay (online) button */
+.payment-option.online {
+  background-color: #007bff;
+  color: white;
+}
+
+.payment-option.online:hover {
+  background-color: #0056b3;
+}
+
+/* Cash button */
+.payment-option.cash {
+  background-color: #28a745;
+  color: white;
+}
+
+.payment-option.cash:hover {
+  background-color: #218838;
+}
+
+/* Cancel button */
+.payment-cancel {
+  margin-top: 15px;
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.payment-cancel:hover {
+  background-color: #c82333;
+}
+
+/* Error Message */
+.payment-error {
+  color: #dc3545;
+  font-weight: 500;
+  margin-top: 5px;
+  text-align: center;
+}
+/* Payment Button */
+.pay-now-btn {
+  background-color: #28a745; /* green */
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 10px;
+}
+
+.pay-now-btn:hover {
+  background-color: #218838;
+}
+
+/* Payment Info Section */
+.payment-info {
+  margin-top: 12px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #17a2b8;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Payment Status Colors */
+.payment-status.paid {
+  color: green;
+  font-weight: bold;
+}
+
+.payment-status.pending {
+  color: orange;
+  font-weight: bold;
+}
+
+.payment-status.failed {
+  color: red;
+  font-weight: bold;
+}
+
+.payment-status.refunded {
+  color: #6c757d; /* gray */
+  font-weight: bold;
+}
+
