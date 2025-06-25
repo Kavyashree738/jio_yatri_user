@@ -143,16 +143,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import '../styles/UserShipments.css';
 import Header from './pages/Header';
 import Footer from './pages/Footer';
 import LocationTracker from './LocationTracker';
+import PaymentModal from './pages/PaymentModal';
+import '../styles/UserShipments.css';
 
 const UserShipments = () => {
   const [shipments, setShipments] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [trackingShipment, setTrackingShipment] = useState(null);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedShipment, setSelectedShipment] = useState(null);
+
   const { user, token, refreshToken } = useAuth();
 
   const fetchShipments = async (attempt = 1) => {
@@ -160,14 +164,9 @@ const UserShipments = () => {
       setLoading(true);
       setError('');
 
-      const response = await axios.get(
-        'https://jio-yatri-user.onrender.com/api/shipments/my-shipments',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get('http://localhost:5000/api/shipments/my-shipments', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setShipments(response.data);
     } catch (err) {
@@ -176,13 +175,10 @@ const UserShipments = () => {
         if (freshToken) return fetchShipments(attempt + 1);
       }
 
-      setError(
-        err.response?.data?.message ||
-        'Failed to fetch shipments. Please try again.'
-      );
+      setError(err.response?.data?.message || 'Failed to fetch shipments. Please try again.');
 
       if (err.response?.status === 401) {
-        setTimeout(() => window.location.href = '/login', 2000);
+        setTimeout(() => (window.location.href = '/login'), 2000);
       }
     } finally {
       setLoading(false);
@@ -199,6 +195,11 @@ const UserShipments = () => {
 
   const handleStopTracking = () => {
     setTrackingShipment(null);
+  };
+
+  const openPaymentModal = (shipment) => {
+    setSelectedShipment(shipment);
+    setPaymentModalOpen(true);
   };
 
   if (loading) {
@@ -224,7 +225,7 @@ const UserShipments = () => {
       <Header />
       <div className="shipments-container">
         <h2>Your Shipments</h2>
-        
+
         {trackingShipment ? (
           <div className="tracking-view">
             <div className="tracking-header">
@@ -252,11 +253,11 @@ const UserShipments = () => {
                       month: 'short',
                       day: 'numeric',
                       hour: '2-digit',
-                      minute: '2-digit'
+                      minute: '2-digit',
                     })}
                   </span>
                 </div>
-                
+
                 <div className="shipment-details-grid">
                   <div className="sender-details">
                     <h4>Sender</h4>
@@ -265,7 +266,7 @@ const UserShipments = () => {
                     {shipment.sender.email && <p><strong>Email:</strong> {shipment.sender.email}</p>}
                     <p><strong>Address:</strong> {shipment.sender.address?.addressLine1 || 'N/A'}</p>
                   </div>
-                  
+
                   <div className="receiver-details">
                     <h4>Receiver</h4>
                     <p><strong>Name:</strong> {shipment.receiver.name}</p>
@@ -273,7 +274,7 @@ const UserShipments = () => {
                     {shipment.receiver.email && <p><strong>Email:</strong> {shipment.receiver.email}</p>}
                     <p><strong>Address:</strong> {shipment.receiver.address?.addressLine1 || 'N/A'}</p>
                   </div>
-                  
+
                   <div className="shipment-meta">
                     <h4>Shipment Details</h4>
                     <p><strong>Vehicle Type:</strong> {shipment.vehicleType}</p>
@@ -286,21 +287,54 @@ const UserShipments = () => {
                   </div>
                 </div>
 
-                {shipment.status === 'assigned' && (
-                  <div className="shipment-actions">
-                    <button 
-                      onClick={() => handleTrackShipment(shipment)}
-                      className="track-shipment-btn"
-                    >
+                <div className="shipment-actions">
+                  {shipment.status === 'assigned' && (
+                    <button onClick={() => handleTrackShipment(shipment)} className="track-shipment-btn">
                       Track Shipment
                     </button>
+                  )}
+
+                  {shipment.status === 'delivered' && shipment.payment?.status === 'pending' && (
+                    <button onClick={() => openPaymentModal(shipment)} className="pay-now-btn">
+                      Complete Payment
+                    </button>
+                  )}
+
+                  {/* ✅ Always show payment status */}
+                  <div className="payment-info">
+                    <p>
+                      <strong>Payment Status:</strong>{' '}
+                      <span className={`payment-status ${shipment.payment?.status}`}>
+                        {shipment.payment?.status || 'Not Available'}
+                      </span>
+                    </p>
+
+                    {shipment.payment?.status === 'paid' && (
+                      <>
+                        <p><strong>Method:</strong> {shipment.payment.method}</p>
+                        <p>
+                          <strong>Date:</strong>{' '}
+                          {shipment.payment.collectedAt
+                            ? new Date(shipment.payment.collectedAt).toLocaleDateString()
+                            : 'N/A'}
+                        </p>
+                      </>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {paymentModalOpen && selectedShipment && (
+        <PaymentModal
+          shipment={selectedShipment}
+          onClose={() => setPaymentModalOpen(false)}
+          refreshShipments={fetchShipments}
+        />
+      )}
       <Footer />
     </>
   );
