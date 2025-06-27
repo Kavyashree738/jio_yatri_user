@@ -5,7 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const API_BASE_URL ='http://localhost:5000';
+const API_BASE_URL ='https://jio-yatri-user.onrender.com';
 
 const EtaDisplay = React.memo(({ etaToSender, etaToReceiver, distanceToSender, distanceToReceiver }) => (
   <div className="eta-display">
