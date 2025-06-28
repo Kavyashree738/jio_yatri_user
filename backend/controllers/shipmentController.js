@@ -134,4 +134,16 @@ exports.getOrderStatus = async (req, res) => {
   }
 };
 
+exports.getShipmentById = async (req, res) => {
+  try {
+    const shipment = await Shipment.findById(req.params.id);
+    if (!shipment) {
+      return res.status(404).json({ message: 'Shipment not found' });
+    }
+    res.status(200).json(shipment);
+  } catch (error) {
+    console.error('Error fetching shipment:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 
