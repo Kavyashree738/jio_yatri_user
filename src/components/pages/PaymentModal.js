@@ -188,12 +188,12 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
     const { token } = useAuth();
 
     const handleOnlinePayment = async () => {
-        console.log('[1] Starting online payment process');
+        // console.log('[1] Starting online payment process');
         setLoading(true);
         setError('');
 
         try {
-            console.log('[2] Attempting to create order via API');
+            // console.log('[2] Attempting to create order via API');
 
             // ✅ Extract the actual order object from response.data.data
             const {
@@ -207,11 +207,11 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
                 }
             );
 
-            console.log('[3] Order creation response:', order);
+            // console.log('[3] Order creation response:', order);
 
-            console.log('[4] Loading Razorpay script');
+            // console.log('[4] Loading Razorpay script');
             const scriptLoaded = await loadRazorpay();
-            console.log('[5] Script load result:', scriptLoaded);
+            // console.log('[5] Script load result:', scriptLoaded);
 
             if (!scriptLoaded) {
                 throw new Error('Razorpay SDK failed to load');
@@ -220,7 +220,7 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
             if (!window.Razorpay) {
                 throw new Error('Razorpay not available after script load');
             }
-            console.log('[6] Razorpay SDK verified');
+            // console.log('[6] Razorpay SDK verified');
 
             const options = {
                 key: process.env.REACT_APP_RAZORPAY_KEY_ID,
@@ -230,9 +230,9 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
                 description: `Payment for Shipment #${shipment.trackingNumber}`,
                 order_id: order.id, // ✅ Correctly passed
                 handler: async function (response) {
-                    console.log('[7] Payment success handler triggered:', response);
+                    // console.log('[7] Payment success handler triggered:', response);
                     try {
-                        console.log('[8] Verifying payment with backend');
+                        // console.log('[8] Verifying payment with backend');
                         const verifyRes = await axios.post(
                             'https://jio-yatri-user.onrender.com/api/payment/verify',
                             {
@@ -246,11 +246,11 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
                                 withCredentials: true
                             }
                         );
-                        console.log('[9] Verification response:', verifyRes.data);
+                        // console.log('[9] Verification response:', verifyRes.data);
                         onClose();
                         refreshShipments();
                     } catch (verifyError) {
-                        console.error('[10] Verification error:', verifyError);
+                        // console.error('[10] Verification error:', verifyError);
                         setError('Payment verification failed. Please contact support.');
                         setLoading(false);
                     }
@@ -263,26 +263,26 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
                 theme: { color: '#3399cc' },
                 modal: {
                     ondismiss: () => {
-                        console.log('[11] Razorpay modal dismissed');
+                        // console.log('[11] Razorpay modal dismissed');
                         setLoading(false); // Reset loading if user closes the modal
                     }
                 }
             };
 
-            console.log('[12] Creating Razorpay instance with options:', options);
+            // console.log('[12] Creating Razorpay instance with options:', options);
             const rzp = new window.Razorpay(options);
 
             rzp.on('payment.failed', function (response) {
-                console.error('[13] Payment failed callback:', response.error);
+                // console.error('[13] Payment failed callback:', response.error);
                 setError(`Payment failed: ${response.error.description}`);
                 setLoading(false);
             });
 
-            console.log('[14] Opening Razorpay modal');
+            // console.log('[14] Opening Razorpay modal');
             rzp.open();
 
         } catch (err) {
-            console.error('[15] Main payment error:', err);
+            // console.error('[15] Main payment error:', err);
             console.error('Error details:', {
                 message: err.message,
                 response: err.response,
