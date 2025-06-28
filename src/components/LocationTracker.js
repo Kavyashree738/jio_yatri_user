@@ -1,25 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { debounce } from 'lodash';
 import '../styles/LocationTracker.css';
 import axios from 'axios';
-
-const calculateDistance = (coord1, coord2) => {
-  const [lon1, lat1] = coord1;
-  const [lon2, lat2] = coord2;
-  const R = 6371e3;
-  const φ1 = lat1 * Math.PI / 180;
-  const φ2 = lat2 * Math.PI / 180;
-  const Δφ = (lat2 - lat1) * Math.PI / 180;
-  const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-    Math.cos(φ1) * Math.cos(φ2) *
-    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c;
-};
 
 const EtaDisplay = React.memo(({ etaToSender, etaToReceiver, distanceToSender, distanceToReceiver }) => (
   <div className="eta-display">
@@ -32,15 +14,15 @@ const EtaDisplay = React.memo(({ etaToSender, etaToReceiver, distanceToSender, d
   </div>
 ));
 
-const LocationTracker = ({ shipment }) => {
+const LocationTracker = ({ shipment: initialShipment }) => {
   const { user } = useAuth();
+  const [shipment, setShipment] = useState(initialShipment);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [routeError, setRouteError] = useState(null);
   const [etaToSender, setEtaToSender] = useState('');
   const [distanceToSender, setDistanceToSender] = useState('');
   const [etaToReceiver, setEtaToReceiver] = useState('');
   const [distanceToReceiver, setDistanceToReceiver] = useState('');
-  const [currentShipment, setCurrentShipment] = useState(shipment);
 
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
@@ -51,9 +33,29 @@ const LocationTracker = ({ shipment }) => {
   const directionsServiceRef = useRef(null);
   const googleMapsScriptRef = useRef(null);
 
-  const driverCoords = currentShipment?.driverLocation?.coordinates || [];
-  const senderCoords = currentShipment?.sender?.address?.coordinates || {};
-  const receiverCoords = currentShipment?.receiver?.address?.coordinates || {};
+  const driverCoords = shipment?.driverLocation?.coordinates || [];
+  const senderCoords = shipment?.sender?.address?.coordinates || {};
+  const receiverCoords = shipment?.receiver?.address?.coordinates || {};
+
+  const API_BASE_URL = 'https://jio-yatri-user.onrender.com';
+
+  // POLLING: fetch updated shipment every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (!shipment?._id || !user) return;
+      try {
+        const token = await user.getIdToken();
+        const res = await axios.get(`${API_BASE_URL}/api/shipments/${shipment._id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setShipment(res.data); // Update with new coordinates
+      } catch (err) {
+        console.error("Polling failed:", err);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [shipment?._id, user]);
 
   const initMap = useCallback(() => {
     if (!mapContainerRef.current || !window.google || !window.google.maps) return;
@@ -65,7 +67,7 @@ const LocationTracker = ({ shipment }) => {
     mapRef.current = new window.google.maps.Map(mapContainerRef.current, {
       zoom: 15,
       center,
-      mapTypeId: 'roadmap',
+      mapTypeId: 'roadmap'
     });
 
     directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
@@ -84,19 +86,19 @@ const LocationTracker = ({ shipment }) => {
   }, [driverCoords]);
 
   const updateRoute = useCallback(() => {
-    if (!mapRef.current || !window.google || !currentShipment) return;
+    if (!mapRef.current || !window.google || !shipment) return;
 
     const driverLatLng = {
       lat: driverCoords[1],
-      lng: driverCoords[0],
+      lng: driverCoords[0]
     };
     const senderLatLng = {
       lat: senderCoords.lat,
-      lng: senderCoords.lng,
+      lng: senderCoords.lng
     };
     const receiverLatLng = {
       lat: receiverCoords.lat,
-      lng: receiverCoords.lng,
+      lng: receiverCoords.lng
     };
 
     if (!driverMarkerRef.current) {
@@ -144,7 +146,7 @@ const LocationTracker = ({ shipment }) => {
       },
       (result, status) => {
         if (status === 'OK') {
-          directionsRendererRef.current.setDirections({ routes: [] });
+          directionsRendererRef.current.setDirections({ routes: [] }); // clear previous
           directionsRendererRef.current.setDirections(result);
           setRouteError(null);
 
@@ -160,9 +162,9 @@ const LocationTracker = ({ shipment }) => {
         }
       }
     );
-  }, [currentShipment, driverCoords, senderCoords, receiverCoords]);
+  }, [shipment, driverCoords, senderCoords, receiverCoords]);
 
-  // ✅ Load Google Maps
+  // Load Google Maps script
   useEffect(() => {
     if (!window.google) {
       const script = document.createElement('script');
@@ -171,9 +173,7 @@ const LocationTracker = ({ shipment }) => {
       script.defer = true;
       script.onload = () => {
         initMap();
-        if (driverCoords.length) {
-          updateRoute();
-        }
+        if (driverCoords.length) updateRoute();
       };
       document.body.appendChild(script);
       googleMapsScriptRef.current = script;
@@ -188,51 +188,30 @@ const LocationTracker = ({ shipment }) => {
     }
   }, [initMap]);
 
-  // ✅ Update route when map is ready or location updates
+  // Update route whenever coordinates change
   useEffect(() => {
     if (mapLoaded && driverCoords.length) {
       updateRoute();
     }
   }, [mapLoaded, driverCoords, updateRoute]);
 
-  // ✅ Polling logic to fetch updated driver location
-  useEffect(() => {
-    const fetchUpdatedLocation = async () => {
-      try {
-        const res = await axios.get(`https://jio-yatri-user.onrender.com/api/shipments/${shipment._id}`);
-        setCurrentShipment(res.data);
-      } catch (err) {
-        console.error('Error fetching updated shipment data', err);
-      }
-    };
-
-    const intervalId = setInterval(fetchUpdatedLocation, 5000); // Every 5 seconds
-    return () => clearInterval(intervalId);
-  }, [shipment._id]);
-
   const handleRecenter = () => {
     if (mapRef.current && driverCoords.length) {
       mapRef.current.panTo({
         lat: driverCoords[1],
-        lng: driverCoords[0],
+        lng: driverCoords[0]
       });
     }
   };
 
   if (!shipment) {
-    return (
-      <div className="no-shipment-map">
-        <p>No active shipment selected</p>
-      </div>
-    );
+    return <div className="no-shipment-map"><p>No active shipment selected</p></div>;
   }
 
   return (
     <div className="location-tracker-container">
-      <div ref={mapContainerRef} className="map-container" />
-      <button onClick={handleRecenter} className="recenter-button">
-        📍
-      </button>
+      <div ref={mapContainerRef} className="map-container" style={{ height: '500px', width: '100%' }} />
+      <button onClick={handleRecenter} className="recenter-button">📍</button>
       <EtaDisplay
         etaToSender={etaToSender}
         etaToReceiver={etaToReceiver}
