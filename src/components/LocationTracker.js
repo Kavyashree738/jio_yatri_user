@@ -52,7 +52,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
       } catch (err) {
         console.error("Polling failed:", err);
       }
-    }, 5000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [shipment?._id, user]);
