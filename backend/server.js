@@ -6,6 +6,7 @@ const enterpriseRoutes = require('./routes/enterpriseRoutes');
 const shipmentRoutes = require('./routes/shipmentRoutes');
 const addressRoutes=require('./routes/addressRoutes')
 const paymentRoutes=require('./routes/paymentRoutes')
+const ratingRoutes = require('./routes/ratingRoutes');
 const driverRoutes = require('./routes/driverRoutes');
 const app = express();
 
@@ -57,7 +58,7 @@ app.use('/api/address', addressRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/payment',paymentRoutes)
 app.use('/api/driver',driverRoutes)
-
+app.use('/api/ratings', ratingRoutes);
 // app.use('/api/user', userRoutes);
 
 app.listen(PORT, () => {
