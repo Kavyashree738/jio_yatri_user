@@ -47,14 +47,24 @@ const shipmentSchema = new mongoose.Schema({
   trackingNumber: { type: String, required: true, unique: true },
   status: {
     type: String,
-    enum: ['pending', 'assigned', 'picked_up', 'in_transit', 'delivered', 'cancelled'],
+    enum: ['pending', 'assigned', 'picked_up','delivered', 'cancelled'],
     default: 'pending'
   },
-  assignedDriver: {
-    driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'Driver' },
+  rating: {
+    value: {
+      type: Number,
+      min: 1,
+      max: 5
+    },
+    feedback: String,
+    submittedAt: Date
+  },
+   assignedDriver: {
+    _id: { type: mongoose.Schema.Types.ObjectId, ref: 'Driver' },
+    userId: { type: String },
     name: String,
     phone: String,
-    vehicleNumber: String,
+    vehicleNumber: String
   },
   driverLocation: {
     type: { type: String, default: 'Point' },
