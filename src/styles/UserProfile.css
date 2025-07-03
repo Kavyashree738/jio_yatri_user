@@ -1,372 +1,321 @@
-/* User Profile Container */
-.user-profile {
-  max-width: 420px;
-  margin: 2rem auto;
-  padding: 2.5rem;
-  border-radius: 18px;
-  background: #ffffff;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s ease;
-  border: 1px solid rgba(0, 0, 0, 0.03);
-  margin-top:150px;
+:root {
+  --primary: #6a11cb;
+  --secondary: #2575fc;
+  --text-dark: #2d3748;
+  --text-light: #718096;
+  --bg-light: #f9fafb;
+  --bg-glass: rgba(255, 255, 255, 0.75);
+  --border: #e2e8f0;
 }
 
-.user-profile::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
+/* Container */
+.profile-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(to right, #f3f4f6, #e0e7ff);
+  min-height: calc(100vh - 120px);
+  margin-top:50px;
+}
+
+/* Card */
+.user-profile-card {
   width: 100%;
-  height: 140px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  z-index: 0;
-  border-radius: 18px 18px 0 0;
+  max-width: 650px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: fadeIn 0.6s ease-out;
 }
 
-/* Profile Header Section */
-.profile-header {
-  position: relative;
-  margin-bottom: 2.5rem;
-  z-index: 1;
-  text-align: center;
+/* Header background */
+.profile-background {
+  height: 170px;
+  background: linear-gradient(to right, var(--primary), var(--secondary));
 }
 
-.profile-image-wrapper {
-  position: relative;
+/* Avatar */
+.avatar-container {
   width: 160px;
   height: 160px;
-  margin: 0 auto 1.8rem;
+  margin: -80px auto 1.5rem;
   border-radius: 50%;
   overflow: hidden;
-  border: 5px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 5px solid white;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  position: relative;
+  background-color: #edf2f7;
 }
 
-.profile-image-wrapper:hover {
-  transform: scale(1.03);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-}
-
-.profile-pic {
+.profile-avatar,
+.default-avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
 }
 
-.profile-pic:hover {
-  transform: scale(1.05);
-}
-
-.profile-pic-default {
-  width: 100%;
-  height: 100%;
+.default-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f6f9ff 0%, #eef2f9 100%);
-  color: #5a67d8;
-  font-size: 4rem;
+  font-size: 3rem;
+  color: var(--primary);
+}
+
+/* Upload Button */
+.avatar-upload-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: white;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.avatar-upload-btn:hover {
+  transform: scale(1.1);
+  background: #f0f0f0;
 }
 
 .camera-icon {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #5a67d8;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  font-size: 1.2rem;
+  color: var(--primary);
 }
 
-.camera-icon:hover {
-  background: white;
-  transform: scale(1.1);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+/* Profile Header */
+.profile-header {
+  text-align: center;
+  z-index: 2;
+  margin-bottom: 2rem;
 }
 
 .profile-name {
-  margin: 1.2rem 0 0.6rem;
   font-size: 2rem;
   font-weight: 700;
-  color: #2d3748;
-  letter-spacing: -0.5px;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  color: var(--text-dark);
 }
 
-/* Profile Details Section */
-.profile-details {
+/* Edit Button */
+.edit-profile-btn {
+  background: rgba(106, 17, 203, 0.05);
+  border: 1px solid #d6bcfa;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.edit-profile-btn:hover {
+  background: rgba(106, 17, 203, 0.1);
+}
+
+/* Form */
+.profile-form {
+  padding: 1.5rem;
   background: white;
-  padding: 1.8rem;
-  border-radius: 14px;
-  margin: 2rem 0;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.form-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: var(--text-dark);
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+
+.form-group input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.15);
+  outline: none;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.save-btn,
+.cancel-btn {
+  flex: 1;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-btn {
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(106, 17, 203, 0.3);
+}
+
+.cancel-btn {
+  background: white;
+  color: var(--primary);
+  border: 1px solid var(--border);
+}
+
+.cancel-btn:hover {
+  background: #f3f4f6;
+}
+
+/* Profile Details */
+.profile-details {
+  margin-top: 2rem;
+}
+
+.details-section h6{
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.5rem;
+}
+
+
+.details-grid {
+  display: grid;
+  gap: 1rem;
 }
 
 .detail-item {
   display: flex;
   align-items: center;
-  padding: 1rem 0;
-  border-bottom: 1px solid #f1f5f9;
+  background: var(--bg-light);
+  padding: 1rem;
+  border-radius: 12px;
+  transition: all 0.2s ease;
 }
 
-.detail-item:last-child {
-  border-bottom: none;
+.detail-item:hover {
+  background: #edf2f7;
 }
 
 .detail-icon {
-  margin-right: 14px;
-  color: #667eea;
-  font-size: 1.3rem;
-  min-width: 28px;
+  background: rgba(106, 17, 203, 0.1);
+  width: 42px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  color: var(--primary);
+  margin-right: 1rem;
 }
 
 .detail-label {
-  font-weight: 600;
-  color: #4a5568;
-  margin-right: 10px;
-  min-width: 140px;
+  font-size: 0.85rem;
+  color: var(--text-light);
 }
 
-/* Forms and Buttons */
-.manual-form {
-  background: white;
-  padding: 1.8rem;
-  border-radius: 14px;
-  margin: 2rem 0;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.03);
+.detail-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-dark);
 }
 
-.manual-form h3 {
-  text-align: center;
-  color: #2d3748;
-  margin-bottom: 1.8rem;
-  font-size: 1.4rem;
-  font-weight: 600;
-}
-
-.manual-form input {
+/* Logout Button */
+.logout-btn {
   width: 100%;
-  padding: 14px 18px;
-  margin-bottom: 1.2rem;
-  border: 1px solid #e2e8f0;
+  margin-top: 2rem;
+  background: transparent;
+  color: #e53e3e;
+  border: 1px solid #feb2b2;
+  padding: 0.75rem;
   border-radius: 10px;
   font-size: 1rem;
-  transition: all 0.3s ease;
-  background-color: #f8fafc;
-}
-
-.manual-form input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
-  background-color: white;
-}
-
-/* Button Styles */
-.manual-form button,
-.edit-btn,
-.logout-btn {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-top: 1rem;
-}
-
-.manual-form button {
-  background: linear-gradient(135deg, #6e8efb 0%, #4a6cf7 100%);
-  color: white;
-  box-shadow: 0 6px 15px rgba(74, 108, 247, 0.25);
-}
-
-.manual-form button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(74, 108, 247, 0.35);
-}
-
-.edit-btn {
-  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-  color: white;
-  box-shadow: 0 6px 15px rgba(56, 161, 105, 0.25);
-}
-
-.edit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(56, 161, 105, 0.35);
-}
-
-.logout-btn {
-  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-  color: white;
-  box-shadow: 0 6px 15px rgba(229, 62, 62, 0.25);
-  margin-top: 2rem;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background 0.3s ease;
 }
 
 .logout-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(229, 62, 62, 0.35);
+  background: #fff5f5;
 }
 
-.logout-btn svg {
-  font-size: 1.1rem;
-}
-
-/* Responsive Design */
-@media (max-width: 640px) {
-  .user-profile {
-    margin: 1.5rem;
-    padding: 1.8rem;
-    border-radius: 14px;
-    margin-top:150px;
-  }
-  
-  .profile-image-wrapper {
-    width: 140px;
-    height: 140px;
-  }
-  
-  .profile-name {
-    font-size: 1.8rem;
-  }
-  
-  .detail-label {
-    min-width: 120px;
-    font-size: 0.95rem;
-  }
-  
-  .manual-form,
-  .profile-details {
-    padding: 1.5rem;
-  }
-}
-
-/* Animation for form elements */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.manual-form,
-.profile-details,
-.edit-btn,
-.logout-btn {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-/* Add these media queries at the end of your CSS */
-
-/* Extra Small Devices (360px and below) */
-@media (max-width: 360px) {
+/* Responsive */
+@media (max-width: 768px) {
   .profile-container {
-    padding: 0;
+    padding: 1rem;
   }
 
-  .user-profile {
-    margin: 1rem auto;
-    padding: 1.5rem;
-    width: calc(100% - 2rem);
-    margin-top: 100px; /* Reduced top margin for very small screens */
-  }
-
-  .user-profile::before {
-    height: 120px; /* Reduced gradient height */
-  }
-
-  .profile-image-wrapper {
-    width: 120px;
-    height: 120px;
-    margin-bottom: 1.2rem;
+  .avatar-container {
+    width: 130px;
+    height: 130px;
   }
 
   .profile-name {
-    font-size: 1.6rem;
-    margin: 0.8rem 0 0.4rem;
+    font-size: 1.7rem;
   }
 
-  .profile-details,
-  .manual-form {
-    padding: 1.2rem;
-    margin: 1.5rem 0;
-  }
-
-  .detail-item {
+  .form-actions {
     flex-direction: column;
-    align-items: flex-start;
-    padding: 0.8rem 0;
-  }
-
-  .detail-icon {
-    margin-right: 0;
-    margin-bottom: 8px;
-  }
-
-  .detail-label {
-    min-width: auto;
-    margin-right: 0;
-    margin-bottom: 4px;
-    font-size: 0.9rem;
-  }
-
-  .manual-form input {
-    padding: 12px 14px;
-    font-size: 0.95rem;
-  }
-
-  .manual-form button,
-  .edit-btn,
-  .logout-btn {
-    padding: 12px;
-    font-size: 1rem;
-  }
-
-  .camera-icon {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
-    bottom: 8px;
-    right: 8px;
+    gap: 0.75rem;
   }
 }
 
-/* Very Small Devices (320px and below) */
-@media (max-width: 320px) {
-  .user-profile {
-    padding: 1.2rem;
-    width: calc(100% - 1.5rem);
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-
-  .profile-image-wrapper {
-    width: 100px;
-    height: 100px;
-  }
-
-  .profile-name {
-    font-size: 1.4rem;
-  }
-
-  .manual-form h3 {
-    font-size: 1.2rem;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
