@@ -467,8 +467,7 @@
 const Shipment = require('../models/Shipment');
 const Driver = require('../models/Driver');
 const Razorpay = require('razorpay');
-const crypto = require('crypto');
-const mongoose = require('mongoose');
+const crypto = require('crypto');const mongoose = require('mongoose');
 
 const rzp = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -478,13 +477,13 @@ const rzp = new Razorpay({
 console.log('Razorpay initialized with key:', process.env.RAZORPAY_KEY_ID ? '***REDACTED***' : 'MISSING');
 
 exports.initiatePayment = async (req, res) => {
-  console.log('\n=== INITIATE PAYMENT STARTED ===');
-  console.log('Request params:', req.params);
-  console.log('Request body:', req.body);
+  // console.log('\n=== INITIATE PAYMENT STARTED ===');
+  // console.log('Request params:', req.params);
+  // console.log('Request body:', req.body);
 
   try {
     const shipment = await Shipment.findById(req.params.id);
-    console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
+    // console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
 
     if (!shipment) {
       console.log('Shipment not found');
@@ -494,8 +493,8 @@ exports.initiatePayment = async (req, res) => {
       });
     }
 
-    console.log('Shipment status:', shipment.status);
-    console.log('Payment status:', shipment.payment?.status);
+    // console.log('Shipment status:', shipment.status);
+    // console.log('Payment status:', shipment.payment?.status);
 
     if (shipment.status !== 'delivered') {
       console.log('Shipment not delivered yet');
@@ -557,7 +556,77 @@ exports.initiatePayment = async (req, res) => {
   } finally {
     console.log('=== INITIATE PAYMENT COMPLETED ===\n');
   }
+};exports.initiatePayment = async (req, res) => {
+  try {
+    const shipment = await Shipment.findById(req.params.id);
+    console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
+
+    if (!shipment) {
+      console.log('Shipment not found');
+      return res.status(404).json({
+        success: false,
+        error: 'Shipment not found'
+      });
+    }
+
+    // ✅ Allow both pending and delivered shipments
+    console.log('Shipment status:', shipment.status); // can be 'pending', 'in-transit', 'delivered', etc.
+
+    // ✅ Prevent duplicate payment
+    if (shipment.payment?.status !== 'pending') {
+      console.log('Payment already processed');
+      return res.status(400).json({
+        success: false,
+        error: 'Payment already processed'
+      });
+    }
+
+    const orderAmount = Math.round(shipment.cost * 100);
+    console.log('Creating order for amount:', orderAmount);
+
+    const order = await rzp.orders.create({
+      amount: orderAmount,
+      currency: 'INR',
+      receipt: `shipment_${shipment.trackingNumber}`,
+      payment_capture: 1 // Auto-capture payment
+    });
+
+    console.log('Razorpay order created:', order.id);
+
+    shipment.payment = {
+      method: 'razorpay',
+      status: 'pending',
+      razorpayOrderId: order.id
+    };
+
+    await shipment.save();
+    console.log('Shipment updated with payment details');
+
+    res.json({
+      success: true,
+      data: order
+    });
+
+  } catch (err) {
+    console.error('\n!!! PAYMENT INITIATION ERROR !!!');
+    console.error('Error:', err.message);
+    console.error('Stack:', err.stack);
+    console.error('Request details:', {
+      params: req.params,
+      body: req.body,
+      timestamp: new Date()
+    });
+
+    res.status(500).json({
+      success: false,
+      error: 'Payment initiation failed',
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  } finally {
+    console.log('=== INITIATE PAYMENT COMPLETED ===\n');
+  }
 };
+
 
 exports.verifyPayment = async (req, res) => {
   console.log('\n=== VERIFY PAYMENT STARTED ===');
