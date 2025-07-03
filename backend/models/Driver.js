@@ -59,6 +59,39 @@ const driverSchema = new mongoose.Schema({
   vehicleType: { type: String, enum: ['TwoWheeler', 'ThreeWheeler', 'Truck'], required: true },
   vehicleNumber: { type: String, required: true },
   status: { type: String, enum: ['active', 'inactive'], default: 'inactive' },
+  ratings: {
+    average: { 
+      type: Number, 
+      default: 0,
+      min: 0,
+      max: 5
+    },
+    count: { 
+      type: Number, 
+      default: 0 
+    },
+    details: [{
+      shipmentId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Shipment' 
+      },
+      rating: { 
+        type: Number, 
+        required: true,
+        min: 1,
+        max: 5
+      },
+      feedback: String,
+      userId: {
+        type: String,
+        required: true
+      },
+      createdAt: { 
+        type: Date, 
+        default: Date.now 
+      }
+    }]
+  },
   location: {
     type: { type: String, enum: ['Point'], default: 'Point' },
     coordinates: { type: [Number], default: [0, 0] }
@@ -70,6 +103,7 @@ const driverSchema = new mongoose.Schema({
     cash: { type: Number, default: 0 },
     online: { type: Number, default: 0 }
   },
+
   collectedPayments: [{
     shipment: { type: mongoose.Schema.Types.ObjectId, ref: 'Shipment' },
     amount: Number,
