@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 const useGoogleMaps = () => {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(null);
-  const apiKeyRef = useRef(process.env.REACT_APP_GOOGLE_MAPS_API_KEY);
+  const apiKeyRef = useRef(process.env.REACT_APP_GOOGLE_API_KEY);
 
   useEffect(() => {
     // Check if already loaded
