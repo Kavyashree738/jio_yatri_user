@@ -1,29 +1,86 @@
-/* src/styles/UserShipments.css */
 
-.shipments-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin-top:100px;
+:root {
+  --primary: #1d11cb;
+  --secondary: #2575fc;
+  --success: #00b09b;
+  --danger: #ff5e62;
+  --warning: #ff9966;
+  --info: #4776E6;
+  --light: #f5f7fa;
+  --dark: #2c3e50;
+  --text: #34495e;
+  --white: #ffffff;
+  --gray: #e0e0e0;
 }
 
-.shipments-container h2 {
-  color: #2c3e50;
-  font-size: 2rem;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f9f9f9;
+  color: var(--text);
+}
+
+/* Container Styles */
+.shipments-container {
+  max-width: 1200px;
+  margin: 100px auto 40px;
+  padding: 2rem;
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.shipments-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.shipments-container h4 {
+  color: var(--dark);
+  font-size: 1.5rem;
   margin-bottom: 2rem;
   text-align: center;
   position: relative;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+  margin-top:30px;
 }
 
-.shipments-container h2::after {
+.shipments-container h4::after {
   content: '';
   display: block;
-  width: 80px;
-  height: 4px;
-  background: linear-gradient(to right, #3498db, #9b59b6);
-  margin: 0.5rem auto 0;
-  border-radius: 2px;
+  width: 100px;
+  height: 5px;
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  margin: 0.8rem auto 0;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(106, 17, 203, 0.2);
+  animation: expandLine 1s ease-out;
+}
+
+@keyframes expandLine {
+  from { width: 0; opacity: 0; }
+  to { width: 100px; opacity: 1; }
 }
 
 /* Loading State */
@@ -33,16 +90,27 @@
   align-items: center;
   justify-content: center;
   min-height: 300px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 15px;
+  padding: 2rem;
+  animation: pulseBackground 2s infinite;
+}
+
+@keyframes pulseBackground {
+  0% { background-color: rgba(255,255,255,0.9); }
+  50% { background-color: rgba(245, 247, 250, 0.9); }
+  100% { background-color: rgba(255,255,255,0.9); }
 }
 
 .loader {
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #3498db;
+  border: 5px solid rgba(106, 17, 203, 0.1);
+  border-top: 5px solid var(--primary);
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0 20px rgba(106, 17, 203, 0.2);
 }
 
 @keyframes spin {
@@ -50,106 +118,273 @@
   100% { transform: rotate(360deg); }
 }
 
+.shipments-loading p {
+  font-size: 1.2rem;
+  color: var(--dark);
+  animation: fadePulse 2s infinite;
+}
+
+@keyframes fadePulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
 /* Error State */
 .shipments-error {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: 1.5rem;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #ff758c, #ff7eb3);
+  color: white;
+  padding: 2rem;
+  border-radius: 15px;
   text-align: center;
   max-width: 600px;
   margin: 2rem auto;
-  border: 1px solid #f5c6cb;
+  box-shadow: 0 10px 20px rgba(255, 117, 140, 0.3);
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.shipments-error p {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
 }
 
 .shipments-error button {
-  background-color: #dc3545;
-  color: white;
+  background: var(--white);
+  color: #ff758c;
   border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  margin-top: 1rem;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-weight: 600;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .shipments-error button:hover {
-  background-color: #c82333;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
 /* No Shipments */
 .no-shipments {
   text-align: center;
   padding: 3rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  color: var(--dark);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.no-shipments p {
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
 }
 
 .no-shipments a {
   display: inline-block;
   margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(to right, #3498db, #9b59b6);
+  padding: 0.85rem 2rem;
+  background: linear-gradient(to right, var(--primary), var(--secondary));
   color: white;
   text-decoration: none;
-  border-radius: 4px;
-  font-weight: 500;
+  border-radius: 50px;
+  font-weight: 600;
   transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(37, 117, 252, 0.3);
 }
 
 .no-shipments a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(37, 117, 252, 0.4);
+  background: linear-gradient(to right, var(--secondary), var(--primary));
+}
+
+/* Search Container */
+.search-container {
+  display: flex;
+  margin: 1.5rem auto 2.5rem;
+  max-width: 600px;
+  position: relative;
+  background: var(--white);
+  border-radius: 50px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  border: 2px solid var(--gray);
+}
+
+.search-container:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 5px 25px rgba(106, 17, 203, 0.2);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.9rem 1.8rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  outline: none;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+  color: #aaa;
+}
+
+.search-button {
+  position: absolute;
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--primary);
+  font-size: 1.2rem;
+  padding: 0 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.search-button:hover {
+  color: var(--secondary);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.clear-search-button {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #aaa;
+  font-size: 1rem;
+  padding: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.clear-search-button:hover {
+  color: var(--danger);
+  transform: translateY(-50%) scale(1.2);
 }
 
 /* Shipments List */
 .shipments-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  gap: 2rem;
+  margin-top: 1rem;
 }
 
 .shipment-card {
-  background: white;
-  border-radius: 10px;
+  background: var(--white);
+  border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
-  border: 1px solid #e0e0e0;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  animation: cardEntrance 0.6s ease-out;
+  animation-fill-mode: backwards;
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.shipment-card:nth-child(1) { animation-delay: 0.1s; }
+.shipment-card:nth-child(2) { animation-delay: 0.2s; }
+.shipment-card:nth-child(3) { animation-delay: 0.3s; }
+.shipment-card:nth-child(4) { animation-delay: 0.4s; }
+.shipment-card:nth-child(5) { animation-delay: 0.5s; }
+
+.shipment-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--primary), var(--secondary));
+  transition: all 0.4s ease;
 }
 
 .shipment-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+.shipment-card:hover::before {
+  width: 8px;
+  background: linear-gradient(to bottom, var(--secondary), var(--primary));
 }
 
 .shipment-header {
-  padding: 1.25rem;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  border-bottom: 1px solid #e0e0e0;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f5f7fa, #e4e8f0);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: all 0.3s ease;
+}
+
+.shipment-card:hover .shipment-header {
+  background: linear-gradient(135deg, #e4e8f0, #f5f7fa);
 }
 
 .shipment-header h3 {
   margin: 0;
-  color: #2c3e50;
-  font-size: 1.1rem;
-  font-weight: 600;
+  color: var(--dark);
+  font-size: 1.2rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.shipment-card:hover .shipment-header h3 {
+  color: var(--primary);
 }
 
 .created-date {
   font-size: 0.85rem;
   color: #7f8c8d;
   font-weight: 500;
+  background: rgba(255,255,255,0.7);
+  padding: 0.3rem 0.8rem;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.shipment-card:hover .created-date {
+  background: rgba(106, 17, 203, 0.1);
+  color: var(--primary);
 }
 
 /* Shipment Details Grid */
 .shipment-details-grid {
-  padding: 1.25rem;
+  padding: 1.5rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
@@ -164,47 +399,212 @@
 .sender-details h4,
 .receiver-details h4,
 .shipment-meta h4 {
-  color: #3498db;
+  color: var(--primary);
   margin-top: 0;
-  margin-bottom: 0.75rem;
-  font-size: 1rem;
-  border-bottom: 1px dashed #e0e0e0;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  border-bottom: 2px dashed rgba(37, 117, 252, 0.2);
   padding-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .shipment-meta {
   grid-column: span 2;
-  padding-top: 0.5rem;
-  border-top: 1px dashed #e0e0e0;
+  padding-top: 1rem;
+  border-top: 2px dashed rgba(37, 117, 252, 0.2);
 }
 
 .shipment-details-grid p {
-  margin: 0.35rem 0;
-  font-size: 0.9rem;
-  color: #34495e;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  color: var(--text);
+  line-height: 1.5;
 }
 
 .shipment-details-grid strong {
-  color: #2c3e50;
+  color: var(--dark);
   font-weight: 600;
 }
 
-/* Status Badge (uncomment if using) */
-/*
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  background-color: #e3f2fd;
-  color: #1976d2;
+/* Tracking View */
+.tracking-view {
+  margin-top: 2rem;
+  background: var(--white);
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  animation: slideUp 0.5s ease-out;
 }
-*/
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tracking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.tracking-header h3 {
+  color: var(--dark);
+  font-size: 1.5rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.stop-tracking-btn {
+  background: linear-gradient(to right, #ff416c, #ff4b2b);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(255, 75, 43, 0.3);
+}
+
+.stop-tracking-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 75, 43, 0.4);
+  background: linear-gradient(to right, #ff4b2b, #ff416c);
+}
+
+/* Shipment Actions */
+.shipment-actions {
+  margin-top: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: rgba(245, 247, 250, 0.7);
+  border-radius: 0 0 15px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.track-shipment-btn {
+  background: linear-gradient(to right, var(--success), #96c93d);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 176, 155, 0.3);
+}
+
+.track-shipment-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 176, 155, 0.4);
+  background: linear-gradient(to right, #96c93d, var(--success));
+}
+
+.pay-now-btn {
+  background: linear-gradient(to right, var(--info), #8E54E9);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(71, 118, 230, 0.3);
+}
+
+.pay-now-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(71, 118, 230, 0.4);
+  background: linear-gradient(to right, #8E54E9, var(--info));
+}
+
+.cancel-btn {
+  background: linear-gradient(to right, var(--danger), var(--warning));
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(255, 94, 98, 0.3);
+}
+
+.cancel-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 94, 98, 0.4);
+  background: linear-gradient(to right, var(--warning), var(--danger));
+}
+
+/* Payment Info */
+.payment-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  border-left: 4px solid var(--info);
+  font-size: 0.9rem;
+  color: #333;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.shipment-card:hover .payment-info {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.payment-status {
+  padding: 0.2rem 0.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+}
+
+.payment-status.paid {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+}
+
+.payment-status.pending {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.payment-status.failed {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+/* Highlight matching text */
+.highlight {
+  background-color: #fffacd;
+  font-weight: bold;
+  padding: 0 2px;
+  border-radius: 3px;
+  animation: highlightPulse 1.5s infinite;
+}
+
+@keyframes highlightPulse {
+  0%, 100% { background-color: #fffacd; }
+  50% { background-color: #ffeb99; }
+}
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
+  .shipments-container {
+    padding: 1.5rem;
+    margin-top: 80px;
+    border-radius: 0;
+  }
+  
   .shipments-list {
     grid-template-columns: 1fr;
   }
@@ -217,6 +617,16 @@
   .shipment-meta {
     grid-column: span 1;
   }
+  
+  .tracking-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .stop-tracking-btn {
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -228,246 +638,424 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .shipment-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-container {
+    margin: 1rem auto 1.5rem;
+  }
+  
+  .search-input {
+    padding: 0.75rem 1rem;
+  }
+  
+  .search-button {
+    right: 50px;
   }
 }
 
-/* Add these styles to your existing UserShipments.css */
-
-.tracking-view {
-  margin-top: 20px;
+/* Color Variations for Shipment Cards */
+.shipment-card:nth-child(6n+1)::before {
+  background: linear-gradient(to bottom, var(--primary), var(--secondary));
 }
 
-.tracking-header {
+.shipment-card:nth-child(6n+2)::before {
+  background: linear-gradient(to bottom, var(--success), #96c93d);
+}
+
+.shipment-card:nth-child(6n+3)::before {
+  background: linear-gradient(to bottom, var(--info), #8E54E9);
+}
+
+.shipment-card:nth-child(6n+4)::before {
+  background: linear-gradient(to bottom, #ff416c, #ff4b2b);
+}
+
+.shipment-card:nth-child(6n+5)::before {
+  background: linear-gradient(to bottom, #ff9966, #ff5e62);
+}
+
+.shipment-card:nth-child(6n+6)::before {
+  background: linear-gradient(to bottom, #00d2ff, #3a7bd5);
+}
+
+/* Toast Notifications */
+.Toastify__toast {
+  font-family: 'Poppins', sans-serif;
+  border-radius: 8px !important;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15) !important;
+}
+
+.Toastify__toast--success {
+  background: linear-gradient(to right, var(--success), #96c93d) !important;
+}
+
+.Toastify__toast--error {
+  background: linear-gradient(to right, var(--danger), var(--warning)) !important;
+}
+
+/* Footer Adjustments */
+footer {
+  margin-top: 3rem;
+  background: var(--dark);
+  color: var(--white);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+/* Remove existing loader styles and replace with these */
+
+.shipments-loading {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 15px;
-}
-
-.stop-tracking-btn {
-  background-color: #f44336;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.stop-tracking-btn:hover {
-  background-color: #d32f2f;
-}
-
-.shipment-actions {
-  margin-top: 15px;
-  text-align: right;
-}
-
-.track-shipment-btn {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.track-shipment-btn:hover {
-  background-color: #388E3C;
-}
-
-/* Make sure the map container has proper dimensions */
-.location-tracker-container {
-  margin-top: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  justify-content: center;
+  min-height: 300px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 2rem;
+  position: relative;
   overflow: hidden;
 }
 
-.payment-status.paid {
-  color: green;
-  font-weight: bold;
+/* Modern Fluid Loading Animation */
+.loader {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  margin-bottom: 1.5rem;
 }
 
-.payment-status.pending {
-  color: orange;
-  font-weight: bold;
+.loader-circle {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 8px solid transparent;
+  mix-blend-mode: overlay;
+  animation: rotate 2s linear infinite;
 }
 
-.payment-status.failed {
-  color: red;
-  font-weight: bold;
+.loader-circle:nth-child(1) {
+  border-top-color: var(--primary);
+  border-bottom-color: var(--primary);
+  animation-delay: 0.1s;
 }
 
-.payment-info p {
-  margin: 4px 0;
+.loader-circle:nth-child(2) {
+  border-left-color: var(--secondary);
+  border-right-color: var(--secondary);
+  animation-delay: 0.2s;
 }
-/* Payment Modal Overlay */
-.payment-modal {
+
+.loader-circle:nth-child(3) {
+  border-top-color: var(--success);
+  border-right-color: var(--success);
+  animation-delay: 0.3s;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.8);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* Loading Text with Typing Animation */
+.loading-text {
+  font-size: 1.2rem;
+  color: var(--dark);
+  font-weight: 500;
+  position: relative;
+  margin-top: 1rem;
+}
+
+.loading-text::after {
+  content: '...';
+  position: absolute;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+/* Optional: Subtle Background Animation */
+.shipments-loading::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    transparent 0deg,
+    rgba(106, 17, 203, 0.05) 60deg,
+    transparent 120deg,
+    rgba(37, 117, 252, 0.05) 180deg,
+    transparent 240deg,
+    rgba(0, 176, 155, 0.05) 300deg,
+    transparent 360deg
+  );
+  animation: rotateBg 8s linear infinite;
+  z-index: -1;
+}
+
+@keyframes rotateBg {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Rating Modal Styles */
+.rating-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 9999;
+  align-items: center;
+  z-index: 1000;
 }
 
-/* Payment Modal Content */
-.payment-modal-content {
-  background-color: #fff;
-  padding: 30px 25px;
-  border-radius: 10px;
+.rating-modal {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
   width: 90%;
-  max-width: 450px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  animation: slideIn 0.3s ease-out;
+  max-width: 500px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Heading and Shipment Info */
-.payment-modal-content h3 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-size: 22px;
-  color: #333;
-}
-
-.payment-modal-content p {
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.payment-amount {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-/* Payment Buttons */
-.payment-options {
+.rating-stars {
+  margin: 1.5rem 0;
+  font-size: 2rem;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 15px;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.payment-option {
-  padding: 10px 20px;
-  font-size: 15px;
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
+.star-filled {
+  color: #FFD700;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
-/* Razorpay (online) button */
-.payment-option.online {
-  background-color: #007bff;
-  color: white;
+.star-empty {
+  color: #ccc;
+  cursor: pointer;
 }
 
-.payment-option.online:hover {
-  background-color: #0056b3;
+.rating-feedback {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 1rem;
 }
 
-/* Cash button */
-.payment-option.cash {
-  background-color: #28a745;
-  color: white;
+.rating-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
 }
 
-.payment-option.cash:hover {
-  background-color: #218838;
+.cancel-rating {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-/* Cancel button */
-.payment-cancel {
-  margin-top: 15px;
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: #dc3545;
+.submit-rating {
+  background-color: #4CAF50;
   color: white;
   border: none;
-  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
-.payment-cancel:hover {
-  background-color: #c82333;
+/* Shipment Rating Section */
+.shipment-rating-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
 }
 
-/* Error Message */
-.payment-error {
-  color: #dc3545;
-  font-weight: 500;
-  margin-top: 5px;
-  text-align: center;
-}
-/* Payment Button */
-.pay-now-btn {
-  background-color: #28a745; /* green */
+.rate-driver-btn {
+  background-color: #2196F3;
   color: white;
-  padding: 10px 18px;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-top: 10px;
+  font-size: 0.9rem;
 }
 
-.pay-now-btn:hover {
-  background-color: #218838;
+.rating-submitted {
+  color: #4CAF50;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-/* Payment Info Section */
-.payment-info {
-  margin-top: 12px;
-  padding: 10px;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  border-left: 4px solid #17a2b8;
-  font-size: 14px;
-  color: #333;
+.rating-feedback-text {
+  margin-top: 0.5rem;
+  font-style: italic;
+  color: #666;
+  font-weight: normal;
 }
 
-/* Payment Status Colors */
-.payment-status.paid {
-  color: green;
+/* Rating Modal Styles */
+.rating-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.rating-modal {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.rating-stars {
+  margin: 1.5rem 0;
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.star-filled {
+  color: #FFD700;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.star-empty {
+  color: #ccc;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.star-filled:hover, .star-empty:hover {
+  transform: scale(1.2);
+}
+
+.rating-feedback {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.rating-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.cancel-rating {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-rating:hover {
+  background-color: #e0e0e0;
+}
+
+.submit-rating {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submit-rating:hover {
+  background-color: #3e8e41;
+}
+
+/* Shipment Rating Section */
+.shipment-rating-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.rate-driver-btn {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.rate-driver-btn:hover {
+  background-color: #0b7dda;
+}
+
+.rating-submitted {
+  color: #4CAF50;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rating-feedback-text {
+  margin-top: 0.5rem;
+  font-style: italic;
+  color: #666;
+  font-weight: normal;
+  background-color: #f9f9f9;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+/* Highlight for search results */
+.highlight {
+  background-color: yellow;
   font-weight: bold;
 }
-
-.payment-status.pending {
-  color: orange;
-  font-weight: bold;
-}
-
-.payment-status.failed {
-  color: red;
-  font-weight: bold;
-}
-
-.payment-status.refunded {
-  color: #6c757d; /* gray */
-  font-weight: bold;
-}
-
