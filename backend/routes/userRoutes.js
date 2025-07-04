@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createOrGetUser } = require('../controllers/userController');
-const verifyFirebaseToken = require('../middleware/auth'); // import default export
+const verifyFirebaseToken = require('../middleware/verifyFirebaseToken');
 
 router.post('/', verifyFirebaseToken, createOrGetUser);
 
