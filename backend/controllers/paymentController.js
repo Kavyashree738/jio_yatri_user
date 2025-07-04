@@ -512,7 +512,6 @@ exports.initiatePayment = async (req, res) => {
       });
     }
 
-    const orderAmount = shipment.cost * 100;
     const orderAmount = Math.round(shipment.cost * 100);
     console.log('Creating order for amount:', orderAmount);
 
