@@ -37,7 +37,8 @@ app.use(cors({
   },
   credentials: true // if you're using cookies/auth
 }));
-app.options('*', cors());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
