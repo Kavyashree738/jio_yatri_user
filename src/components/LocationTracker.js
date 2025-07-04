@@ -265,7 +265,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 const receiverCoords = shipment?.receiver?.address?.coordinates || [];
 
 
-  const API_BASE_URL ='http://localhost:5000';
+  const API_BASE_URL ='https://jio-yatri-user.onrender.com';
 
   // ⏱️ POLLING
   useEffect(() => {
