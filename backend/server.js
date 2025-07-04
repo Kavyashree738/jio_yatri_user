@@ -21,19 +21,29 @@ admin.initializeApp({
 });
 
 // Updated CORS configuration (replace your existing one)
+const allowedOrigins = [
+  'https://jioyatri.com',
+  'https://www.jioyatri.com',
+  'http://localhost:3000'
+];
+
 const corsOptions = {
-  origin: ['https://jioyatri.com', 'https://www.jioyatri.com', 'http://localhost:3000'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Ensure OPTIONS is included
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
-
-// Explicitly handle OPTIONS requests for all routes
-app.options('*', cors(corsOptions));
-
+app.options('*', cors(corsOptions)); // Preflight support
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
