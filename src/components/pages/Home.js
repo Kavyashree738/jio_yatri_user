@@ -24,7 +24,7 @@ const Home = () => {
       <Header/>
       
      <HeroSection/> 
-      {user && <ShipmentPage />}
+      // {user && <ShipmentPage />}
       <WelcomeSection/>
        <ServiceSection/>
        <HelpCenter/>
