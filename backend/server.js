@@ -23,20 +23,25 @@ admin.initializeApp({
 const allowedOrigins = [
   'http://localhost:3000',
   'https://jioyatri.com'
-
-
 ];
 
-app.use(cors({
-  origin: function(origin, callback) {
+const corsOptions = {
+  origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true // if you're using cookies/auth
-}));
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
