@@ -27,7 +27,7 @@ const allowedOrigins = [
 
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function(origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -35,10 +35,14 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true // if you're using cookies/auth
-}));
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
+
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
