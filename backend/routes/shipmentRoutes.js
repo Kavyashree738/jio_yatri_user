@@ -17,7 +17,7 @@ router.post('/', verifyFirebaseToken, shipmentController.createShipment);
 
 router.get('/my-shipments', verifyFirebaseToken, shipmentController.getUserShipments);
 
-router.get('/:id', verifyFirebaseToken, shipmentController.getShipmentById);
+router.get('/shipment/:id', verifyFirebaseToken, shipmentController.getShipmentById);
 router.get('/:orderId/status', verifyFirebaseToken, shipmentController.getOrderStatus);
 
 
