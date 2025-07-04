@@ -27,21 +27,21 @@ const allowedOrigins = [
 
 ];
 
-// app.use(cors({
-//   origin: function(origin, callback) {
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   credentials: true // if you're using cookies/auth
-// }));
-
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true // if you're using cookies/auth
 }));
+
+// app.use(cors({
+//   origin: allowedOrigins,
+//   credentials: true
+// }));
 app.options('*', cors());
 
 
