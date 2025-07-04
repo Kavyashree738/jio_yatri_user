@@ -46,7 +46,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-app.options('*', cors(corsOptions)); // ✅ Handle preflight
+app.options('/*', cors(corsOptions)); // ✅ Handle preflight
 
 // ✅ Log all incoming requests
 app.use((req, res, next) => {
