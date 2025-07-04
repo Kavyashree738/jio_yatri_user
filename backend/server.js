@@ -56,17 +56,63 @@ mongoose.connect(process.env.MONGO_URI, {
 
 
 // Use it in your routes
-
 app.use(express.json());
-app.use('/api', partnerRoutes);
-app.use('/api', enterpriseRoutes);
-app.use('/api/shipments', shipmentRoutes);
-app.use('/api/address', addressRoutes); 
-app.use('/api/auth', authRoutes);
-app.use('/api/payment',paymentRoutes)
-app.use('/api/driver',driverRoutes)
-app.use('/api/ratings', ratingRoutes);
-// app.use('/api/user', userRoutes);
+
+try {
+  console.log("Registering /api partner routes");
+  app.use('/api', partnerRoutes);
+} catch (e) {
+  console.error("Error in partnerRoutes:", e);
+}
+
+try {
+  console.log("Registering /api enterprise routes");
+  app.use('/api', enterpriseRoutes);
+} catch (e) {
+  console.error("Error in enterpriseRoutes:", e);
+}
+
+try {
+  console.log("Registering /api/shipments routes");
+  app.use('/api/shipments', shipmentRoutes);
+} catch (e) {
+  console.error("Error in shipmentRoutes:", e);
+}
+
+try {
+  console.log("Registering /api/address routes");
+  app.use('/api/address', addressRoutes);
+} catch (e) {
+  console.error("Error in addressRoutes:", e);
+}
+
+try {
+  console.log("Registering /api/auth routes");
+  app.use('/api/auth', authRoutes);
+} catch (e) {
+  console.error("Error in authRoutes:", e);
+}
+
+try {
+  console.log("Registering /api/payment routes");
+  app.use('/api/payment', paymentRoutes);
+} catch (e) {
+  console.error("Error in paymentRoutes:", e);
+}
+
+try {
+  console.log("Registering /api/driver routes");
+  app.use('/api/driver', driverRoutes);
+} catch (e) {
+  console.error("Error in driverRoutes:", e);
+}
+
+try {
+  console.log("Registering /api/ratings routes");
+  app.use('/api/ratings', ratingRoutes);
+} catch (e) {
+  console.error("Error in ratingRoutes:", e);
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
