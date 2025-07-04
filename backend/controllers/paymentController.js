@@ -509,7 +509,7 @@ exports.initiatePayment = async (req, res) => {
     // 3. Validate shipment cost
     console.log('\n[3/7] Validating shipment cost...');
     console.log('Current cost:', shipment.cost);
-    if (!shipment.cost || isNaN(shipment.cost) {
+    if (!shipment.cost || isNaN(shipment.cost)) {
       console.log('❌ Cost is not a number');
       return res.status(400).json({ 
         success: false,
