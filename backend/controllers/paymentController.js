@@ -476,246 +476,161 @@ const rzp = new Razorpay({
 
 console.log('Razorpay initialized with key:', process.env.RAZORPAY_KEY_ID ? '***REDACTED***' : 'MISSING');
 
-// exports.initiatePayment = async (req, res) => {
-//   console.log('\n=== INITIATE PAYMENT STARTED ===');
-//   console.log('Request params:', req.params);
-//   console.log('Request body:', req.body);
-
-//   try {
-//     const shipment = await Shipment.findById(req.params.id);
-//     console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
-
-//     if (!shipment) {
-//       console.log('Shipment not found');
-//       return res.status(404).json({
-//         success: false,
-//         error: 'Shipment not found'
-//       });
-//     }
-
-//     console.log('Shipment status:', shipment.status);
-//     console.log('Payment status:', shipment.payment?.status);
-
-//     if (shipment.status !== 'delivered') {
-//       console.log('Shipment not delivered yet');
-//       return res.status(400).json({
-//         success: false,
-//         error: 'Shipment must be delivered before payment'
-//       });
-//     }
-
-//     if (shipment.payment?.status !== 'pending') {
-//       console.log('Payment already processed');
-//       return res.status(400).json({
-//         success: false,
-//         error: 'Payment already processed'
-//       });
-//     }
-
-//     const orderAmount = Math.round(shipment.cost * 100);
-//     console.log('Creating order for amount:', orderAmount);
-
-//     const order = await rzp.orders.create({
-//       amount: orderAmount,
-//       currency: 'INR',
-//       receipt: `shipment_${shipment.trackingNumber}`,
-//       payment_capture: 1 // Auto-capture payment
-//     });
-
-//     console.log('Razorpay order created:', order.id);
-
-//     shipment.payment = {
-//       method: 'razorpay',
-//       status: 'pending',
-//       razorpayOrderId: order.id
-//     };
-
-//     await shipment.save();
-//     console.log('Shipment updated with payment details');
-
-//     res.json({
-//       success: true,
-//       data: order
-//     });
-
-//   } catch (err) {
-//     console.error('\n!!! PAYMENT INITIATION ERROR !!!');
-//     console.error('Error:', err.message);
-//     console.error('Stack:', err.stack);
-//     console.error('Request details:', {
-//       params: req.params,
-//       body: req.body,
-//       timestamp: new Date()
-//     });
-
-//     res.status(500).json({
-//       success: false,
-//       error: 'Payment initiation failed',
-//       details: process.env.NODE_ENV === 'development' ? err.message : undefined
-//     });
-//   } finally {
-//     console.log('=== INITIATE PAYMENT COMPLETED ===\n');
-//   }
-// };
-// exports.initiatePayment = async (req, res) => {
-//   try {
-//     const shipment = await Shipment.findById(req.params.id);
-//     console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
-
-//     if (!shipment) {
-//       console.log('Shipment not found');
-//       return res.status(404).json({
-//         success: false,
-//         error: 'Shipment not found'
-//       });
-//     }
-
-//     // ✅ Allow both pending and delivered shipments
-//     console.log('Shipment status:', shipment.status); // can be 'pending', 'in-transit', 'delivered', etc.
-
-//     // ✅ Prevent duplicate payment
-//     if (shipment.payment?.status !== 'pending') {
-//       console.log('Payment already processed');
-//       return res.status(400).json({
-//         success: false,
-//         error: 'Payment already processed'
-//       });
-//     }
-
-//     const orderAmount = Math.round(shipment.cost * 100);
-//     console.log('Creating order for amount:', orderAmount);
-
-//     const order = await rzp.orders.create({
-//       amount: orderAmount,
-//       currency: 'INR',
-//       receipt: `shipment_${shipment.trackingNumber}`,
-//       payment_capture: 1 // Auto-capture payment
-//     });
-
-//     console.log('Razorpay order created:', order.id);
-
-//     shipment.payment = {
-//       method: 'razorpay',
-//       status: 'pending',
-//       razorpayOrderId: order.id
-//     };
-
-//     await shipment.save();
-//     console.log('Shipment updated with payment details');
-
-//     res.json({
-//       success: true,
-//       data: order
-//     });
-
-//   } catch (err) {
-//     console.error('\n!!! PAYMENT INITIATION ERROR !!!');
-//     console.error('Error:', err.message);
-//     console.error('Stack:', err.stack);
-//     console.error('Request details:', {
-//       params: req.params,
-//       body: req.body,
-//       timestamp: new Date()
-//     });
-
-//     res.status(500).json({
-//       success: false,
-//       error: 'Payment initiation failed',
-//       details: process.env.NODE_ENV === 'development' ? err.message : undefined
-//     });
-//   } finally {
-//     console.log('=== INITIATE PAYMENT COMPLETED ===\n');
-//   }
-// };
 exports.initiatePayment = async (req, res) => {
+  console.log('\n=== INITIATE PAYMENT STARTED ===');
+  console.log('Request params:', req.params);
+  console.log('Request body:', req.body);
+
   try {
-    const shipment = await Shipment.findById(req.params.id);
-    console.log('📦 Found shipment:', shipment ? shipment._id : 'NOT FOUND');
+    // 1. Validate environment variables
+    console.log('\n[1/7] Checking Razorpay credentials...');
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      const error = new Error('Razorpay credentials not configured');
+      console.error('❌ Environment variables missing:');
+      console.error('- RAZORPAY_KEY_ID:', process.env.RAZORPAY_KEY_ID ? '***REDACTED***' : 'MISSING');
+      console.error('- RAZORPAY_KEY_SECRET:', process.env.RAZORPAY_KEY_SECRET ? '***REDACTED***' : 'MISSING');
+      throw error;
+    }
+    console.log('✅ Razorpay credentials verified');
+
+    // 2. Find shipment
+    console.log('\n[2/7] Looking up shipment:', req.params.id);
+    const shipment = await Shipment.findById(req.params.id).lean();
+    console.log('Shipment found:', shipment ? shipment._id : 'NOT FOUND');
 
     if (!shipment) {
-      return res.status(404).json({
+      console.log('❌ Shipment not found');
+      return res.status(404).json({ 
         success: false,
-        error: 'Shipment not found'
+        error: 'Shipment not found' 
       });
     }
 
-    // ✅ Validate shipment.cost
-    if (!shipment.cost || isNaN(shipment.cost) || shipment.cost <= 0) {
-      console.log('❌ Invalid shipment cost:', shipment.cost);
-      return res.status(400).json({
+    // 3. Validate shipment cost
+    console.log('\n[3/7] Validating shipment cost...');
+    console.log('Current cost:', shipment.cost);
+    if (!shipment.cost || isNaN(shipment.cost) {
+      console.log('❌ Cost is not a number');
+      return res.status(400).json({ 
         success: false,
-        error: 'Invalid shipment cost'
+        error: 'Shipment cost must be a number' 
       });
     }
-
-    // ✅ Validate tracking number
-    if (!shipment.trackingNumber) {
-      console.log('❌ Missing tracking number');
-      return res.status(400).json({
+    if (shipment.cost <= 0) {
+      console.log('❌ Invalid cost amount (must be > 0)');
+      return res.status(400).json({ 
         success: false,
-        error: 'Missing shipment tracking number'
+        error: 'Invalid shipment cost' 
       });
     }
+    console.log('✅ Cost validation passed');
 
-    // ✅ Check payment status
-    if (shipment.payment?.status !== 'pending') {
-      console.log('ℹ️ Payment already processed');
-      return res.status(400).json({
-        success: false,
-        error: 'Payment already processed'
-      });
-    }
-
+    // 4. Prepare order options
+    console.log('\n[4/7] Preparing order options...');
     const orderAmount = Math.round(shipment.cost * 100);
-    console.log('💰 Creating Razorpay order for amount (paise):', orderAmount);
-
-    // ✅ Create Razorpay order
-    const order = await rzp.orders.create({
+    const receiptId = shipment.trackingNumber || `temp_${Date.now()}`;
+    
+    const orderOptions = {
       amount: orderAmount,
       currency: 'INR',
-      receipt: `shipment_${shipment.trackingNumber}`,
-      payment_capture: 1
-    });
-
-    console.log('✅ Razorpay order created:', order.id);
-
-    // ✅ Update shipment with payment order
-    shipment.payment = {
-      method: 'razorpay',
-      status: 'pending',
-      razorpayOrderId: order.id
+      receipt: `shipment_${receiptId}`,
+      payment_capture: 1,
+      notes: {
+        shipmentId: shipment._id.toString(),
+        internalReference: 'your-custom-reference' // Add your own reference here
+      }
     };
-
-    await shipment.save();
-    console.log('📦 Shipment updated with payment details');
-
-    // ✅ Respond with order info
-    res.json({
-      success: true,
-      data: order
+    console.log('Order options:', {
+      ...orderOptions,
+      notes: orderOptions.notes // Log notes separately for clarity
     });
 
-  } catch (err) {
-    console.error('\n🚨 PAYMENT INITIATION ERROR 🚨');
-
-    // ✅ Log Razorpay-specific error if available
-    if (err.error) {
-      console.error('🔴 Razorpay error details:', err.error);
+    // 5. Create Razorpay order
+    console.log('\n[5/7] Creating Razorpay order...');
+    let order;
+    try {
+      order = await rzp.orders.create(orderOptions);
+      console.log('✅ Order created successfully:', {
+        id: order.id,
+        amount: order.amount,
+        status: order.status
+      });
+    } catch (rzpError) {
+      console.error('❌ Razorpay order creation failed:');
+      console.error('- Error:', rzpError.error ? rzpError.error : rzpError);
+      console.error('- Status Code:', rzpError.statusCode);
+      console.error('- Description:', rzpError.description);
+      throw new Error(`Razorpay order creation failed: ${rzpError.error?.description || rzpError.message}`);
     }
 
-    console.error('Message:', err.message);
-    console.error('Stack:', err.stack);
+    // 6. Update shipment record
+    console.log('\n[6/7] Updating shipment record...');
+    const updateResult = await Shipment.updateOne(
+      { _id: shipment._id },
+      { 
+        $set: { 
+          'payment.razorpayOrderId': order.id,
+          'payment.status': 'pending',
+          'payment.amount': shipment.cost,
+          'payment.currency': 'INR',
+          'payment.initiatedAt': new Date()
+        } 
+      }
+    );
+    console.log('Update result:', {
+      matchedCount: updateResult.matchedCount,
+      modifiedCount: updateResult.modifiedCount
+    });
 
-    res.status(500).json({
+    if (updateResult.matchedCount === 0) {
+      console.log('❌ Shipment update failed - no document matched');
+      throw new Error('Failed to update shipment record');
+    }
+
+    // 7. Return success response
+    console.log('\n[7/7] Returning success response');
+    const response = {
+      success: true,
+      order: {
+        id: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        receipt: order.receipt
+      },
+      key: process.env.RAZORPAY_KEY_ID,
+      shipmentId: shipment._id
+    };
+    console.log('Response payload:', response);
+
+    return res.json(response);
+
+  } catch (error) {
+    console.error('\n!!! PAYMENT INITIATION ERROR !!!');
+    console.error('Error:', error.message);
+    
+    if (error.error) {
+      console.error('Razorpay Error Details:', {
+        code: error.error.code,
+        description: error.error.description,
+        field: error.error.field
+      });
+    }
+    
+    console.error('Stack Trace:', error.stack);
+    console.error('Error occurred at:', new Date().toISOString());
+
+    return res.status(500).json({ 
       success: false,
       error: 'Payment initiation failed',
-      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+      details: process.env.NODE_ENV === 'development' ? {
+        message: error.message,
+        ...(error.error && { razorpayError: error.error })
+      } : undefined
     });
   } finally {
-    console.log('=== INITIATE PAYMENT COMPLETED ===\n');
+    console.log('\n=== INITIATE PAYMENT COMPLETED ===');
   }
 };
-
 
 exports.verifyPayment = async (req, res) => {
   console.log('\n=== VERIFY PAYMENT STARTED ===');
