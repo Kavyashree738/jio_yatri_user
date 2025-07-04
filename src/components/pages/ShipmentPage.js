@@ -25,7 +25,7 @@
 //   const navigate = useNavigate();
 //   const location = useLocation();
 
-//   // Initialize state with location state if available
+
 //   const [shipmentData, setShipmentData] = useState(() => {
 //     const locationState = location.state?.shipmentData;
 //     return locationState || {
@@ -72,6 +72,68 @@
 //     }
 //   }, [location.state, navigate, location.pathname]);
 
+//   useEffect(() => {
+//   if (success) {
+//     // Confetti effect
+//     const canvas = document.getElementById('confetti-canvas');
+//     if (canvas) {
+//       canvas.width = window.innerWidth;
+//       canvas.height = window.innerHeight;
+
+//       const ctx = canvas.getContext('2d');
+//       const pieces = [];
+//       const numberOfPieces = 150;
+
+//       // Confetti colors
+//       const colors = ['#10b981', '#34d399', '#a7f3d0', '#6a11cb', '#2575fc', '#f59e0b', '#f97316'];
+
+//       // Create confetti pieces
+//       for (let i = 0; i < numberOfPieces; i++) {
+//         pieces.push({
+//           x: Math.random() * canvas.width,
+//           y: Math.random() * canvas.height - canvas.height,
+//           rotation: Math.random() * 360,
+//           size: Math.random() * 10 + 5,
+//           color: colors[Math.floor(Math.random() * colors.length)],
+//           speed: Math.random() * 3 + 2,
+//           oscillation: Math.random() * 10,
+//           angle: Math.random() * 360
+//         });
+//       }
+
+//       // Animation loop
+//       function update() {
+//         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+//         pieces.forEach(p => {
+//           ctx.save();
+//           ctx.translate(p.x, p.y);
+//           ctx.rotate(p.rotation * Math.PI / 180);
+
+//           ctx.fillStyle = p.color;
+//           ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+
+//           ctx.restore();
+
+//           p.y += p.speed;
+//           p.rotation += p.speed / 5;
+//           p.x += Math.sin(p.angle * Math.PI / 180) * p.oscillation;
+//           p.angle += 1;
+
+//           if (p.y > canvas.height) {
+//             p.y = -10;
+//             p.x = Math.random() * canvas.width;
+//           }
+//         });
+
+//         requestAnimationFrame(update);
+//       }
+
+//       update();
+//     }
+//   }
+// }, [success]);
+
 //   const handleInputChange = (e, type) => {
 //     const { name, value } = e.target;
 //     setShipmentData(prev => ({
@@ -113,7 +175,7 @@
 //     setError(null);
 
 //     try {
-//       const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments/calculate-distance', {
+//       const response = await axios.post('http://localhost:5000/api/shipments/calculate-distance', {
 //         origin: sender.address.coordinates,
 //         destination: receiver.address.coordinates
 //       });
@@ -188,7 +250,7 @@
 //           cost: shipmentData.cost
 //         };
 //         console.log(payload)
-//         const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments', payload, {
+//         const response = await axios.post('http://localhost:5000/api/shipments', payload, {
 //           headers: {
 //             'Authorization': `Bearer ${token}`,
 //             'Content-Type': 'application/json'
@@ -213,26 +275,71 @@
 //   const handleBack = () => {
 //     setShowSummary(false);
 //   };
+// if (success) {
+//   return (
+//     <div className="confirmation-page">
+//       <Header />
+//       <div className="content-wrap">
+//         <div className="confirmation-container">
+//           {/* Animated Checkmark */}
+//           <div className="success-icon">
+//             <div className="checkmark-circle">
+//               <svg className="checkmark-icon" viewBox="0 0 52 52">
+//                 <circle className="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none"/>
+//                 <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+//               </svg>
 
-//   if (success) {
-//     return (
-//       <div className="page-container">
-//         <Header />
-//         <div className="content-wrap">
-//           <div className="summary">
-//             <h2>Order Confirmed!</h2>
-//             <p>Your shipment has been successfully created.</p>
-//             <div className="confirmation-details">
-//               <p>Tracking Number: {trackingNumber}</p>
-//               <p>Estimated Cost: ₹{shipmentData.cost.toFixed(2)}</p>
+//               {/* Sparkles */}
+//               <div className="sparkle sparkle-1"></div>
+//               <div className="sparkle sparkle-2"></div>
+//               <div className="sparkle sparkle-3"></div>
+//               <div className="sparkle sparkle-4"></div>
 //             </div>
 //           </div>
-//         </div>
-//         <Footer />
-//       </div>
-//     );
-//   }
 
+//           <h1 className="success-title">Order Confirmed!</h1>
+//           <p className="success-subtitle">Your shipment has been successfully created and is being processed</p>
+
+//           {/* Confetti Canvas (will be populated by JS) */}
+//           <canvas id="confetti-canvas" className="confetti-canvas"></canvas>
+
+//            <div className="order-id">
+//               <span>Tracking Number: {trackingNumber}</span>
+//             </div>
+
+//           {/* Price Summary */}
+//           <div className="total-summary">
+//             <div className="total-label">Total Amount</div>
+//             <div className="total-amount">₹{shipmentData.cost.toFixed(2)}</div>
+//           </div>
+
+//           {/* Action Buttons */}
+//           <div className="action-buttons">
+//             {/* <button 
+//               className="btn-primary"
+//               onClick={() => navigate('/track', { state: { trackingNumber } })}
+//             >
+//               Track Shipment
+//             </button> */}
+//             <button 
+//               className="btn-secondary"
+//               onClick={() => navigate('/')}
+//             >
+//               Back to Home
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Floating Decorations */}
+//       <div className="decoration decoration-1"></div>
+//       <div className="decoration decoration-2"></div>
+//       <div className="decoration decoration-3"></div>
+
+//       <Footer />
+//     </div>
+//   );
+// }
 //   if (showSummary) {
 //     return (
 //       <div className="page-container">
@@ -459,6 +566,9 @@
 // }
 
 // export default ShipmentPage;
+
+
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -637,7 +747,7 @@ function ShipmentPage() {
     setError(null);
 
     try {
-      const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments/calculate-distance', {
+      const response = await axios.post('https://jio-yatri-driver.onrender.com/api/shipments/calculate-distance', {
         origin: sender.address.coordinates,
         destination: receiver.address.coordinates
       });
@@ -684,7 +794,7 @@ function ShipmentPage() {
       const token = await user.getIdToken();
 
       const orderResponse = await axios.post(
-        `https://jio-yatri-user.onrender.com/api/payment/${shipmentId}/initiate`,
+        `https://jio-yatri-driver.onrender.com/api/payment/${shipmentId}/initiate`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -713,7 +823,7 @@ function ShipmentPage() {
         handler: async function (response) {
           try {
             await axios.post(
-              'https://jio-yatri-user.onrender.com/api/payment/verify',
+              'https://jio-yatri-driver.onrender.com/api/payment/verify',
               {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
@@ -809,7 +919,7 @@ function ShipmentPage() {
         paymentMethod: shipmentData.paymentMethod
       };
 
-      const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments', payload, {
+      const response = await axios.post('https://jio-yatri-driver.onrender.com/api/shipments', payload, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
