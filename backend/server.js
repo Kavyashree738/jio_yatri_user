@@ -20,29 +20,31 @@ admin.initializeApp({
   projectId: 'authentication-e6bd0' // Add your project ID here
 });
 
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://jioyatri.com'
+// const allowedOrigins = [
+//   'http://localhost:3000',
+//   'https://jioyatri.com'
 
 
-];
-
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true // if you're using cookies/auth
-}));
+// ];
 
 // app.use(cors({
-//   origin: allowedOrigins,
-//   credentials: true
+//   origin: function(origin, callback) {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true // if you're using cookies/auth
 // }));
-// app.options('*', cors());
+
+const corsOptions = {
+  origin: ['https://jioyatri.com'], // ✅ Allow your frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true // Optional, only if you use cookies or tokens
+};
+
+app.use(cors(corsOptions));
 
 
 mongoose.connect(process.env.MONGO_URI, {
