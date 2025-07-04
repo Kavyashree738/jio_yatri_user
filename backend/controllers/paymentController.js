@@ -557,25 +557,109 @@ console.log('Razorpay initialized with key:', process.env.RAZORPAY_KEY_ID ? '***
 //     console.log('=== INITIATE PAYMENT COMPLETED ===\n');
 //   }
 // };
+// exports.initiatePayment = async (req, res) => {
+//   try {
+//     const shipment = await Shipment.findById(req.params.id);
+//     console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
+
+//     if (!shipment) {
+//       console.log('Shipment not found');
+//       return res.status(404).json({
+//         success: false,
+//         error: 'Shipment not found'
+//       });
+//     }
+
+//     // ✅ Allow both pending and delivered shipments
+//     console.log('Shipment status:', shipment.status); // can be 'pending', 'in-transit', 'delivered', etc.
+
+//     // ✅ Prevent duplicate payment
+//     if (shipment.payment?.status !== 'pending') {
+//       console.log('Payment already processed');
+//       return res.status(400).json({
+//         success: false,
+//         error: 'Payment already processed'
+//       });
+//     }
+
+//     const orderAmount = Math.round(shipment.cost * 100);
+//     console.log('Creating order for amount:', orderAmount);
+
+//     const order = await rzp.orders.create({
+//       amount: orderAmount,
+//       currency: 'INR',
+//       receipt: `shipment_${shipment.trackingNumber}`,
+//       payment_capture: 1 // Auto-capture payment
+//     });
+
+//     console.log('Razorpay order created:', order.id);
+
+//     shipment.payment = {
+//       method: 'razorpay',
+//       status: 'pending',
+//       razorpayOrderId: order.id
+//     };
+
+//     await shipment.save();
+//     console.log('Shipment updated with payment details');
+
+//     res.json({
+//       success: true,
+//       data: order
+//     });
+
+//   } catch (err) {
+//     console.error('\n!!! PAYMENT INITIATION ERROR !!!');
+//     console.error('Error:', err.message);
+//     console.error('Stack:', err.stack);
+//     console.error('Request details:', {
+//       params: req.params,
+//       body: req.body,
+//       timestamp: new Date()
+//     });
+
+//     res.status(500).json({
+//       success: false,
+//       error: 'Payment initiation failed',
+//       details: process.env.NODE_ENV === 'development' ? err.message : undefined
+//     });
+//   } finally {
+//     console.log('=== INITIATE PAYMENT COMPLETED ===\n');
+//   }
+// };
 exports.initiatePayment = async (req, res) => {
   try {
     const shipment = await Shipment.findById(req.params.id);
-    console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
+    console.log('📦 Found shipment:', shipment ? shipment._id : 'NOT FOUND');
 
     if (!shipment) {
-      console.log('Shipment not found');
       return res.status(404).json({
         success: false,
         error: 'Shipment not found'
       });
     }
 
-    // ✅ Allow both pending and delivered shipments
-    console.log('Shipment status:', shipment.status); // can be 'pending', 'in-transit', 'delivered', etc.
+    // ✅ Validate shipment.cost
+    if (!shipment.cost || isNaN(shipment.cost) || shipment.cost <= 0) {
+      console.log('❌ Invalid shipment cost:', shipment.cost);
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid shipment cost'
+      });
+    }
 
-    // ✅ Prevent duplicate payment
+    // ✅ Validate tracking number
+    if (!shipment.trackingNumber) {
+      console.log('❌ Missing tracking number');
+      return res.status(400).json({
+        success: false,
+        error: 'Missing shipment tracking number'
+      });
+    }
+
+    // ✅ Check payment status
     if (shipment.payment?.status !== 'pending') {
-      console.log('Payment already processed');
+      console.log('ℹ️ Payment already processed');
       return res.status(400).json({
         success: false,
         error: 'Payment already processed'
@@ -583,17 +667,19 @@ exports.initiatePayment = async (req, res) => {
     }
 
     const orderAmount = Math.round(shipment.cost * 100);
-    console.log('Creating order for amount:', orderAmount);
+    console.log('💰 Creating Razorpay order for amount (paise):', orderAmount);
 
+    // ✅ Create Razorpay order
     const order = await rzp.orders.create({
       amount: orderAmount,
       currency: 'INR',
       receipt: `shipment_${shipment.trackingNumber}`,
-      payment_capture: 1 // Auto-capture payment
+      payment_capture: 1
     });
 
-    console.log('Razorpay order created:', order.id);
+    console.log('✅ Razorpay order created:', order.id);
 
+    // ✅ Update shipment with payment order
     shipment.payment = {
       method: 'razorpay',
       status: 'pending',
@@ -601,22 +687,24 @@ exports.initiatePayment = async (req, res) => {
     };
 
     await shipment.save();
-    console.log('Shipment updated with payment details');
+    console.log('📦 Shipment updated with payment details');
 
+    // ✅ Respond with order info
     res.json({
       success: true,
       data: order
     });
 
   } catch (err) {
-    console.error('\n!!! PAYMENT INITIATION ERROR !!!');
-    console.error('Error:', err.message);
+    console.error('\n🚨 PAYMENT INITIATION ERROR 🚨');
+
+    // ✅ Log Razorpay-specific error if available
+    if (err.error) {
+      console.error('🔴 Razorpay error details:', err.error);
+    }
+
+    console.error('Message:', err.message);
     console.error('Stack:', err.stack);
-    console.error('Request details:', {
-      params: req.params,
-      body: req.body,
-      timestamp: new Date()
-    });
 
     res.status(500).json({
       success: false,
