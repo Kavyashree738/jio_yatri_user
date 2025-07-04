@@ -45,7 +45,7 @@ admin.initializeApp({
 // };
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = ['https://jioyatri.com', 'http://localhost:3000'];
+    const allowedOrigins = ['https://jioyatri.com', 'http://localhost:3000','http://jioyatri.com'];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
