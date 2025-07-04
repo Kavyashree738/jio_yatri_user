@@ -17,8 +17,8 @@ router.post('/', verifyFirebaseToken, shipmentController.createShipment);
 
 router.get('/my-shipments', verifyFirebaseToken, shipmentController.getUserShipments);
 
-// Reorder these two ↓↓↓
-router.get('/:orderId/status', verifyFirebaseToken, shipmentController.getOrderStatus);
 router.get('/:id', verifyFirebaseToken, shipmentController.getShipmentById);
+router.get('/:orderId/status', verifyFirebaseToken, shipmentController.getOrderStatus);
+
 
 module.exports = router;
