@@ -684,7 +684,7 @@ function ShipmentPage() {
       const token = await user.getIdToken();
 
       const orderResponse = await axios.post(
-        `http://localhost:5000/api/payment/${shipmentId}/initiate`,
+        `https://jio-yatri-user.onrender.com/api/payment/${shipmentId}/initiate`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
