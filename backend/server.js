@@ -42,6 +42,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Handle preflight CORS
+
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
