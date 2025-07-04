@@ -496,11 +496,12 @@ exports.initiatePayment = async (req, res) => {
     console.log('Shipment status:', shipment.status);
     console.log('Payment status:', shipment.payment?.status);
 
-    if (shipment.status !== 'delivered') {
-      console.log('Shipment not delivered yet');
+    // Updated condition: Allow payment if status is 'pending' OR 'delivered'
+    if (shipment.status !== 'pending' && shipment.status !== 'delivered') {
+      console.log('Shipment not in a payable state (must be pending or delivered)');
       return res.status(400).json({
         success: false,
-        error: 'Shipment must be delivered before payment'
+        error: 'Payment can only be initiated when shipment is pending or delivered'
       });
     }
 
