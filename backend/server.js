@@ -38,10 +38,23 @@ admin.initializeApp({
 //   credentials: true // if you're using cookies/auth
 // }));
 
+// const corsOptions = {
+//   origin: ['https://jioyatri.com'], // ✅ Allow your frontend origin
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   credentials: true // Optional, only if you use cookies or tokens
+// };
 const corsOptions = {
-  origin: ['https://jioyatri.com'], // ✅ Allow your frontend origin
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true // Optional, only if you use cookies or tokens
+  origin: function (origin, callback) {
+    const allowedOrigins = ['https://jioyatri.com', 'http://localhost:3000'];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
