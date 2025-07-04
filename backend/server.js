@@ -35,8 +35,11 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true // if you're using cookies/auth
+  credentials: true
 }));
+
+app.options('*', cors());
+
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
