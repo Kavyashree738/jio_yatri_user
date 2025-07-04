@@ -42,7 +42,7 @@ app.use(cors({
 //   origin: allowedOrigins,
 //   credentials: true
 // }));
-app.options('*', cors());
+// app.options('*', cors());
 
 
 mongoose.connect(process.env.MONGO_URI, {
