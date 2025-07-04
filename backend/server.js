@@ -20,30 +20,23 @@ admin.initializeApp({
   projectId: 'authentication-e6bd0' // Add your project ID here
 });
 
-// Updated CORS configuration (replace your existing one)
 const allowedOrigins = [
-  'https://jioyatri.com',
-  'https://www.jioyatri.com',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'https://jioyatri.com'
+
+
 ];
 
-const corsOptions = {
-  origin: function (origin, callback) {
+app.use(cors({
+  origin: function(origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Preflight support
+  credentials: true // if you're using cookies/auth
+}));
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -56,63 +49,18 @@ mongoose.connect(process.env.MONGO_URI, {
 
 
 // Use it in your routes
+
 app.use(express.json());
+app.use('/api', partnerRoutes);
+app.use('/api', enterpriseRoutes);
+app.use('/api/shipments', shipmentRoutes);
+app.use('/api/address', addressRoutes); 
+app.use('/api/auth', authRoutes);
+app.use('/api/payment',paymentRoutes)
+app.use('/api/driver',driverRoutes)
 
-try {
-  console.log("Registering /api partner routes");
-  app.use('/api', partnerRoutes);
-} catch (e) {
-  console.error("Error in partnerRoutes:", e);
-}
-
-try {
-  console.log("Registering /api enterprise routes");
-  app.use('/api', enterpriseRoutes);
-} catch (e) {
-  console.error("Error in enterpriseRoutes:", e);
-}
-
-try {
-  console.log("Registering /api/shipments routes");
-  app.use('/api/shipments', shipmentRoutes);
-} catch (e) {
-  console.error("Error in shipmentRoutes:", e);
-}
-
-try {
-  console.log("Registering /api/address routes");
-  app.use('/api/address', addressRoutes);
-} catch (e) {
-  console.error("Error in addressRoutes:", e);
-}
-
-try {
-  console.log("Registering /api/auth routes");
-  app.use('/api/auth', authRoutes);
-} catch (e) {
-  console.error("Error in authRoutes:", e);
-}
-
-try {
-  console.log("Registering /api/payment routes");
-  app.use('/api/payment', paymentRoutes);
-} catch (e) {
-  console.error("Error in paymentRoutes:", e);
-}
-
-try {
-  console.log("Registering /api/driver routes");
-  app.use('/api/driver', driverRoutes);
-} catch (e) {
-  console.error("Error in driverRoutes:", e);
-}
-
-try {
-  console.log("Registering /api/ratings routes");
-  app.use('/api/ratings', ratingRoutes);
-} catch (e) {
-  console.error("Error in ratingRoutes:", e);
-}
+app.use('/api/ratings', ratingRoutes);
+// app.use('/api/user', userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
