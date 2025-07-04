@@ -3,6 +3,7 @@ const router = express.Router();
 const shipmentController = require('../controllers/shipmentController');
 const verifyFirebaseToken = require('../middleware/verifyFirebaseToken');
 const Shipment = require('../models/Shipment');
+
 // Debugging check
 console.log('[Debug] Middleware type:', typeof verifyFirebaseToken);
 console.log('[Debug] Controller methods:', {
@@ -11,41 +12,17 @@ console.log('[Debug] Controller methods:', {
   getUserShipments: typeof shipmentController.getUserShipments
 });
 
-// Routes
+// ===================== Specific routes =====================
+
 router.post('/calculate-distance', shipmentController.calculateDistance);
+
 router.post('/', verifyFirebaseToken, shipmentController.createShipment);
+
 router.get('/my-shipments', verifyFirebaseToken, shipmentController.getUserShipments);
-router.get('/:id', verifyFirebaseToken, shipmentController.getShipmentById);
 
-router.put('/:id/accept', verifyFirebaseToken, shipmentController.acceptShipment);
+router.get('/matching', verifyFirebaseToken, shipmentController.getMatchingShipments);
 
-router.get('/:orderId/status', verifyFirebaseToken, shipmentController.getOrderStatus);
-
-router.get('/matching',verifyFirebaseToken , shipmentController.getMatchingShipments);
-
-router.put('/:id/cancel', verifyFirebaseToken, shipmentController.cancelShipment);
-
-// Mark shipment as delivered
-router.put('/:id/deliver', verifyFirebaseToken, shipmentController.deliverShipment);
-
-router.put(
-  '/:id/cancel',
-  verifyFirebaseToken,
-  shipmentController.cancelShipment
-);
-
-router.put(
-  '/:id/deliver',
-  verifyFirebaseToken,
-  shipmentController.deliverShipment
-);
-
-
-router.put(
-  '/:id/driver-location',
-  verifyFirebaseToken,
-  shipmentController.updateDriverLocation
-);
+router.get('/order/:orderId/status', verifyFirebaseToken, shipmentController.getOrderStatus);
 
 router.get('/driver/:userId', async (req, res) => {
   try {
@@ -62,7 +39,18 @@ router.get('/driver/:userId', async (req, res) => {
   }
 });
 
+// ===================== Dynamic /:id routes =====================
 
+router.get('/:id', verifyFirebaseToken, shipmentController.getShipmentById);
 
+router.put('/:id/accept', verifyFirebaseToken, shipmentController.acceptShipment);
+
+router.put('/:id/cancel', verifyFirebaseToken, shipmentController.cancelShipment);
+
+router.put('/:id/deliver', verifyFirebaseToken, shipmentController.deliverShipment);
+
+router.put('/:id/driver-location', verifyFirebaseToken, shipmentController.updateDriverLocation);
+
+// ===============================================================
 
 module.exports = router;
