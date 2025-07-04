@@ -16,5 +16,6 @@ router.put('/location', verifyFirebaseToken, updateDriverLocation);
 // backend/routes/driverRoutes.js
 router.post('/fcm-token', verifyFirebaseToken, registerFCMToken);
 
+router.get('/:driverId/location', verifyFirebaseToken, getDriverLocation);
 
 module.exports = router;
