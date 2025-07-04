@@ -193,7 +193,7 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
 
         try {
             const { data: { data: order } } = await axios.post(
-                `https://jio-yatri-driver.onrender.com/api/payment/${shipment._id}/initiate`,
+                `https://jio-yatri-user.onrender.com/api/payment/${shipment._id}/initiate`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
             );
@@ -213,7 +213,7 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
                 handler: async (response) => {
                     try {
                         await axios.post(
-                            'https://jio-yatri-driver.onrender.com/api/payment/verify',
+                            'https://jio-yatri-user.onrender.com/api/payment/verify',
                             {
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_order_id: response.razorpay_order_id,
@@ -258,7 +258,7 @@ const PaymentModal = ({ shipment, onClose, refreshShipments }) => {
 
         try {
             await axios.post(
-                `https://jio-yatri-driver.onrender.com/api/payment/${shipment._id}/cash`,
+                `https://jio-yatri-user.onrender.com/api/payment/${shipment._id}/cash`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
