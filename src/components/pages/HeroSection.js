@@ -378,12 +378,13 @@ import { FaApple } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
 import PhoneInput from 'react-phone-input-2';
 import {
-  signInWithCustomToken,
   signInWithPopup,
   signInWithRedirect,
-  getRedirectResult
+  getRedirectResult,
+  GoogleAuthProvider,
+  signInWithCustomToken
 } from 'firebase/auth';
-import { auth, googleProvider } from '../../firebase';
+import { auth } from '../../firebase';
 import 'react-phone-input-2/lib/style.css';
 import '../../styles/HeroSection.css';
 import { useAuth } from '../../context/AuthContext';
@@ -415,14 +416,18 @@ const HeroSection = () => {
       try {
         const result = await getRedirectResult(auth);
         if (result?.user) {
-          setMessage({ text: 'Google redirect sign-in successful!', isError: false });
+          setMessage({ text: 'Google sign-in successful!', isError: false });
         }
       } catch (error) {
-        setMessage({ text: `Redirect result failed: ${error.message}`, isError: true });
+        setMessage({ 
+          text: `Google sign-in failed: ${error.message}`, 
+          isError: true 
+        });
       }
     };
+    
     handleRedirectResult();
-  }, []);
+  }, [setMessage]);
 
   useEffect(() => {
     let timer;
@@ -433,7 +438,7 @@ const HeroSection = () => {
         timer = setTimeout(() => {
           setShowWelcomeMessage(false);
           localStorage.setItem('welcomeMessageShown', 'true');
-        }, 1000);
+        }, 3000);
       }
     }
     return () => {
@@ -549,20 +554,20 @@ const HeroSection = () => {
   const signInWithGoogle = async () => {
     try {
       setIsLoading(true);
-      await signInWithPopup(auth, googleProvider);
-      setMessage({ text: 'Google sign-in successful!', isError: false });
+      setMessage({ text: '', isError: false });
+      
+      await signInWithPopup(auth, new GoogleAuthProvider());
+      
     } catch (error) {
-      if (
-        error.code === 'auth/popup-blocked' ||
-        error.code === 'auth/popup-closed-by-user' ||
-        error.code === 'auth/cancelled-popup-request' ||
-        error.code === 'auth/operation-not-supported-in-this-environment'
-      ) {
+      if (error.code === 'auth/popup-blocked' || 
+          error.code === 'auth/popup-closed-by-user' ||
+          error.code === 'auth/cancelled-popup-request') {
+        
         try {
-          await signInWithRedirect(auth, googleProvider);
+          await signInWithRedirect(auth, new GoogleAuthProvider());
         } catch (redirectError) {
           setMessage({
-            text: `Google redirect sign-in failed: ${redirectError.message}`,
+            text: `Google sign-in failed: ${redirectError.message}`,
             isError: true
           });
         }
@@ -616,22 +621,32 @@ const HeroSection = () => {
                 )}
               </div>
 
-              <button onClick={sendCode} type="button" disabled={!isValidPhone || isLoading} className={`button ${(!isValidPhone || isLoading) ? 'disabled' : ''}`}>
+              <button 
+                onClick={sendCode} 
+                type="button" 
+                disabled={!isValidPhone || isLoading} 
+                className={`button ${(!isValidPhone || isLoading) ? 'disabled' : ''}`}
+              >
                 {isLoading ? 'Sending...' : 'Send Verification Code'}
               </button>
 
               <div className="divider">or</div>
 
               <div className="social-buttons">
-                <button type="button" className="google-btn" onClick={signInWithGoogle}>
+                <button 
+                  type="button" 
+                  className="google-btn" 
+                  onClick={signInWithGoogle}
+                  disabled={isLoading}
+                >
                   <FcGoogle className="social-icon" />
                   <span>{isLoading ? 'Signing in...' : 'Continue with Google'}</span>
                 </button>
-                <button type="button" className="apple-btn">
+                <button type="button" className="apple-btn" disabled>
                   <FaApple className="social-icon" size={20} />
                   <span>Continue with Apple</span>
                 </button>
-                <button type="button" className="email-btn">
+                <button type="button" className="email-btn" disabled>
                   <MdEmail className="social-icon" size={20} />
                   <span>Continue with Email</span>
                 </button>
@@ -640,7 +655,7 @@ const HeroSection = () => {
           ) : showWelcomeMessage ? (
             <div className="welcome-message">
               <h3>Login Successful!</h3>
-              <p>You can now access all features.</p>
+              <p>Welcome back! You can now access all features.</p>
             </div>
           ) : (
             <div className="post-login-image">
@@ -648,7 +663,11 @@ const HeroSection = () => {
             </div>
           )}
 
-          {message.text && <div className={`message ${message.isError ? 'error' : 'success'}`}>{message.text}</div>}
+          {message.text && (
+            <div className={`message ${message.isError ? 'error' : 'success'}`}>
+              {message.text}
+            </div>
+          )}
         </motion.div>
 
         {showOtpComponent && (
@@ -686,19 +705,32 @@ const HeroSection = () => {
 
               {message.isError && <div className="otp-error">{message.text}</div>}
 
-              <button onClick={verifyOtp} disabled={isLoading || otp.length !== 6} className={`otp-button ${isLoading || otp.length !== 6 ? 'disabled' : ''}`}>
+              <button 
+                onClick={verifyOtp} 
+                disabled={isLoading || otp.length !== 6} 
+                className={`otp-button ${isLoading || otp.length !== 6 ? 'disabled' : ''}`}
+              >
                 {isLoading ? <><span className="spinner"></span> Verifying...</> : 'Verify Code'}
               </button>
 
-              <button onClick={resendOtp} disabled={otpResendTime > 0} className="resend-button">
+              <button 
+                onClick={resendOtp} 
+                disabled={otpResendTime > 0} 
+                className="resend-button"
+              >
                 {otpResendTime > 0 ? `Resend in ${otpResendTime}s` : 'Resend Code'}
               </button>
 
-              <button onClick={() => {
-                setShowOtpComponent(false);
-                setOtp('');
-                setMessage({ text: '', isError: false });
-              }} className="cancel-button">Cancel</button>
+              <button 
+                onClick={() => {
+                  setShowOtpComponent(false);
+                  setOtp('');
+                  setMessage({ text: '', isError: false });
+                }} 
+                className="cancel-button"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         )}
