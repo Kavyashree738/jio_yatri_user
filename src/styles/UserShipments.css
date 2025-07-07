@@ -601,7 +601,6 @@ body {
 @media (max-width: 768px) {
   .shipments-container {
     padding: 1.5rem;
-    margin-top: 80px;
     border-radius: 0;
   }
   
