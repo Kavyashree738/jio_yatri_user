@@ -3978,11 +3978,16 @@ input:focus {
   .booking-details {
     grid-template-columns: 1fr 1fr;
   }
+  .review-booking-container {
+    padding: 25px;
+    margin-top: -130px;
+  }
 }
 
 @media (max-width: 480px) {
   .review-booking-container {
     padding: 25px;
+    margin-top: -130px;
   }
   
   .booking-details {
