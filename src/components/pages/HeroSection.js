@@ -377,16 +377,10 @@ import { FcGoogle } from 'react-icons/fc';
 import { FaApple } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
 import PhoneInput from 'react-phone-input-2';
-import {
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
-  GoogleAuthProvider,
-  signInWithCustomToken
-} from 'firebase/auth';
-import { auth } from '../../firebase';
 import 'react-phone-input-2/lib/style.css';
 import '../../styles/HeroSection.css';
+import { signInWithCustomToken, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 import delivery from '../../assets/images/delivery-service.png';
 
@@ -399,51 +393,32 @@ const HeroSection = () => {
   const [otp, setOtp] = useState('');
   const [otpResendTime, setOtpResendTime] = useState(0);
   const { user, message, setMessage } = useAuth();
-  const [showWelcomeMessage, setShowWelcomeMessage] = useState(
-    localStorage.getItem('welcomeMessageShown') !== 'true'
-  );
-
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(localStorage.getItem('welcomeMessageShown') !== 'true');
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
 
   useEffect(() => {
-    if (isInView) {
-      controls.start('visible');
-    }
+    if (isInView) controls.start('visible');
   }, [isInView, controls]);
 
-  useEffect(() => {
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          setMessage({ text: 'Google sign-in successful!', isError: false });
-        }
-      } catch (error) {
-        setMessage({ 
-          text: `Google sign-in failed: ${error.message}`, 
-          isError: true 
-        });
-      }
-    };
-    
-    handleRedirectResult();
-  }, [setMessage]);
+  const variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 },
+  };
 
   useEffect(() => {
     let timer;
     if (user) {
       const shouldShowWelcome = localStorage.getItem('welcomeMessageShown') !== 'true';
       setShowWelcomeMessage(shouldShowWelcome);
+
       if (shouldShowWelcome) {
         timer = setTimeout(() => {
           setShowWelcomeMessage(false);
           localStorage.setItem('welcomeMessageShown', 'true');
-        }, 3000);
+        }, 3000); // 3 seconds
       }
     }
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
+    return () => clearTimeout(timer);
   }, [user]);
 
   const validatePhoneNumber = (value) => {
@@ -499,10 +474,7 @@ const HeroSection = () => {
         body: JSON.stringify({ phoneNumber })
       });
 
-      setMessage({
-        text: `OTP sent to ${phoneNumber}`,
-        isError: false
-      });
+      setMessage({ text: `OTP sent to ${phoneNumber}`, isError: false });
       setShowOtpComponent(true);
       startResendTimer();
 
@@ -510,10 +482,7 @@ const HeroSection = () => {
         console.log(`[DEV] OTP: ${data.otp}`);
       }
     } catch (error) {
-      setMessage({
-        text: error.message || 'Failed to send OTP',
-        isError: true
-      });
+      setMessage({ text: error.message || 'Failed to send OTP', isError: true });
     } finally {
       setIsLoading(false);
     }
@@ -537,10 +506,7 @@ const HeroSection = () => {
       setMessage({ text: 'Verification successful!', isError: false });
       setShowOtpComponent(false);
     } catch (error) {
-      setMessage({
-        text: error.message || 'OTP verification failed',
-        isError: true
-      });
+      setMessage({ text: error.message || 'OTP verification failed', isError: true });
     } finally {
       setIsLoading(false);
     }
@@ -551,62 +517,60 @@ const HeroSection = () => {
     await sendCode();
   };
 
+  const isInWebView = () => {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    return /wv|WebView|(iPhone|iPod|iPad)(?!.*Safari)/gi.test(userAgent);
+  };
+
   const signInWithGoogle = async () => {
+    if (isInWebView()) {
+      setMessage({
+        text: 'Google Sign-In is not supported in this browser. Please open this site in Chrome or Safari.',
+        isError: true
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
-      setMessage({ text: '', isError: false });
-      
-      await signInWithPopup(auth, new GoogleAuthProvider());
-      
+      await signInWithPopup(auth, googleProvider);
+      setMessage({ text: 'Google sign-in successful!', isError: false });
     } catch (error) {
-      if (error.code === 'auth/popup-blocked' || 
-          error.code === 'auth/popup-closed-by-user' ||
-          error.code === 'auth/cancelled-popup-request') {
-        
-        try {
-          await signInWithRedirect(auth, new GoogleAuthProvider());
-        } catch (redirectError) {
-          setMessage({
-            text: `Google sign-in failed: ${redirectError.message}`,
-            isError: true
-          });
-        }
-      } else {
-        setMessage({
-          text: `Google sign-in failed: ${error.message}`,
-          isError: true
-        });
-      }
+      setMessage({ text: `Google sign-in failed: ${error.message}`, isError: true });
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0 }
   };
 
   return (
     <section className="hero-section" id="hero">
       <div className="hero-bg-blur" />
       <div className="hero-content-wrapper" ref={ref}>
-        <motion.div className="hero-text" initial="hidden" animate={controls} variants={variants} transition={{ duration: 0.8 }}>
+        <motion.div
+          className="hero-text"
+          initial="hidden"
+          animate={controls}
+          variants={variants}
+          transition={{ duration: 0.8 }}
+        >
           <div className="text">
             <h1>JIO YATRI</h1>
             <h2>Delivery</h2>
           </div>
           <h2>Door-to-Door Intercity Courier from Bangalore</h2>
-          <p>
-            Connect with 19,000+ destinations across India through our smooth and affordable courier service.
-          </p>
+          <p>Connect with 19,000+ destinations across India through our smooth and affordable courier service.</p>
         </motion.div>
 
-        <motion.div className="hero-image" initial="hidden" animate={controls} variants={variants} transition={{ duration: 0.8, delay: 0.3 }}>
+        <motion.div
+          className="hero-image"
+          initial="hidden"
+          animate={controls}
+          variants={variants}
+          transition={{ duration: 0.8, delay: 0.3 }}
+        >
           {!user ? (
             <form className="registration-form hero-form" onSubmit={(e) => e.preventDefault()}>
               <h3>Register Now</h3>
-
               <div className="phone-input-group">
                 <PhoneInput
                   country={'in'}
@@ -617,14 +581,15 @@ const HeroSection = () => {
                   containerClass="phone-input-container"
                 />
                 {!isValidPhone && phoneNumber && (
-                  <p className="phone-error-message">Please enter in international format (e.g., +91XXXXXXXXXX)</p>
+                  <p className="phone-error-message">
+                    Please enter in international format (e.g., +91XXXXXXXXXX)
+                  </p>
                 )}
               </div>
-
-              <button 
-                onClick={sendCode} 
-                type="button" 
-                disabled={!isValidPhone || isLoading} 
+              <button
+                onClick={sendCode}
+                type="button"
+                disabled={!isValidPhone || isLoading}
                 className={`button ${(!isValidPhone || isLoading) ? 'disabled' : ''}`}
               >
                 {isLoading ? 'Sending...' : 'Send Verification Code'}
@@ -633,20 +598,15 @@ const HeroSection = () => {
               <div className="divider">or</div>
 
               <div className="social-buttons">
-                <button 
-                  type="button" 
-                  className="google-btn" 
-                  onClick={signInWithGoogle}
-                  disabled={isLoading}
-                >
+                <button type="button" className="google-btn" onClick={signInWithGoogle}>
                   <FcGoogle className="social-icon" />
                   <span>{isLoading ? 'Signing in...' : 'Continue with Google'}</span>
                 </button>
-                <button type="button" className="apple-btn" disabled>
+                <button type="button" className="apple-btn">
                   <FaApple className="social-icon" size={20} />
                   <span>Continue with Apple</span>
                 </button>
-                <button type="button" className="email-btn" disabled>
+                <button type="button" className="email-btn">
                   <MdEmail className="social-icon" size={20} />
                   <span>Continue with Email</span>
                 </button>
@@ -655,7 +615,7 @@ const HeroSection = () => {
           ) : showWelcomeMessage ? (
             <div className="welcome-message">
               <h3>Login Successful!</h3>
-              <p>Welcome back! You can now access all features.</p>
+              <p>You can now access all features.</p>
             </div>
           ) : (
             <div className="post-login-image">
@@ -705,28 +665,28 @@ const HeroSection = () => {
 
               {message.isError && <div className="otp-error">{message.text}</div>}
 
-              <button 
-                onClick={verifyOtp} 
-                disabled={isLoading || otp.length !== 6} 
+              <button
+                onClick={verifyOtp}
+                disabled={isLoading || otp.length !== 6}
                 className={`otp-button ${isLoading || otp.length !== 6 ? 'disabled' : ''}`}
               >
                 {isLoading ? <><span className="spinner"></span> Verifying...</> : 'Verify Code'}
               </button>
 
-              <button 
-                onClick={resendOtp} 
-                disabled={otpResendTime > 0} 
+              <button
+                onClick={resendOtp}
+                disabled={otpResendTime > 0}
                 className="resend-button"
               >
                 {otpResendTime > 0 ? `Resend in ${otpResendTime}s` : 'Resend Code'}
               </button>
 
-              <button 
+              <button
                 onClick={() => {
                   setShowOtpComponent(false);
                   setOtp('');
                   setMessage({ text: '', isError: false });
-                }} 
+                }}
                 className="cancel-button"
               >
                 Cancel
