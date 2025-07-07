@@ -1240,15 +1240,15 @@ function ShipmentPage() {
             </div>
           </div>
 
-          {shipmentData.sender.address.coordinates && (
-            <div className="map-section">
-              <h2>Location Map</h2>
-              <LocationMap
-                senderCoordinates={shipmentData.sender.address.coordinates}
-                receiverCoordinates={shipmentData.receiver.address.coordinates}
-              />
-            </div>
-          )}
+          // {shipmentData.sender.address.coordinates && (
+          //   <div className="map-section">
+          //     <h2>Location Map</h2>
+          //     <LocationMap
+          //       senderCoordinates={shipmentData.sender.address.coordinates}
+          //       receiverCoordinates={shipmentData.receiver.address.coordinates}
+          //     />
+          //   </div>
+          // )}
 
           <div className="form-section">
             <h2>Receiver Information</h2>
