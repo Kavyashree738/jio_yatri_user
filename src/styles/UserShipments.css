@@ -30,7 +30,7 @@ body {
 /* Container Styles */
 .shipments-container {
   max-width: 1200px;
-  margin: 100px auto 40px;
+  margin: 0px auto 40px;
   padding: 2rem;
   background: var(--white);
   border-radius: 20px;
