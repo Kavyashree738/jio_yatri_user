@@ -10,8 +10,9 @@ import { auth, googleProvider } from '../../firebase';
 import 'react-phone-input-2/lib/style.css';
 import '../../styles/HeroSection.css';
 import { useAuth } from '../../context/AuthContext';
-import delivery from '../../assets/images/delivery-service.png'
+import delivery from '../../assets/images/delivery-service.png';
 import SplashScreen from './SplashScreen';
+
 const HeroSection = () => {
   const controls = useAnimation();
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -21,10 +22,8 @@ const HeroSection = () => {
   const [otp, setOtp] = useState('');
   const [otpResendTime, setOtpResendTime] = useState(0);
   const { user, message, setMessage } = useAuth();
-    const [showSplash, setShowSplash] = useState(false);
-const [showWelcomeMessage, setShowWelcomeMessage] = useState(
-    localStorage.getItem('welcomeMessageShown') !== 'true'
-  );
+  const [showSplash, setShowSplash] = useState(true); // always show splash on load
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState(true);
 
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
 
@@ -34,56 +33,43 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
     }
   }, [isInView, controls]);
 
-
   const variants = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0 },
   };
 
-   useEffect(() => {
-    let timer;
-    
-    if (user) {
-      // Only show welcome message if it hasn't been shown before
-      const shouldShowWelcome = localStorage.getItem('welcomeMessageShown') !== 'true';
-      setShowWelcomeMessage(shouldShowWelcome);
-      
-      if (shouldShowWelcome) {
-        // Set timeout to hide welcome message after 1 minute (60000ms)
-        timer = setTimeout(() => {
-          setShowWelcomeMessage(false);
-          localStorage.setItem('welcomeMessageShown', 'true');
-        }, 1000);
-      }
-    }
+  // ✅ Show splash screen on every app load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2000); // 2 seconds splash screen
+    return () => clearTimeout(timer);
+  }, []);
 
-    // Cleanup the timer when component unmounts or user changes
+  useEffect(() => {
+    let timer;
+    if (user) {
+      setShowWelcomeMessage(true);
+      timer = setTimeout(() => {
+        setShowWelcomeMessage(false);
+      }, 1000);
+    }
     return () => {
       if (timer) clearTimeout(timer);
     };
   }, [user]);
-  useEffect(() => {
-    // Check if splash screen has been shown before
-    const splashShown = localStorage.getItem('splashShown');
-    if (!splashShown) {
-      setShowSplash(true);
-      localStorage.setItem('splashShown', 'true');
-    }
-  }, []);
-   if (showSplash) {
+
+  if (showSplash) {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
-  
   const validatePhoneNumber = (value) => {
-    // Strict validation for E.164 format
     const isValid = /^\+[1-9]\d{1,14}$/.test(value);
     setIsValidPhone(isValid);
     return isValid;
   };
 
-  const handlePhoneChange = (value, country) => {
-    // Force international format
+  const handlePhoneChange = (value) => {
     const formattedValue = value.startsWith('+') ? value : `+${value}`;
     setPhoneNumber(formattedValue);
     validatePhoneNumber(formattedValue);
@@ -115,7 +101,7 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
     if (!validatePhoneNumber(phoneNumber)) {
       setMessage({
         text: 'Please enter a valid international phone number (e.g., +91XXXXXXXXXX)',
-        isError: true
+        isError: true,
       });
       return;
     }
@@ -124,17 +110,15 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
       setIsLoading(true);
       setMessage({ text: '', isError: false });
 
-      const data = await handleApiRequest(`${process.env.REACT_APP_API_URL}/api/auth/send-otp`, {
+      const data = await handleApiRequest(`https://jio-yatri-user.onrender.com/api/auth/send-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber })
+        body: JSON.stringify({ phoneNumber }),
       });
 
-      console.log(data)
-      console.log(phoneNumber)
       setMessage({
         text: `OTP sent to ${phoneNumber}`,
-        isError: false
+        isError: false,
       });
       setShowOtpComponent(true);
       startResendTimer();
@@ -145,7 +129,7 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
     } catch (error) {
       setMessage({
         text: error.message || 'Failed to send OTP',
-        isError: true
+        isError: true,
       });
     } finally {
       setIsLoading(false);
@@ -160,22 +144,19 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
 
     try {
       setIsLoading(true);
-      const data = await handleApiRequest(`${process.env.REACT_APP_API_URL}/api/auth/verify-otp`, {
+      const data = await handleApiRequest(`https://jio-yatri-user.onrender.com/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          phoneNumber,
-          otp
-        })
+        body: JSON.stringify({ phoneNumber, otp }),
       });
 
-      const userCredential = await signInWithCustomToken(auth, data.token);
+      await signInWithCustomToken(auth, data.token);
       setMessage({ text: 'Verification successful!', isError: false });
       setShowOtpComponent(false);
     } catch (error) {
       setMessage({
         text: error.message || 'OTP verification failed',
-        isError: true
+        isError: true,
       });
     } finally {
       setIsLoading(false);
@@ -190,12 +171,12 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
   const signInWithGoogle = async () => {
     try {
       setIsLoading(true);
-      const result = await signInWithPopup(auth, googleProvider);
+      await signInWithPopup(auth, googleProvider);
       setMessage({ text: 'Google sign-in successful!', isError: false });
     } catch (error) {
       setMessage({
         text: `Google sign-in failed: ${error.message}`,
-        isError: true
+        isError: true,
       });
     } finally {
       setIsLoading(false);
@@ -276,18 +257,14 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
                 </button>
               </div>
             </form>
-          ) :  showWelcomeMessage ? (
+          ) : showWelcomeMessage ? (
             <div className="welcome-message">
               <h3>Login Successful!</h3>
               <p>You can now access all features.</p>
             </div>
           ) : (
             <div className="post-login-image">
-              <img 
-                src={delivery} 
-                alt="Welcome to our service"
-                className="login-success-img"
-              />
+              <img src={delivery} alt="Welcome to our service" className="login-success-img" />
             </div>
           )}
 
@@ -304,7 +281,6 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
               <h3 className="otp-title">Enter Verification Code</h3>
               <p className="otp-subtitle">Sent to {phoneNumber}</p>
 
-              {/* 6-digit OTP input boxes */}
               <div className="otp-container">
                 {[...Array(6)].map((_, index) => (
                   <input
@@ -316,14 +292,11 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
                       const newOtp = otp.split('');
                       newOtp[index] = e.target.value.replace(/\D/g, '');
                       setOtp(newOtp.join('').slice(0, 6));
-
-                      // Auto focus next input
                       if (e.target.value && index < 5) {
                         document.getElementById(`otp-input-${index + 1}`).focus();
                       }
                     }}
                     onKeyDown={(e) => {
-                      // Handle backspace to move to previous input
                       if (e.key === 'Backspace' && !otp[index] && index > 0) {
                         document.getElementById(`otp-input-${index - 1}`).focus();
                       }
@@ -335,31 +308,17 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
                 ))}
               </div>
 
-              {message.isError && (
-                <div className="otp-error">
-                  {message.text}
-                </div>
-              )}
+              {message.isError && <div className="otp-error">{message.text}</div>}
 
               <button
                 onClick={verifyOtp}
                 disabled={isLoading || otp.length !== 6}
                 className={`otp-button ${isLoading || otp.length !== 6 ? 'disabled' : ''}`}
               >
-                {isLoading ? (
-                  <>
-                    <span className="spinner"></span> Verifying...
-                  </>
-                ) : (
-                  'Verify Code'
-                )}
+                {isLoading ? <><span className="spinner"></span> Verifying...</> : 'Verify Code'}
               </button>
 
-              <button
-                onClick={resendOtp}
-                disabled={otpResendTime > 0}
-                className="resend-button"
-              >
+              <button onClick={resendOtp} disabled={otpResendTime > 0} className="resend-button">
                 {otpResendTime > 0 ? `Resend in ${otpResendTime}s` : 'Resend Code'}
               </button>
 
@@ -382,4 +341,3 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
 };
 
 export default HeroSection;
-
