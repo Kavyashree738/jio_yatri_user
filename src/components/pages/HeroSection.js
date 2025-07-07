@@ -21,7 +21,7 @@ const HeroSection = () => {
   const [otp, setOtp] = useState('');
   const [otpResendTime, setOtpResendTime] = useState(0);
   const { user, message, setMessage } = useAuth();
-  const [showSplash, setShowSplash] = useState(true);
+    const [showSplash, setShowSplash] = useState(false);
 const [showWelcomeMessage, setShowWelcomeMessage] = useState(
     localStorage.getItem('welcomeMessageShown') !== 'true'
   );
@@ -62,7 +62,14 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
       if (timer) clearTimeout(timer);
     };
   }, [user]);
-
+  useEffect(() => {
+    // Check if splash screen has been shown before
+    const splashShown = localStorage.getItem('splashShown');
+    if (!splashShown) {
+      setShowSplash(true);
+      localStorage.setItem('splashShown', 'true');
+    }
+  }, []);
    if (showSplash) {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
