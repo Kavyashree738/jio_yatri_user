@@ -11,6 +11,7 @@ import 'react-phone-input-2/lib/style.css';
 import '../../styles/HeroSection.css';
 import { useAuth } from '../../context/AuthContext';
 import delivery from '../../assets/images/delivery-service.png'
+import SplashScreen from './SplashScreen';
 const HeroSection = () => {
   const controls = useAnimation();
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -20,6 +21,7 @@ const HeroSection = () => {
   const [otp, setOtp] = useState('');
   const [otpResendTime, setOtpResendTime] = useState(0);
   const { user, message, setMessage } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
 const [showWelcomeMessage, setShowWelcomeMessage] = useState(
     localStorage.getItem('welcomeMessageShown') !== 'true'
   );
@@ -60,6 +62,11 @@ const [showWelcomeMessage, setShowWelcomeMessage] = useState(
       if (timer) clearTimeout(timer);
     };
   }, [user]);
+
+   if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
+
   
   const validatePhoneNumber = (value) => {
     // Strict validation for E.164 format
