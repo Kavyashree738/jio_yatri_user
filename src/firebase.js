@@ -6,7 +6,9 @@ import {
   signInWithPhoneNumber,
   RecaptchaVerifier,
   signInWithCustomToken,
-  signOut,  // ✅ you were missing this import!
+  signInWithRedirect,
+  getRedirectResult,
+  signOut,
 } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -29,5 +31,7 @@ export {
   signInWithPhoneNumber,
   signInWithCustomToken,
   RecaptchaVerifier,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
 };
