@@ -2792,6 +2792,7 @@ input:focus {
   .confirmation-container {
     padding: 30px;
     border-radius: 24px;
+    margin-top: -129px;
   }
   
   .shipment-form h2,
@@ -2873,6 +2874,7 @@ input:focus {
   .confirmation-container {
     padding: 25px 20px;
     border-radius: 20px;
+    margin-top: -129px;
   }
   
   .shipment-form h2,
