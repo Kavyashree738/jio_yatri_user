@@ -1,77 +1,84 @@
-import React, { useState } from 'react';
-import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
-import '../../styles/Home.css';
-import logo from '../../assets/images/logo.jpg';
+import React from 'react';
+import { 
+  FaUserCircle,
+  FaHome, 
+  FaBuilding, 
+  FaTruck, 
+  FaBoxes, 
+  FaShoppingCart 
+} from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
+import logo from '../../assets/images/logo.jpg';
 import { useAuth } from '../../context/AuthContext';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, setMessage } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  const handleLinkClick = () => setIsMenuOpen(false);
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setMessage({ text: 'Logged out successfully.', isError: false });
-    } catch (error) {
-      setMessage({ text: 'Logout failed: ' + error.message, isError: true });
-    }
-  };
 
   const handleProfileClick = () => {
     navigate('/profile');
-    setIsMenuOpen(false);
   };
 
   return (
     <>
-      {/* Top Strip Header */}
-      <div className="top-header">
+      {/* Top Strip - Visible on all screens */}
+      <div className="top-strip">
         <h1>Mokshambani Tech Services PVT LTD</h1>
       </div>
 
-      {/* Main Header */}
-      <header className='header'>
-        <div className="nav-container">
+      {/* Desktop Header - Hidden on mobile */}
+      <header className="main-header">
+        <div className="header-container">
           <div className="logo">
             <img src={logo} alt="Company Logo" />
           </div>
 
-          <nav className={`nav-links ${isMenuOpen ? 'open' : ''}`}>
-            <Link to="/" onClick={handleLinkClick}>Home</Link>
-            <Link to="/enterprise" onClick={handleLinkClick}>Enterprise</Link>
-            <Link to="/partners" onClick={handleLinkClick}>Delivery Partners</Link>
-            <Link to="/shipment" onClick={handleLinkClick}>Shipment</Link>
-            <Link to="/orders" onClick={handleLinkClick}>Orders</Link>
+          <nav className="nav-links">
+            <Link to="/">Home</Link>
+            <Link to="/enterprise">Enterprise</Link>
+            <Link to="/partners">Partners</Link>
+            <Link to="/shipment">Shipment</Link>
+            <Link to="/orders">Orders</Link>
           </nav>
 
-          {/* User controls moved outside nav-links */}
+          {/* Profile Icon - Desktop Only */}
           {user && (
-            <div className="user-controls">
-              <button 
-                className="profile-icon" 
-                onClick={handleProfileClick}
-                aria-label="User profile"
-              >
-                <FaUserCircle size={24} />
-              </button>
-            </div>
+            <button className="profile-icon" onClick={handleProfileClick}>
+              <FaUserCircle size={24} />
+            </button>
           )}
-
-          <div
-            className="hamburger"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle navigation menu"
-          >
-            {isMenuOpen ? <FaTimes /> : <FaBars />}
-          </div>
         </div>
       </header>
+
+      {/* Bottom Nav for Mobile - Only visible on mobile */}
+      <div className="mobile-bottom-nav">
+        <Link to="/" className="mobile-nav-link">
+          <FaHome className="mobile-nav-icon" />
+          <span>Home</span>
+        </Link>
+        <Link to="/enterprise" className="mobile-nav-link">
+          <FaBuilding className="mobile-nav-icon" />
+          <span>Enterprise</span>
+        </Link>
+        <Link to="/partners" className="mobile-nav-link">
+          <FaTruck className="mobile-nav-icon" />
+          <span>Partners</span>
+        </Link>
+        <Link to="/shipment" className="mobile-nav-link">
+          <FaBoxes className="mobile-nav-icon" />
+          <span>Shipment</span>
+        </Link>
+        <Link to="/orders" className="mobile-nav-link">
+          <FaShoppingCart className="mobile-nav-icon" />
+          <span>Orders</span>
+        </Link>
+        {user && (
+          <button className="mobile-nav-link" onClick={handleProfileClick}>
+            <FaUserCircle className="mobile-nav-icon" />
+            <span>Profile</span>
+          </button>
+        )}
+      </div>
     </>
   );
 };
