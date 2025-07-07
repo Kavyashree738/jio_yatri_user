@@ -138,7 +138,7 @@ button[type="submit"]:hover {
     .delivery-section {
         flex-direction: column-reverse;
         align-items: center;
-        padding: 100px 20px 60px;
+        padding: 26px 20px 60px;
     }
      .form-container {
         margin-top:30px;
