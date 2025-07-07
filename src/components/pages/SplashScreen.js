@@ -1,16 +1,19 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // ✅ import navigate
 import { motion } from 'framer-motion';
-import '../../styles/SplashScreen.css'; // We'll improve this CSS
+import '../../styles/SplashScreen.css';
 import logo from '../../assets/images/logo.jpg';
 
-const SplashScreen = ({ onFinish }) => {
+const SplashScreen = () => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      onFinish();
-    }, 3000); // Reduced to 3 seconds (better UX)
+      navigate('/home'); // ✅ redirect after 3 seconds
+    }, 3000);
 
     return () => clearTimeout(timer);
-  }, [onFinish]);
+  }, [navigate]);
 
   return (
     <div className="splash-container">
