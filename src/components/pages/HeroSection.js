@@ -11,7 +11,7 @@ import 'react-phone-input-2/lib/style.css';
 import '../../styles/HeroSection.css';
 import { useAuth } from '../../context/AuthContext';
 import delivery from '../../assets/images/delivery-service.png';
-import SplashScreen from './SplashScreen';
+
 
 const HeroSection = () => {
   const controls = useAnimation();
@@ -22,7 +22,6 @@ const HeroSection = () => {
   const [otp, setOtp] = useState('');
   const [otpResendTime, setOtpResendTime] = useState(0);
   const { user, message, setMessage } = useAuth();
-  const [showSplash, setShowSplash] = useState(true); // always show splash on load
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(true);
 
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
@@ -38,14 +37,6 @@ const HeroSection = () => {
     visible: { opacity: 1, y: 0 },
   };
 
-  // ✅ Show splash screen on every app load
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2000); // 2 seconds splash screen
-    return () => clearTimeout(timer);
-  }, []);
-
   useEffect(() => {
     let timer;
     if (user) {
@@ -58,10 +49,6 @@ const HeroSection = () => {
       if (timer) clearTimeout(timer);
     };
   }, [user]);
-
-  if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
-  }
 
   const validatePhoneNumber = (value) => {
     const isValid = /^\+[1-9]\d{1,14}$/.test(value);
