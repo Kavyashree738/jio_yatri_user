@@ -52,25 +52,11 @@ import FrequentQuestions from './components/delivery_partners/faq/FrequentQuesti
 import ShipmentPage from './components/pages/ShipmentPage';
 import { AuthProvider } from './context/AuthContext';
 import UserShipments from './components/UserShipments';
+import EnterAddressPage from './components/EnterAddressPage';
 import SelectAddressPage from './components/SelectAddressPage';
 import UserProfile from './components/UserProfile';
 
 function AppWrapper() {
-  const [showSplash, setShowSplash] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-      navigate("/home"); // 🔁 Redirect to home
-    }, 3000); // 3 seconds
-
-    return () => clearTimeout(timer);
-  }, [navigate]);
-
-  if (showSplash) {
-    return <SplashScreen />;
-  }
 
   return (
     <Routes>
