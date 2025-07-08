@@ -176,7 +176,7 @@
 /* Small Mobile View (480px and below) */
 @media (max-width: 480px) {
   .top-strip {
-    padding: 9px 12px;
+    padding: 35px 12px;
     height: 50px;
   }
   
