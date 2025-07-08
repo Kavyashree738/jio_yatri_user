@@ -196,7 +196,7 @@
 /* Very Small Screens (360px and below) */
 @media (max-width: 360px) {
   .top-strip h1 {
-    font-size: 14px;
+    font-size: 20px;
   }
   
   .mobile-nav-link {
