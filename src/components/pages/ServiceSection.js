@@ -1,32 +1,51 @@
 import React from 'react'
 import '../../styles/ServiceSection.css'
-import bike from '../../assets/images/delivery-bike.png'
-// import truck from '../../assets/images/truck.png'
-// import van from '../../assets/images/van.png'
+
 const ServiceSection = () => {
     return (
-            <section class="services-section" id="service">
-                <h2 class="section-title">Our Delivery Services</h2>
-                <div class="services-container ">
-                    <div class="service-card  animate-up">
-                        <img src={bike} alt="Bike Delivery" />
-                        <h3>Bike Deliveries</h3>
-                        <p>Fast and efficient delivery for small packages across the city.</p>
+        <section className="services-section" id="service">
+            <h2 className="section-title">Delivery Services</h2>
+            
+            <div className="services-container">
+                <div className="service-row">
+                    <div className="service-item">
+                        <span className="service-emoji">🛵</span>
+                        <div className="service-details">
+                            <span className="service-name">Two Wheeler</span>
+                            <span className="service-capacity">Upto 20 kg</span>
+                        </div>
+                        <span className="service-rate">₹50/km</span>
                     </div>
-                    <div class="service-card  animate-up">
-                         <h1>🚘</h1>
-                        {/* <img src={van} alt="Van Shipments" /> */}
-                        <h3>Van Shipments</h3>
-                        <p>Ideal for medium-sized shipments with safety and speed.</p>
+                    
+                    <div className="service-item">
+                        <span className="service-emoji">🚚</span>
+                        <div className="service-details">
+                            <span className="service-name">Three Wheeler</span>
+                            <span className="service-capacity">Upto 200 kg</span>
+                        </div>
+                        <span className="service-rate">₹80/km</span>
                     </div>
-                    <div class="service-card animate-up">
-                         <h1>🚒</h1>
-                        {/* <img src={truck} alt="Truck Loads" /> */}
-                        <h3>Truck Loads</h3>
-                        <p>Bulk delivery services with reliable and timely transport.</p>
+                    
+                    <div className="service-item">
+                        <span className="service-emoji">🛻</span>
+                        <div className="service-details">
+                            <span className="service-name">Pickup Truck</span>
+                            <span className="service-capacity">Upto 1,000 kg</span>
+                        </div>
+                        <span className="service-rate">₹100/km</span>
+                    </div>
+                    
+                    <div className="service-item">
+                        <span className="service-emoji">🚛</span>
+                        <div className="service-details">
+                            <span className="service-name">Truck (Tata 407)</span>
+                            <span className="service-capacity">Upto 4,000 kg</span>
+                        </div>
+                        <span className="service-rate">₹120/km</span>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
     )
 }
 
