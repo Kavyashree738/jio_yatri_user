@@ -41,7 +41,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import ScrollToTop from "./components/pages/ScrollToTop";
-import SplashScreen from './components/pages/SplashScreen'; // ✅ Import SplashScreen
+import SplashScreen from './components/pages/SplashScreen'; 
 
 import Home from './components/pages/Home';
 import VehicleDetails from './components/pages/VehicleDetails';
@@ -52,7 +52,6 @@ import FrequentQuestions from './components/delivery_partners/faq/FrequentQuesti
 import ShipmentPage from './components/pages/ShipmentPage';
 import { AuthProvider } from './context/AuthContext';
 import UserShipments from './components/UserShipments';
-import EnterAddressPage from './components/EnterAddressPage';
 import SelectAddressPage from './components/SelectAddressPage';
 import UserProfile from './components/UserProfile';
 
