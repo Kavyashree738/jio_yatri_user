@@ -12,37 +12,53 @@ const ServiceSection = () => {
                         <span className="service-emoji">🛵</span>
                         <div className="service-details">
                             <span className="service-name">Two Wheeler</span>
-                            <span className="service-capacity">Upto 20 kg</span>
+                            <span className="service-capacity">Upto 8 kg</span>
                         </div>
-                        <span className="service-rate">₹50/km</span>
+                        <span className="service-rate">₹20/km</span>
+                    </div>
+                    
+                    <div className="service-item">
+                        <span className="service-emoji">🛺</span>
+                        <div className="service-details">
+                            <span className="service-name">Three Wheeler</span>
+                            <span className="service-capacity">Upto 500 kg</span>
+                        </div>
+                        <span className="service-rate">₹30/km</span>
                     </div>
                     
                     <div className="service-item">
                         <span className="service-emoji">🚚</span>
                         <div className="service-details">
-                            <span className="service-name">Three Wheeler</span>
-                            <span className="service-capacity">Upto 200 kg</span>
+                            <span className="service-name">Truck</span>
+                            <span className="service-capacity">Upto 1,200 kg</span>
                         </div>
-                        <span className="service-rate">₹80/km</span>
+                        <span className="service-rate">₹40/km</span>
                     </div>
                     
                     <div className="service-item">
                         <span className="service-emoji">🛻</span>
                         <div className="service-details">
-                            <span className="service-name">Pickup Truck</span>
-                            <span className="service-capacity">Upto 1,000 kg</span>
+                            <span className="service-name">Pickup9ft</span>
+                            <span className="service-capacity">Upto 1700 kg</span>
                         </div>
-                        <span className="service-rate">₹100/km</span>
+                        <span className="service-rate">₹50/km</span>
                     </div>
-                    
                     <div className="service-item">
                         <span className="service-emoji">🚛</span>
                         <div className="service-details">
-                            <span className="service-name">Truck (Tata 407)</span>
-                            <span className="service-capacity">Upto 4,000 kg</span>
+                            <span className="service-name">Pickup9ft</span>
+                            <span className="service-capacity">Up to 2500kg</span>
                         </div>
-                        <span className="service-rate">₹120/km</span>
+                        <span className="service-rate">₹60/km</span>
                     </div>
+                    {/* <div className="service-item">
+                        <span className="service-emoji">🚒</span>
+                        <div className="service-details">
+                            <span className="service-name">Container Truck</span>
+                            <span className="service-capacity">Upto 5000 kg</span>
+                        </div>
+                        <span className="service-rate">₹80/km</span>
+                    </div> */}
                 </div>
             </div>
         </section>
