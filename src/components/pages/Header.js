@@ -52,7 +52,7 @@ const Header = () => {
 
       {/* Bottom Nav for Mobile - Only visible on mobile */}
       <div className="mobile-bottom-nav">
-        <Link to="/" className="mobile-nav-link">
+        <Link to="/home" className="mobile-nav-link">
           <FaHome className="mobile-nav-icon" />
           <span>Home</span>
         </Link>
