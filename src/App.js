@@ -60,7 +60,7 @@ function AppWrapper() {
   return (
     <Routes>
       <Route path="/" element={<SplashScreen />} />
-      <Route path="/" element={<Home />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/vehicle/:type" element={<VehicleDetails />} />
       <Route path="/help-details" element={<HelpDetail />} />
       <Route path="/enterprise" element={<Enterprise />} />
