@@ -42,7 +42,7 @@ import './App.css';
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import ScrollToTop from "./components/pages/ScrollToTop";
 import SplashScreen from './components/pages/SplashScreen'; 
-
+import GoogleRedirectLogin from './components/pages/GoogleRedirectLogin';
 import Home from './components/pages/Home';
 import VehicleDetails from './components/pages/VehicleDetails';
 import HelpDetail from './components/pages/HelpDetail';
@@ -70,6 +70,7 @@ function AppWrapper() {
       <Route path="/orders" element={<UserShipments />} />
       <Route path="/select-address" element={<SelectAddressPage />} />
       <Route path="/profile" element={<UserProfile />} />
+    <Route path="/google-login" element={<GoogleRedirectLogin />} />
     </Routes>
   );
 }
