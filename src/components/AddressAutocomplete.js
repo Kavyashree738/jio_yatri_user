@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaMapMarkerAlt, FaArrowLeft } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaCrosshairs } from 'react-icons/fa';
 import '../styles/components.css';
 
 function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
     const [query, setQuery] = useState(initialValue);
     const [suggestions, setSuggestions] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [isGettingLocation, setIsGettingLocation] = useState(false);
 
+    // Sync with initialValue prop
     useEffect(() => {
         setQuery(initialValue);
     }, [initialValue]);
 
+    // Autocomplete search
     useEffect(() => {
         if (query.length > 2) {
             const timer = setTimeout(() => {
@@ -19,7 +22,6 @@ function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
                     params: {
                         input: query,
                         country: 'in'
-                        
                     }
                 })
                     .then(res => {
@@ -34,6 +36,48 @@ function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
             setShowDropdown(false);
         }
     }, [query]);
+
+    // Get current location using browser geolocation
+    const getCurrentLocation = () => {
+        setIsGettingLocation(true);
+
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser");
+            setIsGettingLocation(false);
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                try {
+                    const { latitude, longitude } = position.coords;
+                    const response = await axios.get('https://jio-yatri-user.onrender.com/api/address/reverse-geocode', {
+                        params: { lat: latitude, lng: longitude }
+                    });
+
+                    const address = response.data.results[0]?.formatted_address;
+                    if (address) {
+                        setQuery(address);
+                        onSelect({
+                            address: address,
+                            coordinates: { lat: latitude, lng: longitude }
+                        });
+                        setSuggestions([]);
+                        setShowDropdown(false);
+                    }
+                } catch (error) {
+                    console.error("Reverse geocoding failed:", error);
+                    alert("Couldn't get address for this location");
+                } finally {
+                    setIsGettingLocation(false);
+                }
+            },
+            (error) => {
+                alert("Error getting location: " + error.message);
+                setIsGettingLocation(false);
+            }
+        );
+    };
 
     const handleSelect = async (suggestion) => {
         setQuery(suggestion.description);
@@ -56,13 +100,10 @@ function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
             console.error('Geocoding failed:', error);
         }
     };
-    
+
     return (
         <div className="address-autocomplete-container">
             <div className="search-header">
-                {/* <button className="back-button" onClick={onBackClick}>
-                    <FaArrowLeft />
-                </button> */}
                 <div className="address-autocomplete">
                     <div className="input-with-icon">
                         <FaMapMarkerAlt className="location-icon" />
@@ -72,7 +113,19 @@ function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder="Enter address..."
                             required
+                            autoComplete="off"
                         />
+                    </div>
+
+                    {/* Current Location Row */}
+                    <div
+                        className="current-location-row"
+                        onClick={getCurrentLocation}
+                    >
+                        <FaMapMarkerAlt className={`current-location-icon ${isGettingLocation ? "spin-icon" : ""}`} />
+                        <span className="current-location-text">
+                            {isGettingLocation ? "Detecting location..." : "current location"}
+                        </span>
                     </div>
 
                     {showDropdown && suggestions.length > 0 && (
