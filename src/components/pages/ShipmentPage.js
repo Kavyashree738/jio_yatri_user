@@ -1391,8 +1391,8 @@ const vehicleTypes = [
     rate: 50,
     emoji: '🛻',
     capacity: 'Up to 1700kg',
-    available: false,
-    comingSoon: true
+    available: true,
+    // comingSoon: true
   },
   {
     type: 'Tata407',
@@ -1400,8 +1400,8 @@ const vehicleTypes = [
     rate: 60,
     emoji: '🚛',
     capacity: 'Up to 2500kg',
-    available: false,
-    comingSoon: true
+    available: true,
+    // comingSoon: true
   },
   {
     type: 'ContainerTruck',
@@ -1690,7 +1690,7 @@ function ShipmentPage() {
         handler: async function (response) {
           try {
             await axios.post(
-              'http://localhost:5000/api/payment/verify',
+              'https://jio-yatri-user.onrender.com/api/payment/verify',
               {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
@@ -1839,6 +1839,15 @@ function ShipmentPage() {
       case 1:
         return (
           <div className="sender-receiver-section">
+            {/* Map Background for Step 1 */}
+            <div className="map-background">
+              <LocationMap
+                senderCoordinates={shipmentData.sender.address.coordinates}
+                receiverCoordinates={shipmentData.receiver.address.coordinates}
+                currentLocation={currentLocation}
+              />
+            </div>
+
             <div className="address-section">
               <div className="section-header">
                 <h3 className="section-titles">Sender Information</h3>
