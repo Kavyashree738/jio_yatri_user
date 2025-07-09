@@ -41,7 +41,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import ScrollToTop from "./components/pages/ScrollToTop";
-// import SplashScreen from './components/pages/SplashScreen'; 
+import SplashScreen from './components/pages/SplashScreen'; 
 
 import Home from './components/pages/Home';
 import VehicleDetails from './components/pages/VehicleDetails';
@@ -59,7 +59,7 @@ function AppWrapper() {
 
   return (
     <Routes>
-      // <Route path="/" element={<SplashScreen />} />
+      <Route path="/" element={<SplashScreen />} />
       <Route path="/" element={<Home />} />
       <Route path="/vehicle/:type" element={<VehicleDetails />} />
       <Route path="/help-details" element={<HelpDetail />} />
