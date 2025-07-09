@@ -155,20 +155,32 @@ const HeroSection = () => {
     await sendCode();
   };
 
-  const signInWithGoogle = async () => {
-    try {
-      setIsLoading(true);
-      await signInWithPopup(auth, googleProvider);
-      setMessage({ text: 'Google sign-in successful!', isError: false });
-    } catch (error) {
-      setMessage({
-        text: `Google sign-in failed: ${error.message}`,
-        isError: true,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+ const isWebView = () => {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  return /wv|WebView|iPhone|iPod|iPad|Android.*Version\/[\d.]+.*Chrome/.test(ua);
+};
+
+ const signInWithGoogle = async () => {
+  if (isWebView()) {
+    // Redirect to a page that handles Google Redirect login
+    const loginUrl = `${window.location.origin}/google-login`; // This should be a Route in your React app
+    window.location.href = loginUrl;
+    return;
+  }
+
+  try {
+    setIsLoading(true);
+    const result = await signInWithPopup(auth, googleProvider);
+    setMessage({ text: 'Google sign-in successful!', isError: false });
+  } catch (error) {
+    setMessage({
+      text: `Google sign-in failed: ${error.message}`,
+      isError: true
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <section className="hero-section" id="hero">
