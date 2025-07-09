@@ -176,12 +176,12 @@
 /* Small Mobile View (480px and below) */
 @media (max-width: 480px) {
   .top-strip {
-    padding: 35px 12px;
+    padding: 9px 12px;
     height: 50px;
   }
   
   .top-strip h1 {
-    font-size: 20px;
+    font-size: 16px;
   }
   
   .mobile-nav-link {
@@ -196,7 +196,7 @@
 /* Very Small Screens (360px and below) */
 @media (max-width: 360px) {
   .top-strip h1 {
-    font-size: 20px;
+    font-size: 14px;
   }
   
   .mobile-nav-link {
