@@ -1,11 +1,22 @@
-/* ===== Top Strip ===== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding-top: 110px; /* 50px for top-strip + 60px for main-header */
+  padding-bottom: 0;  /* No bottom nav on desktop */
+}
 .top-strip {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   background: white;
-  color:#0044FF;
+  color: #0044FF;
   font-weight: 600;
   padding: 12px 20px;
   text-align: center;
@@ -15,6 +26,7 @@
   align-items: center;
   justify-content: center;
   height: 50px;
+  overflow: hidden;
 }
 
 .top-strip h1 {
@@ -38,6 +50,7 @@
   height: 60px;
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 
 .header-container {
@@ -100,6 +113,7 @@
   z-index: 1000;
   justify-content: space-around;
   align-items: center;
+  overflow: hidden;
 }
 
 .mobile-bottom-nav button {
@@ -145,7 +159,7 @@
   .top-strip h1 {
     font-size: 20px;
   }
-  
+
   .nav-links {
     gap: 15px;
   }
@@ -153,23 +167,23 @@
 
 /* Mobile View (768px and below) */
 @media (max-width: 768px) {
+  body {
+    padding-top: 50px;
+    padding-bottom: 60px;
+  }
+
   .main-header {
     display: none;
   }
-  
+
   .mobile-bottom-nav {
     display: flex;
   }
-  
+
   .top-strip h1 {
     font-size: 18px;
     white-space: normal;
     line-height: 1.2;
-  }
-  
-  body {
-    padding-top: 50px;
-    padding-bottom: 60px;
   }
 }
 
@@ -179,15 +193,15 @@
     padding: 9px 12px;
     height: 50px;
   }
-  
+
   .top-strip h1 {
     font-size: 16px;
   }
-  
+
   .mobile-nav-link {
     font-size: 9px;
   }
-  
+
   .mobile-nav-icon {
     font-size: 18px;
   }
@@ -198,11 +212,11 @@
   .top-strip h1 {
     font-size: 14px;
   }
-  
+
   .mobile-nav-link {
     font-size: 8px;
   }
-  
+
   .mobile-nav-icon {
     font-size: 16px;
   }
