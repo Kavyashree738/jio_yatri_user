@@ -227,3 +227,8 @@
     font-size: 16px;
   }
 }
+
+.home-page {
+  width: 100%;
+  overflow-x: hidden;
+}
