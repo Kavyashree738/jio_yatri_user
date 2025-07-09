@@ -20,7 +20,7 @@ import { useAuth } from '../../context/AuthContext';
 const Home = () => {
   const { user } = useAuth();
   return (
-    <div>
+    <div className="home-page">
       <Header/>
       
      <HeroSection/> 
