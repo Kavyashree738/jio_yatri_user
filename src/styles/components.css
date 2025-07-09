@@ -101,14 +101,12 @@
 .address-section {
   position: relative;
   z-index: 20;
-  background-color: rgba(255, 255, 255, 0.9);
+  /* background-color: rgba(255, 255, 255, 0.9); */
   border-radius: 12px;
   padding: 20px;
-  margin: 20px auto;
+  margin: 5px auto;
   width: 90%;
   max-width: 600px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5px);
 }
 
 .section-header {
@@ -129,12 +127,7 @@
   margin-right: 12px;
 }
 
-.section-titles {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
-}
+
 
 .input-group {
   position: relative;
@@ -357,14 +350,6 @@
   border: none;
 }
 
-.button-primary {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.button-primary:hover {
-  background-color: #3d8b40;
-}
 
 .button-secondary {
   background-color: white;
@@ -541,21 +526,21 @@
   .step-title {
     display: none;
   }
-  
+
   .step-connector {
     width: 20px;
     left: -20px;
   }
-  
+
   .address-section {
     width: 95%;
     padding: 15px;
   }
-  
+
   .navigation-buttons {
     padding: 15px;
   }
-  
+
   .nav-button {
     padding: 10px 20px;
   }
@@ -717,12 +702,13 @@
     width: 95%;
     padding: 12px;
   }
-  
+
   .map-nav-button {
     padding: 10px 20px;
     font-size: 15px;
   }
 }
+
 .address-overlay {
   position: absolute;
   top: 0;
@@ -746,7 +732,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(8, 57, 218, 0.733);
   pointer-events: auto;
 }
 
@@ -777,12 +763,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(8, 57, 218, 0.733);
   pointer-events: auto;
 }
 
 .address-icon {
-  color: #555;
+  color: #0b21e4;
 }
 
 .address-text {
@@ -795,7 +781,7 @@
 }
 
 .address-arrow {
-  color: #777;
+  color: #073be9;
 }
 
 .map-navigation-buttons {
@@ -822,13 +808,14 @@
 }
 
 .button-primary {
-  background: #3399cc;
+  background: rgba(0, 0, 255, 0.863);
   color: white;
 }
 
 .button-primary:hover {
   background: #2a87b8;
 }
+
 .navigation-buttons.map-navigation-buttons {
   position: absolute;
   bottom: 20px;
@@ -838,6 +825,7 @@
   display: flex;
   gap: 1rem;
 }
+
 /* Add to your components.css */
 .map-navigation-buttons {
   display: flex;
@@ -889,7 +877,7 @@
 
 .address-section {
   width: 100%;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -903,20 +891,6 @@
   gap: 12px;
 }
 
-.section-titles {
-  font-size: 20px;
-  color: #2d3436;
-  font-weight: 600;
-  margin: 0;
-}
-
-.section-titles::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #e0e0e0);
-  margin-left: 15px;
-}
 
 .input-group {
   position: relative;
@@ -980,19 +954,20 @@
   .address-section {
     padding: 25px 20px;
   }
-  
+
   .transparent-input {
     padding: 14px 15px 14px 45px;
   }
-  
+
   .phone-input {
     padding-left: 70px !important;
   }
-  
+
   .phone-prefix {
     left: 45px;
   }
 }
+
 /* Step 1: Sender/Receiver Section - Full Width Vertical Layout */
 .sender-receiver-section {
   width: 100%;
@@ -1003,7 +978,7 @@
 
 .address-section {
   width: 100%;
-  background-color: #ffffff;
+  background-color: #ffffff62;
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -1019,7 +994,7 @@
 
 .section-titles {
   font-size: 20px;
-  color: #2d3436;
+  color: rgba(0, 0, 255, 0.836);
   font-weight: 600;
   margin: 0;
 }
@@ -1034,7 +1009,7 @@
 
 .input-group {
   position: relative;
-  margin-bottom: 25px;
+  margin-bottom: 10px;
   width: 100%;
 }
 
@@ -1046,19 +1021,22 @@
   transform: translateY(-50%);
   color: #7f8c8d;
   font-size: 18px;
-  z-index: 2; /* Ensure icon stays above other elements */
+  z-index: 2;
+  /* Ensure icon stays above other elements */
 }
 
 .transparent-input {
   width: 100%;
-  padding: 16px 20px 16px 50px; /* Left padding accommodates icon */
+  padding: 16px 20px 16px 50px;
+  /* Left padding accommodates icon */
   border: 1px solid #e0e0e0;
   border-radius: 10px;
   font-size: 16px;
-  background-color: #fafafa;
+  background-color: #fafafaa8;
   color: #2d3436;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  position: relative; /* Ensure input stacks properly */
+  position: relative;
+  /* Ensure input stacks properly */
 }
 
 /* PHONE INPUT SPECIFIC STYLES */
@@ -1069,7 +1047,8 @@
 
 .phone-prefix {
   position: absolute;
-  left: 50px; /* Position after the phone icon */
+  left: 50px;
+  /* Position after the phone icon */
   top: 50%;
   transform: translateY(-50%);
   color: #7f8c8d;
@@ -1079,19 +1058,20 @@
 }
 
 .phone-input {
-  padding-left: 85px !important; /* Accommodate both icon and prefix */
+  padding-left: 85px !important;
+  /* Accommodate both icon and prefix */
 }
 
 /* Focus states */
 .transparent-input:focus {
-  border-color: #00b894;
+  border-color: #0b1bff;
   box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
   outline: none;
   background-color: #ffffff;
 }
 
 .input-group:focus-within .input-icon {
-  color: #00b894;
+  color: #0f1ddb;
 }
 
 /* MOBILE RESPONSIVENESS */
@@ -1099,23 +1079,26 @@
   .address-section {
     padding: 25px 20px;
   }
-  
+
   .transparent-input {
-    padding: 14px 15px 14px 45px; /* Slightly reduce padding on mobile */
+    padding: 14px 15px 14px 45px;
+    /* Slightly reduce padding on mobile */
   }
-  
+
   /* Adjust phone input for mobile */
   .phone-input {
     padding-left: 75px !important;
   }
-  
+
   .phone-prefix {
-    left: 45px; /* Adjust prefix position to match reduced padding */
+    left: 45px;
+    /* Adjust prefix position to match reduced padding */
     font-size: 15px;
   }
-  
+
   .input-icon {
-    left: 15px; /* Slightly adjust icon position */
+    left: 15px;
+    /* Slightly adjust icon position */
     font-size: 16px;
   }
 }
@@ -1140,12 +1123,17 @@
   width: 100%;
   display: flex;
   align-items: center;
+
+}
+
+.input-with-icon svg {
+  color: blue;
 }
 
 .location-icon {
   position: absolute;
   left: 15px;
-  color: #4CAF50;
+  /* color: #4CAF50; */
   font-size: 18px;
 }
 
@@ -1162,19 +1150,19 @@
 
 .input-with-icon input:focus {
   outline: none;
-  border-color: #4CAF50;
-  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+  border-color: #0b0feb;
+  box-shadow: 0 0 0 3px rgba(5, 19, 219, 0.2);
 }
 
 /* Suggestions Dropdown - Full Text Display */
 .suggestions-dropdown-container {
   position: absolute;
   width: 100%;
-  background: white;
+  /* background: white; */
   border-radius: 0 0 8px 8px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  border: 2px solid #4CAF50;
+  /* border: 2px solid #4CAF50; */
   border-top: none;
   margin-top: -2px;
   overflow: visible;
@@ -1189,14 +1177,16 @@
 
 .suggestion-item {
   display: flex;
-  align-items: flex-start; /* Changed to flex-start for multi-line text */
+  align-items: flex-start;
+  /* Changed to flex-start for multi-line text */
   padding: 12px 20px;
   cursor: pointer;
   transition: background-color 0.2s;
   border-bottom: 1px solid #f5f5f5;
   width: 100%;
   box-sizing: border-box;
-  min-height: 48px; /* Minimum height for each item */
+  min-height: 48px;
+  /* Minimum height for each item */
 }
 
 .suggestion-item:last-child {
@@ -1209,10 +1199,11 @@
 
 .suggestion-icon {
   margin-right: 12px;
-  color: #4CAF50;
+  color: #0e41e9;
   font-size: 16px;
   flex-shrink: 0;
-  margin-top: 2px; /* Better icon alignment */
+  margin-top: 2px;
+  /* Better icon alignment */
 }
 
 /* Full Text Display Properties */
@@ -1247,13 +1238,21 @@
 
 /* Animation for dropdown */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .suggestions-dropdown-container {
   animation: fadeIn 0.15s ease-out;
 }
+
 /* Vehicle Options */
 .vehicle-option.unavailable {
   opacity: 0.6;
@@ -1278,4 +1277,159 @@
 
 .vehicle-option.unavailable .vehicle-price {
   color: #757575;
+}
+.current-location-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  margin-top: 8px;
+  background: rgba(245, 245, 245, 0.801);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* border: 1px solid #e0e0e0; */
+}
+
+.current-location-row:hover {
+  background: rgba(230, 230, 230, 0.9);
+  border-color: #d0d0d0;
+}
+
+.current-location-icon {
+  color: #fa0c0c8e;
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.current-location-text {
+  color: #002df3;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Spin Animation */
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Input Container */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  /* padding: 10px 15px; */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+
+/* Suggestions Dropdown */
+.suggestions-dropdown-container {
+  position: absolute;
+  width: 100%;
+  /* background: white; */
+  border-radius: 0 0 8px 8px;
+  /* box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); */
+  z-index: 1000;
+  /* border: 2px solid #4CAF50; */
+  border-top: none;
+  margin-top: -2px;
+  overflow: visible;
+}
+
+.suggestions-dropdown {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  /* Changed to flex-start for multi-line text */
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #f5f5f5;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 48px;
+  /* Minimum height for each item */
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #f8f8f8;
+}
+
+.suggestion-icon {
+  margin-right: 12px;
+  color: #173bdf;
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  /* Better icon alignment */
+}
+
+/* Full Text Display Properties */
+.suggestion-text {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  width: 100%;
+  display: block;
+  color: #333;
+  line-height: 1.4;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .location-icon {
+    left: 12px;
+    font-size: 16px;
+  }
+
+  .input-with-icon input {
+    padding: 12px 15px 12px 40px;
+    font-size: 15px;
+  }
+
+  .suggestion-item {
+    padding: 10px 15px;
+    min-height: 44px;
+  }
+}
+
+/* Animation for dropdown */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.suggestions-dropdown-container {
+  animation: fadeIn 0.15s ease-out;
 }
