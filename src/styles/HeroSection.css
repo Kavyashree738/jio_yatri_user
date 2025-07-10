@@ -365,7 +365,8 @@
   .hero-content-wrapper {
     flex-direction: column;
     align-items: center;
-    padding-top: 10vh;
+/*     padding-top: 10vh; */
+    margin-top: -10px;
   }
 
   .hero-text {
