@@ -529,7 +529,7 @@
     padding: 15px;
   }
 
-  .navigation-buttons {
+  .navigation-button {
   display: flex;
   justify-content: space-between;
   padding: 20px;
@@ -625,7 +625,7 @@
   margin-bottom: 20px;
 }
 
-.map-navigation-buttons {
+.map-navigation-button {
   display: flex;
   justify-content: space-between;
   padding: 20px;
@@ -784,7 +784,7 @@
   color: #073be9;
 }
 
-.map-navigation-buttons {
+.map-navigation-button {
   display: flex;
   justify-content: center;
   gap: 20px;
@@ -816,7 +816,7 @@
   background: #2a87b8;
 }
 
-.navigation-buttons.map-navigation-buttons {
+.navigation-button.map-navigation-button {
   /* position: absolute; */
   bottom: 20px;
   left: 50%;
@@ -827,7 +827,7 @@
 }
 
 /* Add to your components.css */
-.navigation-buttons {
+.navigation-button{
   display: flex;
   justify-content: space-between;
   padding: 20px;
@@ -861,7 +861,7 @@
 }
 
 /* Hide global navigation buttons in step 2 */
-.form-containers.with-map-background .navigation-buttons {
+.form-containers.with-map-background .navigation-button {
   display: none;
 }
 
@@ -1431,4 +1431,3 @@
 .suggestions-dropdown-container {
   animation: fadeIn 0.15s ease-out;
 }
-
