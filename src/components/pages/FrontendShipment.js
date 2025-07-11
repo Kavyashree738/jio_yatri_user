@@ -1358,7 +1358,7 @@ import Header from './Header';
 import Footer from './Footer';
 import LocationMap from './LocationMap';
 import { FaMapMarkerAlt, FaChevronRight, FaUser, FaPhone, FaMapMarkedAlt } from 'react-icons/fa';
-import '../../styles/FrontendShipment.css';
+import '../../styles/FrontShipment.css';
 
 const vehicleTypes = [
   {
@@ -1943,7 +1943,7 @@ function ShipmentPage() {
               </div>
             </div>
 
-            <div className="map-navigation-buttons">
+            <div className="map-navigation-button">
               <button
                 type="button"
                 className="map-nav-button button-secondary"
@@ -2139,7 +2139,7 @@ function ShipmentPage() {
         {currentStep === 4 ? (
           <form onSubmit={handleSubmit} className="step-content active">
             {renderStepContent()}
-            <div className="navigation-buttons">
+            <div className="navigation-button">
               <button
                 type="button"
                 className="nav-button button-secondary"
@@ -2160,7 +2160,7 @@ function ShipmentPage() {
         ) : (
           <div className="step-content active">
             {renderStepContent()}
-            <div className="navigation-buttons">
+            <div className="navigation-button">
               {currentStep > 1 && (
                 <button
                   type="button"
