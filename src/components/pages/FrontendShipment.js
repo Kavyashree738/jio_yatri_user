@@ -1358,7 +1358,7 @@ import Header from './Header';
 import Footer from './Footer';
 import LocationMap from './LocationMap';
 import { FaMapMarkerAlt, FaChevronRight, FaUser, FaPhone, FaMapMarkedAlt } from 'react-icons/fa';
-import '../../styles/FrontShipment.css';
+import '../../styles/FrontendShipment.css';
 
 const vehicleTypes = [
   {
