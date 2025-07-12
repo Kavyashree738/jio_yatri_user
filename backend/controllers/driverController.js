@@ -22,13 +22,33 @@ exports.checkDriverExists = async (req, res) => {
 // Register driver with proper validation
 exports.registerDriver = async (req, res) => {
   try {
-    const { userId, name, phone, vehicleType, vehicleNumber, licenseFileId, rcFileId } = req.body;
+    const { 
+      userId, 
+      name, 
+      phone, 
+      aadharFileId, 
+      panFileId,
+      vehicleType, 
+      vehicleNumber, 
+      licenseFileId, 
+      rcFileId,
+      insuranceFileId
+    } = req.body;
     
     // Validate required fields
-    if (!userId || !name || !phone || !vehicleType || !vehicleNumber || !licenseFileId || !rcFileId) {
+    if (!userId || !name || !phone || !aadharFileId || !panFileId || 
+        !vehicleType || !vehicleNumber || !licenseFileId || !rcFileId || !insuranceFileId) {
       return res.status(400).json({
         success: false,
-        error: 'All fields are required'
+        error: 'All fields and documents are required'
+      });
+    }
+
+    // Validate vehicle number (format: KA01AB1234)
+    if (!/^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}$/.test(vehicleNumber)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid vehicle number (format: KA01AB1234)'
       });
     }
 
@@ -47,15 +67,18 @@ exports.registerDriver = async (req, res) => {
       userId,
       name,
       phone,
+      documents: {
+        aadhar: aadharFileId,
+        pan: panFileId,
+        license: licenseFileId,
+        rc: rcFileId,
+        insurance: insuranceFileId
+      },
       vehicleType,
       vehicleNumber,
-      documents: {
-        license: licenseFileId,
-        rc: rcFileId
-      },
       status: 'active'
     });
-    console.log(`the driver details ${driver}`)
+
     await driver.save();
     
     res.status(201).json({ 
@@ -64,7 +87,6 @@ exports.registerDriver = async (req, res) => {
     });
   } catch (err) {
     if (err.code === 11000) {
-      // If somehow we still hit duplicate key (race condition)
       const existingDriver = await Driver.findOne({ userId: req.body.userId });
       return res.status(400).json({
         success: false,
@@ -78,7 +100,6 @@ exports.registerDriver = async (req, res) => {
     });
   }
 };
-
 // Get driver by userId
 exports.getDriver = async (req, res) => {
   try {
