@@ -474,31 +474,31 @@ const rzp = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-console.log('Razorpay initialized with key:', process.env.RAZORPAY_KEY_ID ? '***REDACTED***' : 'MISSING');
+// console.log('Razorpay initialized with key:', process.env.RAZORPAY_KEY_ID ? '***REDACTED***' : 'MISSING');
 
 exports.initiatePayment = async (req, res) => {
-  console.log('\n=== INITIATE PAYMENT STARTED ===');
-  console.log('Request params:', req.params);
-  console.log('Request body:', req.body);
+  // console.log('\n=== INITIATE PAYMENT STARTED ===');
+  // console.log('Request params:', req.params);
+  // console.log('Request body:', req.body);
 
   try {
     const shipment = await Shipment.findById(req.params.id);
-    console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
+    // console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
 
     if (!shipment) {
-      console.log('Shipment not found');
+      // console.log('Shipment not found');
       return res.status(404).json({
         success: false,
         error: 'Shipment not found'
       });
     }
 
-    console.log('Shipment status:', shipment.status);
-    console.log('Payment status:', shipment.payment?.status);
+    // console.log('Shipment status:', shipment.status);
+    // console.log('Payment status:', shipment.payment?.status);
 
     // Updated condition: Allow payment if status is 'pending' OR 'delivered'
     if (shipment.status !== 'pending' && shipment.status !== 'delivered') {
-      console.log('Shipment not in a payable state (must be pending or delivered)');
+      // console.log('Shipment not in a payable state (must be pending or delivered)');
       return res.status(400).json({
         success: false,
         error: 'Payment can only be initiated when shipment is pending or delivered'
@@ -506,7 +506,7 @@ exports.initiatePayment = async (req, res) => {
     }
 
     if (shipment.payment?.status !== 'pending') {
-      console.log('Payment already processed');
+      // console.log('Payment already processed');
       return res.status(400).json({
         success: false,
         error: 'Payment already processed'
@@ -514,7 +514,7 @@ exports.initiatePayment = async (req, res) => {
     }
 
     const orderAmount = Math.round(shipment.cost * 100);
-    console.log('Creating order for amount:', orderAmount);
+    // console.log('Creating order for amount:', orderAmount);
 
     const order = await rzp.orders.create({
       amount: orderAmount,
@@ -523,7 +523,7 @@ exports.initiatePayment = async (req, res) => {
       payment_capture: 1 // Auto-capture payment
     });
 
-    console.log('Razorpay order created:', order.id);
+    // console.log('Razorpay order created:', order.id);
 
     shipment.payment = {
       method: 'razorpay',
@@ -532,7 +532,7 @@ exports.initiatePayment = async (req, res) => {
     };
 
     await shipment.save();
-    console.log('Shipment updated with payment details');
+    // console.log('Shipment updated with payment details');
 
     res.json({
       success: true,
@@ -540,14 +540,14 @@ exports.initiatePayment = async (req, res) => {
     });
 
   } catch (err) {
-    console.error('\n!!! PAYMENT INITIATION ERROR !!!');
-    console.error('Error:', err.message);
-    console.error('Stack:', err.stack);
-    console.error('Request details:', {
-      params: req.params,
-      body: req.body,
-      timestamp: new Date()
-    });
+    // console.error('\n!!! PAYMENT INITIATION ERROR !!!');
+    // console.error('Error:', err.message);
+    // console.error('Stack:', err.stack);
+    // console.error('Request details:', {
+    //   params: req.params,
+    //   body: req.body,
+    //   timestamp: new Date()
+    // });
 
     res.status(500).json({
       success: false,
@@ -555,26 +555,26 @@ exports.initiatePayment = async (req, res) => {
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   } finally {
-    console.log('=== INITIATE PAYMENT COMPLETED ===\n');
+    // console.log('=== INITIATE PAYMENT COMPLETED ===\n');
   }
 };
 
 exports.verifyPayment = async (req, res) => {
-  console.log('\n=== VERIFY PAYMENT STARTED ===');
-  console.log('Request body:', req.body);
+  // console.log('\n=== VERIFY PAYMENT STARTED ===');
+  // console.log('Request body:', req.body);
 
   const { razorpay_payment_id, razorpay_order_id, razorpay_signature, shipmentId } = req.body;
 
-  console.log('Received fields:', {
-    razorpay_payment_id,
-    razorpay_order_id,
-    razorpay_signature: razorpay_signature ? '***REDACTED***' : 'MISSING',
-    shipmentId
-  });
+  // console.log('Received fields:', {
+  //   razorpay_payment_id,
+  //   razorpay_order_id,
+  //   razorpay_signature: razorpay_signature ? '***REDACTED***' : 'MISSING',
+  //   shipmentId
+  // });
 
   // Validation
   if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature || !shipmentId) {
-    console.log('Missing required fields');
+    // console.log('Missing required fields');
     return res.status(400).json({
       success: false,
       error: 'Missing required payment verification fields',
@@ -589,19 +589,19 @@ exports.verifyPayment = async (req, res) => {
 
   try {
     // Signature Verification
-    console.log('Verifying signature...');
+    // console.log('Verifying signature...');
     const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
     hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
     const generatedSignature = hmac.digest('hex');
 
-    console.log('Signature comparison:', {
-      received: razorpay_signature,
-      generated: generatedSignature,
-      match: generatedSignature === razorpay_signature
-    });
+    // console.log('Signature comparison:', {
+    //   received: razorpay_signature,
+    //   generated: generatedSignature,
+    //   match: generatedSignature === razorpay_signature
+    // });
 
     if (generatedSignature !== razorpay_signature) {
-      console.log('Signature mismatch');
+      // console.log('Signature mismatch');
       return res.status(400).json({
         success: false,
         error: 'Invalid payment signature'
@@ -609,16 +609,16 @@ exports.verifyPayment = async (req, res) => {
     }
 
     // Find Shipment
-    console.log('Looking for shipment:', shipmentId);
+    // console.log('Looking for shipment:', shipmentId);
     const shipment = await Shipment.findOne({
       _id: shipmentId,
       'payment.razorpayOrderId': razorpay_order_id
     });
 
-    console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
+    // console.log('Found shipment:', shipment ? shipment._id : 'NOT FOUND');
 
     if (!shipment) {
-      console.log('Shipment not found or order ID mismatch');
+      // console.log('Shipment not found or order ID mismatch');
       return res.status(404).json({
         success: false,
         error: 'Matching shipment not found',
@@ -630,7 +630,7 @@ exports.verifyPayment = async (req, res) => {
     }
 
     // Update Payment
-    console.log('Updating shipment payment status');
+    // console.log('Updating shipment payment status');
     shipment.payment = {
       method: 'razorpay',
       status: 'paid',
@@ -651,11 +651,11 @@ exports.verifyPayment = async (req, res) => {
 
 
     await shipment.save();
-    console.log('Shipment payment updated successfully');
+    // console.log('Shipment payment updated successfully');
 
     // Update Driver Earnings
     if (shipment.assignedDriver?.driverId) {
-      console.log('Updating driver earnings for driver:', shipment.assignedDriver.driverId);
+      // console.log('Updating driver earnings for driver:', shipment.assignedDriver.driverId);
       await Driver.findByIdAndUpdate(shipment.assignedDriver.driverId, {
         $inc: {
           earnings: shipment.cost,
@@ -670,7 +670,7 @@ exports.verifyPayment = async (req, res) => {
           }
         }
       });
-      console.log('Driver earnings updated');
+      // console.log('Driver earnings updated');
     }
 
     res.json({
@@ -693,37 +693,37 @@ exports.verifyPayment = async (req, res) => {
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   } finally {
-    console.log('=== VERIFY PAYMENT COMPLETED ===\n');
+    // console.log('=== VERIFY PAYMENT COMPLETED ===\n');
   }
 };
 
 exports.markCashPaid = async (req, res) => {
   try {
-    console.log('\n=== CASH PAYMENT INITIATED ===');
+    // console.log('\n=== CASH PAYMENT INITIATED ===');
 
     const shipment = await Shipment.findById(req.params.id);
-    console.log('[CASH] Shipment fetched:', shipment);
+    // console.log('[CASH] Shipment fetched:', shipment);
 
     if (!shipment) {
-      console.log('[CASH] Shipment not found');
+      // console.log('[CASH] Shipment not found');
       return res.status(404).json({
         success: false,
         error: 'Shipment not found'
       });
     }
 
-    console.log('[CASH] Shipment status:', shipment.status);
+    // console.log('[CASH] Shipment status:', shipment.status);
     if (shipment.status !== 'delivered') {
-      console.log('[CASH] Shipment not yet delivered');
+      // console.log('[CASH] Shipment not yet delivered');
       return res.status(400).json({
         success: false,
         error: 'Shipment must be delivered first'
       });
     }
 
-    console.log('[CASH] Payment status:', shipment.payment?.status);
+    // console.log('[CASH] Payment status:', shipment.payment?.status);
     if (shipment.payment?.status !== 'pending') {
-      console.log('[CASH] Payment already processed');
+      // console.log('[CASH] Payment already processed');
       return res.status(400).json({
         success: false,
         error: 'Payment already processed'
@@ -733,10 +733,10 @@ exports.markCashPaid = async (req, res) => {
     // ✅ Use .toObject() to extract driverId safely
     const shipmentObj = shipment.toObject();
     const driverId = shipmentObj.assignedDriver && shipmentObj.assignedDriver._id;
-    console.log('[CASH] Driver ID:', driverId);
+    // console.log('[CASH] Driver ID:', driverId);
 
     if (!driverId) {
-      console.log('[CASH] No valid driver assigned');
+      // console.log('[CASH] No valid driver assigned');
       return res.status(400).json({
         success: false,
         error: 'No valid driver assigned'
@@ -750,7 +750,7 @@ exports.markCashPaid = async (req, res) => {
       collectedAt: new Date(),
       collectedBy: driverId
     };
-    console.log('[CASH] Shipment payment updated');
+    // console.log('[CASH] Shipment payment updated');
 
     // ✅ Add to shipment's payment history
     shipment.paymentHistory.push({
@@ -760,7 +760,7 @@ exports.markCashPaid = async (req, res) => {
       recordedBy: driverId,
       collectedAt: new Date()
     });
-    console.log('[CASH] Shipment payment history updated');
+    // console.log('[CASH] Shipment payment history updated');
 
     // ✅ Update driver earnings
     await Driver.findByIdAndUpdate(driverId, {
@@ -777,10 +777,10 @@ exports.markCashPaid = async (req, res) => {
         }
       }
     });
-    console.log('[CASH] Driver earnings updated');
+    // console.log('[CASH] Driver earnings updated');
 
     await shipment.save();
-    console.log('[CASH] Shipment saved successfully');
+    // console.log('[CASH] Shipment saved successfully');
 
     return res.json({
       success: true,
@@ -788,13 +788,13 @@ exports.markCashPaid = async (req, res) => {
     });
 
   } catch (err) {
-    console.error('[CASH] Error during cash payment:', err);
+    // console.error('[CASH] Error during cash payment:', err);
     return res.status(500).json({
       success: false,
       error: 'Cash payment processing failed',
       details: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   } finally {
-    console.log('=== CASH PAYMENT PROCESS COMPLETED ===\n');
+    // console.log('=== CASH PAYMENT PROCESS COMPLETED ===\n');
   }
 };
