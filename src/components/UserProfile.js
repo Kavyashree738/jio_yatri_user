@@ -47,7 +47,7 @@ const UserProfile = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      setMessage({ text: 'Logged out successfully.', isError: false });
+      // setMessage({ text: 'Logged out successfully.', isError: false });
       navigate('/home');
     } catch (error) {
       setMessage({ text: 'Logout failed: ' + error.message, isError: true });
