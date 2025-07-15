@@ -160,27 +160,48 @@ const HeroSection = () => {
   return /wv|WebView|iPhone|iPod|iPad|Android.*Version\/[\d.]+.*Chrome/.test(ua);
 };
 
- const signInWithGoogle = async () => {
-  if (isWebView()) {
-    // Redirect to a page that handles Google Redirect login
-    const loginUrl = `${window.location.origin}/google-login`; // This should be a Route in your React app
-     window.open(loginUrl, '_blank'); 
-    return;
-  }
+//  const signInWithGoogle = async () => {
+//   if (isWebView()) {
+//     // Redirect to a page that handles Google Redirect login
+//     const loginUrl = `${window.location.origin}/google-login`; // This should be a Route in your React app
+//      window.open(loginUrl, '_blank'); 
+//     return;
+//   }
 
-  try {
-    setIsLoading(true);
-    const result = await signInWithPopup(auth, googleProvider);
-    setMessage({ text: 'Google sign-in successful!', isError: false });
-  } catch (error) {
-    setMessage({
-      text: `Google sign-in failed: ${error.message}`,
-      isError: true
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+//   try {
+//     setIsLoading(true);
+//     const result = await signInWithPopup(auth, googleProvider);
+//     setMessage({ text: 'Google sign-in successful!', isError: false });
+//   } catch (error) {
+//     setMessage({
+//       text: `Google sign-in failed: ${error.message}`,
+//       isError: true
+//     });
+//   } finally {
+//     setIsLoading(false);
+//   }
+// };
+  const signInWithGoogle = () => {
+    if (isWebView()) {
+      window.ReactNativeWebView?.postMessage(
+        JSON.stringify({
+          type: "OPEN_BROWSER",
+          url: `${window.location.origin}/google-login`,
+        })
+      );
+      return;
+    }
+
+    signInWithPopup(auth, new GoogleAuthProvider())
+      .then((result) => {
+        // console.log("User:", result.user);
+        // alert("Google Sign-In Successful");
+      })
+      .catch((error) => {
+        // console.error("Error:", error);
+        alert("Sign-In Failed");
+      });
+  };
 
   return (
     <section className="hero-section" id="hero">
