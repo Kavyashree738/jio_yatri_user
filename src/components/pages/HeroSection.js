@@ -164,7 +164,7 @@ const HeroSection = () => {
   if (isWebView()) {
     // Redirect to a page that handles Google Redirect login
     const loginUrl = `${window.location.origin}/google-login`; // This should be a Route in your React app
-     window.open(loginUrl, '_blank'); 
+     window.AndroidInterface?.openInBrowser(loginUrl);
     return;
   }
 
