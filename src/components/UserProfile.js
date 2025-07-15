@@ -48,7 +48,7 @@ const UserProfile = () => {
     try {
       await signOut(auth);
       setMessage({ text: 'Logged out successfully.', isError: false });
-      navigate('/');
+      navigate('/home');
     } catch (error) {
       setMessage({ text: 'Logout failed: ' + error.message, isError: true });
     }
