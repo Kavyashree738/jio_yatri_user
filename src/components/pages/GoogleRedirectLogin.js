@@ -34,42 +34,70 @@
 
 // export default GoogleRedirectLogin;
 import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { auth, googleProvider } from '../../firebase';
 import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { useAuth } from '../../context/AuthContext';
 
 const GoogleRedirectLogin = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setMessage } = useAuth();
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const fromApp = params.get('source') === 'app';
+    const alreadyRedirected = sessionStorage.getItem('googleRedirectStarted') === 'true';
 
     getRedirectResult(auth)
       .then(async (result) => {
         if (result?.user) {
+          // ✅ Got user after Google sign-in
           const token = await result.user.getIdToken();
+          localStorage.setItem('firebase_token', token);
+
+          // ✅ Check if login started from app
+          const params = new URLSearchParams(window.location.search);
+          const fromApp = params.get('source') === 'app';
 
           if (fromApp) {
-            // ✅ Deep link back to app with token
-            window.location.replace(`jioyatri://auth?token=${encodeURIComponent(token)}`);
+            // ✅ Send token back to Android app via deep link
+            window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
             return;
           }
 
-          // ✅ Normal web flow
-          window.location.replace('/');
-        } else if (!fromApp) {
-          // ✅ Only trigger sign-in on WEB, not when called from APP
-          signInWithRedirect(auth, googleProvider);
+          // ✅ For normal web login
+          setMessage({ text: 'Google sign-in successful!', isError: false });
+          sessionStorage.removeItem('googleRedirectStarted');
+          navigate(location.state?.from || '/');
         } else {
-          // ✅ From app but no result → Show message, don't loop
-          document.body.innerHTML = "<h3>Waiting for app to complete login...</h3>";
+          // ✅ If no result and not redirected yet, start redirect
+          if (alreadyRedirected) {
+            console.warn('No redirect result after Google. Not retrying.');
+            setMessage({ text: 'Login failed. Please try again.', isError: true });
+            return;
+          }
+
+          sessionStorage.setItem('googleRedirectStarted', 'true');
+          signInWithRedirect(auth, googleProvider);
         }
       })
-      .catch((err) => {
-        console.error('Google login error', err);
-        window.location.replace('/');
+      .catch((error) => {
+        console.error('Google sign-in failed:', error);
+        sessionStorage.removeItem('googleRedirectStarted');
+        setMessage({
+          text: `Google sign-in failed: ${error.message}`,
+          isError: true,
+        });
+        navigate('/');
       });
-  }, []);
+  }, [navigate, location, setMessage]);
 
-  return <p>Logging in with Google..........…</p>;
+  return (
+    <p style={{ textAlign: 'center', marginTop: '20px' }}>
+      Logging in with Google... <br />
+      <small>Please wait</small>
+    </p>
+  );
 };
 
 export default GoogleRedirectLogin;
+
