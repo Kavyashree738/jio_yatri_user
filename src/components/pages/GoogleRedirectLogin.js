@@ -54,12 +54,32 @@ const GoogleRedirectLogin = () => {
           const token = await result.user.getIdToken();
           localStorage.setItem('firebase_token', token);
 
+          // ✅ Detect if opened from Android app
+          const params = new URLSearchParams(window.location.search);
+          const fromApp = params.get('source') === 'app';
+
+          if (fromApp) {
+            // ✅ Redirect back to app via deep link
+            window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
+            return; // Stop normal navigation
+          }
+
+          // ✅ Normal browser login
           setMessage({ text: 'Google sign-in successful!', isError: false });
           sessionStorage.removeItem('googleRedirectStarted');
           navigate(location.state?.from || '/');
         } else if (!alreadyRedirected) {
           sessionStorage.setItem('googleRedirectStarted', 'true');
-          signInWithRedirect(auth, googleProvider);
+
+          // ✅ Add ?source=app if coming from app
+          const params = new URLSearchParams(window.location.search);
+          const fromApp = params.get('source') === 'app';
+
+          if (fromApp) {
+            signInWithRedirect(auth, googleProvider);
+          } else {
+            signInWithRedirect(auth, googleProvider);
+          }
         } else {
           setMessage({ text: 'Google login canceled.', isError: true });
           navigate('/');
@@ -79,6 +99,7 @@ const GoogleRedirectLogin = () => {
 };
 
 export default GoogleRedirectLogin;
+
 
 
 
