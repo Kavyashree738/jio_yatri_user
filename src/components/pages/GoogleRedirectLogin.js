@@ -39,30 +39,40 @@ import { auth, googleProvider } from '../../firebase';
 import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { useAuth } from '../../context/AuthContext';
 
+const APP_SCHEME = 'jioyatri://auth';
+
 const GoogleRedirectLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { setMessage } = useAuth();
 
   useEffect(() => {
-    const alreadyRedirected = sessionStorage.getItem('googleRedirectStarted');
+    const params = new URLSearchParams(window.location.search);
+    const fromAppQuery = params.get('source') === 'app';
+    const alreadyRedirected = sessionStorage.getItem('googleRedirectStarted') === 'true';
+
+    // ✅ If opened from app, remember it
+    if (fromAppQuery) {
+      sessionStorage.setItem('fromApp', 'true');
+    }
+    const fromAppStored = sessionStorage.getItem('fromApp') === 'true';
 
     getRedirectResult(auth)
       .then(async (result) => {
         if (result?.user) {
           const token = await result.user.getIdToken();
+          localStorage.setItem('firebase_token', token);
 
-          const params = new URLSearchParams(window.location.search);
-          const fromApp = params.get('source') === 'app';
+          if (fromAppQuery || fromAppStored) {
+            sessionStorage.removeItem('googleRedirectStarted');
+            sessionStorage.removeItem('fromApp');
 
-          if (fromApp) {
-            // ✅ Send token back to app using deep link
-            window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
-            return; // Stop further execution
+            // ✅ Redirect back to app via deep link
+            window.location.replace(`${APP_SCHEME}?token=${encodeURIComponent(token)}`);
+            return;
           }
 
-          // ✅ Normal Web Login Flow
-          localStorage.setItem('firebase_token', token);
+          // ✅ Normal web flow
           setMessage({ text: 'Google sign-in successful!', isError: false });
           sessionStorage.removeItem('googleRedirectStarted');
           navigate(location.state?.from || '/');
@@ -77,6 +87,7 @@ const GoogleRedirectLogin = () => {
       .catch((error) => {
         console.error('Google sign-in failed:', error);
         sessionStorage.removeItem('googleRedirectStarted');
+        sessionStorage.removeItem('fromApp');
         setMessage({
           text: `Google sign-in failed: ${error.message}`,
           isError: true,
