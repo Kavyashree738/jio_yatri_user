@@ -34,10 +34,16 @@
 
 // export default GoogleRedirectLogin;
 import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { auth, googleProvider } from '../../firebase';
 import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { useAuth } from '../../context/AuthContext';
 
 const GoogleRedirectLogin = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { setMessage } = useAuth();
+
   useEffect(() => {
     const alreadyRedirected = sessionStorage.getItem('googleRedirectStarted');
 
@@ -51,24 +57,33 @@ const GoogleRedirectLogin = () => {
           const fromApp = params.get('source') === 'app';
 
           if (fromApp) {
-            // ✅ Send token back to Android app
+            // ✅ Redirect back to Android App using deep link
             window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
             return;
           }
 
-          window.location.href = '/'; // For normal web users
+          // Normal website flow
+          setMessage({ text: 'Google sign-in successful!', isError: false });
+          sessionStorage.removeItem('googleRedirectStarted');
+          navigate(location.state?.from || '/');
         } else if (!alreadyRedirected) {
           sessionStorage.setItem('googleRedirectStarted', 'true');
           signInWithRedirect(auth, googleProvider);
         } else {
-          window.location.href = '/';
+          setMessage({ text: 'Google login canceled.', isError: true });
+          navigate('/');
         }
       })
       .catch((error) => {
         console.error('Google sign-in failed:', error);
-        window.location.href = '/';
+        sessionStorage.removeItem('googleRedirectStarted');
+        setMessage({
+          text: `Google sign-in failed: ${error.message}`,
+          isError: true,
+        });
+        navigate('/');
       });
-  }, []);
+  }, [navigate, location, setMessage]);
 
   return <p>Logging in with Google... Please wait</p>;
 };
