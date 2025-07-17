@@ -54,38 +54,28 @@ const GoogleRedirectLogin = () => {
           const token = await result.user.getIdToken();
           localStorage.setItem('firebase_token', token);
 
-          // ✅ Detect if opened from Android app
           const params = new URLSearchParams(window.location.search);
           const fromApp = params.get('source') === 'app';
 
           if (fromApp) {
-            // ✅ Redirect back to app via deep link
+            // ✅ Send token back to app using deep link
             window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
-            return; // Stop normal navigation
+            return;
           }
 
-          // ✅ Normal browser login
           setMessage({ text: 'Google sign-in successful!', isError: false });
           sessionStorage.removeItem('googleRedirectStarted');
           navigate(location.state?.from || '/');
         } else if (!alreadyRedirected) {
           sessionStorage.setItem('googleRedirectStarted', 'true');
-
-          // ✅ Add ?source=app if coming from app
-          const params = new URLSearchParams(window.location.search);
-          const fromApp = params.get('source') === 'app';
-
-          if (fromApp) {
-            signInWithRedirect(auth, googleProvider);
-          } else {
-            signInWithRedirect(auth, googleProvider);
-          }
+          signInWithRedirect(auth, googleProvider);
         } else {
           setMessage({ text: 'Google login canceled.', isError: true });
           navigate('/');
         }
       })
       .catch((error) => {
+        console.error('Google sign-in failed:', error);
         sessionStorage.removeItem('googleRedirectStarted');
         setMessage({
           text: `Google sign-in failed: ${error.message}`,
@@ -95,10 +85,11 @@ const GoogleRedirectLogin = () => {
       });
   }, [navigate, location, setMessage]);
 
-  return <p>Logging in with Google... <span className="spinner"></span></p>;
+  return <p>Logging in with Google... Please wait</p>;
 };
 
 export default GoogleRedirectLogin;
+
 
 
 
