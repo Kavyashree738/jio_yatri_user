@@ -112,7 +112,7 @@ const UserProfile = () => {
       setProfileData({ name: '', email: '', phone: '' });
 
       setMessage({ text: 'Logged out successfully', isError: false });
-      navigate('/');
+      navigate('/home');
     } catch (error) {
       console.error('Logout error:', error);
       setMessage({ text: 'Logout failed: ' + error.message, isError: true });
