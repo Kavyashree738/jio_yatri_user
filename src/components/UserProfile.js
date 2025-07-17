@@ -1,257 +1,280 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { FaUser, FaPhone, FaEnvelope, FaSignOutAlt, FaEdit, FaCamera } from 'react-icons/fa';
+import { FaUser, FaPhone, FaEnvelope, FaSignOutAlt, FaEdit, FaCheck } from 'react-icons/fa';
+import { MdVerified } from 'react-icons/md';
 import '../styles/UserProfile.css';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
-import Header from '../components/pages/Header';
-import Footer from '../components/pages/Footer';
+import Header from '../componets/Header';
+import Footer from '../componets/Footer';
 import { useNavigate } from 'react-router-dom';
+
+// 👇 Add a local placeholder image file to your project.
+import avatarPlaceholder from '../assets/images/profile.png';
+
+// (Optional) If you want *random* placeholder variants, import more & put in this array:
+const PLACEHOLDER_POOL = [avatarPlaceholder]; // add more paths if you have them
+
+const pickRandomPlaceholder = () => {
+  const i = Math.floor(Math.random() * PLACEHOLDER_POOL.length);
+  return PLACEHOLDER_POOL[i];
+};
 
 const UserProfile = () => {
   const { user, setMessage } = useAuth();
-  const [uploadedPhoto, setUploadedPhoto] = useState(null);
-  const [manualName, setManualName] = useState('');
-  const [manualEmail, setManualEmail] = useState('');
-  const [manualPhone, setManualPhone] = useState('');
-  const [editingProfile, setEditingProfile] = useState(false);
   const navigate = useNavigate();
 
+  const [uploadedPhoto, setUploadedPhoto] = useState(null);
+  const [profileData, setProfileData] = useState({
+    name: '',
+    email: '',
+    phone: ''
+  });
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 🔹 Stable random placeholder (only picked once per mount)
+  const randomPlaceholder = useMemo(() => pickRandomPlaceholder(), []);
+
+  // 🔹 Load saved data from localStorage only once
   useEffect(() => {
-    setUploadedPhoto(localStorage.getItem('uploadedPhoto'));
-    setManualName(localStorage.getItem('manualName') || '');
-    setManualEmail(localStorage.getItem('manualEmail') || '');
-    setManualPhone(localStorage.getItem('manualPhone') || '');
+    const savedPhoto = localStorage.getItem('uploadedPhoto');
+    const savedName = localStorage.getItem('profileName') || '';
+    const savedEmail = localStorage.getItem('profileEmail') || '';
+    const savedPhone = localStorage.getItem('profilePhone') || '';
+
+    setUploadedPhoto(savedPhoto);
+    setProfileData({
+      name: savedName,
+      email: savedEmail,
+      phone: savedPhone
+    });
   }, []);
 
+  // 🔹 Compute which avatar to show: uploaded > firebase > placeholder
+  const avatarSrc = uploadedPhoto || user?.photoURL || randomPlaceholder;
+
+  // 🔹 Handle broken image URLs (e.g., if user photo 404s after logout)
+  const handleAvatarError = useCallback((e) => {
+    if (e?.target?.src !== randomPlaceholder) {
+      e.target.src = randomPlaceholder;
+    }
+  }, [randomPlaceholder]);
+
+  // 🔹 Handle photo upload
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    setIsLoading(true);
     const reader = new FileReader();
     reader.onloadend = () => {
       setUploadedPhoto(reader.result);
       localStorage.setItem('uploadedPhoto', reader.result);
+      setIsLoading(false);
     };
     reader.readAsDataURL(file);
   };
 
+  // 🔹 Handle input changes for profile edit
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // 🔹 Save profile data
   const handleProfileSubmit = (e) => {
     e.preventDefault();
-    localStorage.setItem('manualName', manualName);
-    localStorage.setItem('manualEmail', manualEmail);
-    localStorage.setItem('manualPhone', manualPhone);
+    localStorage.setItem('profileName', profileData.name);
+    localStorage.setItem('profileEmail', profileData.email);
+    localStorage.setItem('profilePhone', profileData.phone);
+
     setEditingProfile(false);
     setMessage({ text: 'Profile updated successfully!', isError: false });
   };
 
+  // 🔹 Handle logout
   const handleLogout = async () => {
     try {
+      // Clear local storage
+      localStorage.removeItem('uploadedPhoto');
+      localStorage.removeItem('profileName');
+      localStorage.removeItem('profileEmail');
+      localStorage.removeItem('profilePhone');
+
       await signOut(auth);
-      // setMessage({ text: 'Logged out successfully.', isError: false });
-      navigate('/home');
+
+      // Reset state
+      setUploadedPhoto(null);
+      setProfileData({ name: '', email: '', phone: '' });
+
+      setMessage({ text: 'Logged out successfully', isError: false });
+      navigate('/');
     } catch (error) {
+      console.error('Logout error:', error);
       setMessage({ text: 'Logout failed: ' + error.message, isError: true });
     }
   };
 
-  if (!user) return <div className="user-profile">Not logged in</div>;
-
-  const isPhoneLogin = user.providerData.some(
-    (provider) => provider.providerId === 'phone'
-  );
-  const isEmailLogin = user.providerData.some(
-    (provider) =>
-      provider.providerId === 'password' ||
-      provider.providerId === 'google.com' ||
-      provider.providerId === 'apple.com'
-  );
-
-  const shouldAskManualProfile =
-    (isPhoneLogin && (!manualName || !manualEmail)) ||
-    (isEmailLogin && !user.phoneNumber && !manualPhone) ||
-    editingProfile;
+  const displayName = profileData.name || user?.displayName || 'User';
+  const displayEmail = profileData.email || user?.email || '';
+  const displayPhone = profileData.phone || user?.phoneNumber || '';
+  const isVerified = user?.emailVerified || user?.phoneNumber;
 
   return (
     <>
       <Header />
-      <div className="profile-container">
-        <div className="user-profile-card">
-          <div className="profile-background"></div>
-          
-          <div className="profile-content">
-            <div className="profile-header">
-              <div className="avatar-container">
-                {uploadedPhoto ? (
-                  <img src={uploadedPhoto} alt="Profile" className="profile-avatar" />
-                ) : user.photoURL ? (
-                  <img src={user.photoURL} alt="Profile" className="profile-avatar" />
-                ) : (
-                  <div className="default-avatar">
-                    <FaUser />
-                  </div>
-                )}
-                <label htmlFor="upload-photo" className="avatar-upload-btn">
-                  <FaCamera className="camera-icon" />
-                </label>
+      <div className="profile-app-container">
+        <div className="profile-header-section">
+          <div className="profile-avatar-container">
+            <div className="profile-avatar-wrapper">
+              {isLoading ? (
+                <div className="profile-loading-spinner"></div>
+              ) : (
+                <img
+                  src={avatarSrc}
+                  alt="Profile"
+                  className="profile-avatar"
+                  onError={handleAvatarError}
+                />
+              )}
+
+              <label htmlFor="upload-photo" className="profile-avatar-edit">
+                <FaEdit size={14} />
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                id="upload-photo"
+                onChange={handlePhotoChange}
+                style={{ display: 'none' }}
+              />
+            </div>
+
+            <div className="profile-header-info">
+              <h2 className="profile-name">
+                {displayName}
+                {isVerified && <MdVerified className="verified-badge" />}
+              </h2>
+              <p className="profile-email">{displayEmail}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="profile-content-section">
+          {editingProfile ? (
+            <form className="profile-edit-form" onSubmit={handleProfileSubmit}>
+              <div className="form-group">
+                <label>Full Name</label>
                 <input
-                  type="file"
-                  accept="image/*"
-                  id="upload-photo"
-                  onChange={handlePhotoChange}
-                  style={{ display: 'none' }}
+                  type="text"
+                  name="name"
+                  value={profileData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter your full name"
+                  required
                 />
               </div>
-
-              <h2 className="profile-name">
-                {user.displayName || manualName || 'User'}
-              </h2>
-              
-              {!editingProfile && (manualName || manualPhone || manualEmail) && (
-                <button 
+              <div className="form-group">
+                <label>Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={profileData.email}
+                  onChange={handleInputChange}
+                  placeholder="Enter your email"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Phone Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={profileData.phone}
+                  onChange={handleInputChange}
+                  placeholder="Enter your phone number"
+                  required
+                />
+              </div>
+              <div className="form-actions">
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => setEditingProfile(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="save-btn">
+                  <FaCheck /> Save Changes
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <div className="profile-details-card">
+                <h3 className="details-title">Account Details</h3>
+                <div className="detail-item">
+                  <FaUser className="detail-icon" />
+                  <div className="detail-content">
+                    <span className="detail-label">Name</span>
+                    <span className="detail-value">{displayName}</span>
+                  </div>
+                </div>
+                {displayEmail && (
+                  <div className="detail-item">
+                    <FaEnvelope className="detail-icon" />
+                    <div className="detail-content">
+                      <span className="detail-label">Email</span>
+                      <span className="detail-value">{displayEmail}</span>
+                    </div>
+                  </div>
+                )}
+                {displayPhone && (
+                  <div className="detail-item">
+                    <FaPhone className="detail-icon" />
+                    <div className="detail-content">
+                      <span className="detail-label">Phone</span>
+                      <span className="detail-value">{displayPhone}</span>
+                    </div>
+                  </div>
+                )}
+                <button
                   className="edit-profile-btn"
                   onClick={() => setEditingProfile(true)}
                 >
                   <FaEdit /> Edit Profile
                 </button>
-              )}
-            </div>
-
-            {shouldAskManualProfile && (
-              <form className="profile-form" onSubmit={handleProfileSubmit}>
-                <h3 className="form-title">Complete Your Profile</h3>
-                {isPhoneLogin && (
-                  <>
-                    <div className="form-group">
-                      <label htmlFor="name">Full Name</label>
-                      <input
-                        id="name"
-                        type="text"
-                        placeholder="Enter your name"
-                        value={manualName}
-                        onChange={(e) => setManualName(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label htmlFor="email">Email Address</label>
-                      <input
-                        id="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={manualEmail}
-                        onChange={(e) => setManualEmail(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </>
-                )}
-                {isEmailLogin && !user.phoneNumber && (
-                  <div className="form-group">
-                    <label htmlFor="phone">Phone Number</label>
-                    <input
-                      id="phone"
-                      type="tel"
-                      placeholder="Enter your phone number"
-                      value={manualPhone}
-                      onChange={(e) => setManualPhone(e.target.value)}
-                      required
-                    />
-                  </div>
-                )}
-                <div className="form-actions">
-                  <button type="submit" className="save-btn">
-                    Save Changes
-                  </button>
-                  <button 
-                    type="button" 
-                    className="cancel-btn"
-                    onClick={() => setEditingProfile(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-
-            <div className="profile-details">
-              <div className="details-section">
-                <h6 className="section-title">Contact Information</h6>
-                <div className="details-grid">
-                  {(user.phoneNumber || manualPhone) && (
-                    <div className="detail-item">
-                      <div className="detail-icon">
-                        <FaPhone />
-                      </div>
-                      <div className="detail-content">
-                        <span className="detail-label">Phone</span>
-                        <span className="detail-value">{user.phoneNumber || manualPhone}</span>
-                      </div>
-                    </div>
-                  )}
-                  {(user.email || manualEmail) && (
-                    <div className="detail-item">
-                      <div className="detail-icon">
-                        <FaEnvelope />
-                      </div>
-                      <div className="detail-content">
-                        <span className="detail-label">Email</span>
-                        <span className="detail-value">{user.email || manualEmail}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
 
-              <div className="details-section">
-                <h6 className="section-title">Account Information</h6>
-                <div className="details-grid">
-                  {user.metadata?.creationTime && (
-                    <div className="detail-item">
-                      <div className="detail-icon">
-                        <svg viewBox="0 0 24 24" width="24" height="24">
-                          <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,7V13H17V11H13V7H11Z" />
-                        </svg>
-                      </div>
-                      <div className="detail-content">
-                        <span className="detail-label">Member Since</span>
-                        <span className="detail-value">
-                          {new Date(user.metadata.creationTime).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  {user.metadata?.lastSignInTime && (
-                    <div className="detail-item">
-                      <div className="detail-icon">
-                        <svg viewBox="0 0 24 24" width="24" height="24">
-                          <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,7V13H17V11H13V7H11Z" />
-                        </svg>
-                      </div>
-                      <div className="detail-content">
-                        <span className="detail-label">Last Login</span>
-                        <span className="detail-value">
-                          {new Date(user.metadata.lastSignInTime).toLocaleString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+              <div className="profile-meta-card">
+                <h3 className="details-title">Account Information</h3>
+                <div className="meta-item">
+                  <span className="meta-label">Account Created</span>
+                  <span className="meta-value">
+                    {user?.metadata?.creationTime
+                      ? new Date(user.metadata.creationTime).toLocaleDateString()
+                      : 'N/A'}
+                  </span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Last Login</span>
+                  <span className="meta-value">
+                    {user?.metadata?.lastSignInTime
+                      ? new Date(user.metadata.lastSignInTime).toLocaleString()
+                      : 'N/A'}
+                  </span>
                 </div>
               </div>
-            </div>
+            </>
+          )}
 
-            <button className="logout-btn" onClick={handleLogout}>
-              <FaSignOutAlt /> Sign Out
-            </button>
-          </div>
+          <button className="logout-btn" onClick={handleLogout}>
+            <FaSignOutAlt /> Sign Out
+          </button>
         </div>
       </div>
       <Footer />
