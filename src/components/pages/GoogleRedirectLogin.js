@@ -33,7 +33,6 @@
 // };
 
 // export default GoogleRedirectLogin;
-// src/components/GoogleRedirectLogin.jsx
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { auth, googleProvider } from '../../firebase';
@@ -52,7 +51,6 @@ const GoogleRedirectLogin = () => {
       .then(async (result) => {
         if (result?.user) {
           const token = await result.user.getIdToken();
-          localStorage.setItem('firebase_token', token);
 
           const params = new URLSearchParams(window.location.search);
           const fromApp = params.get('source') === 'app';
@@ -60,9 +58,11 @@ const GoogleRedirectLogin = () => {
           if (fromApp) {
             // ✅ Send token back to app using deep link
             window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
-            return;
+            return; // Stop further execution
           }
 
+          // ✅ Normal Web Login Flow
+          localStorage.setItem('firebase_token', token);
           setMessage({ text: 'Google sign-in successful!', isError: false });
           sessionStorage.removeItem('googleRedirectStarted');
           navigate(location.state?.from || '/');
