@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { FaUser, FaPhone, FaEnvelope, FaSignOutAlt, FaEdit, FaCheck } from 'react-icons/fa';
-import { MdVerified } from 'react-icons/md';
+import { MdVerified } from 'react-icons/md'
 import '../styles/UserProfile.css';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
-import Header from '../componets/Header';
-import Footer from '../componets/Footer';
+import Header from '../components/pages/Header';
+import Footer from '../components/pages/Footer';
 import { useNavigate } from 'react-router-dom';
 
 // 👇 Add a local placeholder image file to your project.
