@@ -48,13 +48,19 @@ const GoogleRedirectLogin = () => {
           const token = await result.user.getIdToken();
 
           if (fromApp) {
+            // ✅ Deep link back to app with token
             window.location.replace(`jioyatri://auth?token=${encodeURIComponent(token)}`);
             return;
           }
 
+          // ✅ Normal web flow
           window.location.replace('/');
-        } else {
+        } else if (!fromApp) {
+          // ✅ Only trigger sign-in on WEB, not when called from APP
           signInWithRedirect(auth, googleProvider);
+        } else {
+          // ✅ From app but no result → Show message, don't loop
+          document.body.innerHTML = "<h3>Waiting for app to complete login...</h3>";
         }
       })
       .catch((err) => {
@@ -63,7 +69,7 @@ const GoogleRedirectLogin = () => {
       });
   }, []);
 
-  return <p>Logging in with Google----------</p>;
+  return <p>Logging in with Google..........…</p>;
 };
 
 export default GoogleRedirectLogin;
