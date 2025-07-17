@@ -37,45 +37,37 @@ import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { auth, googleProvider } from '../../firebase';
 import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
-import { useAuth } from '../../context/AuthContext';
 
 const GoogleRedirectLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { setMessage } = useAuth();
 
   useEffect(() => {
-    const alreadyRedirected = sessionStorage.getItem('googleRedirectStarted') === 'true';
+    const alreadyRedirected = sessionStorage.getItem('googleRedirectStarted');
 
     getRedirectResult(auth)
       .then(async (result) => {
         if (result?.user) {
-          // ✅ Got user after Google sign-in
           const token = await result.user.getIdToken();
-          localStorage.setItem('firebase_token', token);
+          console.log('Google sign-in successful:', token);
 
-          // ✅ Check if login started from app
           const params = new URLSearchParams(window.location.search);
           const fromApp = params.get('source') === 'app';
 
           if (fromApp) {
-            // ✅ Send token back to Android app via deep link
+            console.log('Deep link redirecting to app with token:', token);
+
+            if (window.AndroidApp) {
+              window.AndroidApp.postMessage(`Redirecting to app with token: ${token}`);
+            }
+
             window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
             return;
           }
 
-          // ✅ For normal web login
-          setMessage({ text: 'Google sign-in successful!', isError: false });
           sessionStorage.removeItem('googleRedirectStarted');
           navigate(location.state?.from || '/');
-        } else {
-          // ✅ If no result and not redirected yet, start redirect
-          if (alreadyRedirected) {
-            console.warn('No redirect result after Google. Not retrying.');
-            setMessage({ text: 'Login failed. Please try again.', isError: true });
-            return;
-          }
-
+        } else if (!alreadyRedirected) {
           sessionStorage.setItem('googleRedirectStarted', 'true');
           signInWithRedirect(auth, googleProvider);
         }
@@ -83,20 +75,11 @@ const GoogleRedirectLogin = () => {
       .catch((error) => {
         console.error('Google sign-in failed:', error);
         sessionStorage.removeItem('googleRedirectStarted');
-        setMessage({
-          text: `Google sign-in failed: ${error.message}`,
-          isError: true,
-        });
         navigate('/');
       });
-  }, [navigate, location, setMessage]);
+  }, [navigate, location]);
 
-  return (
-    <p style={{ textAlign: 'center', marginTop: '20px' }}>
-      Logging in with Google... <br />
-      <small>Please wait</small>
-    </p>
-  );
+  return <p>Logging in with Google... Please wait</p>;
 };
 
 export default GoogleRedirectLogin;
