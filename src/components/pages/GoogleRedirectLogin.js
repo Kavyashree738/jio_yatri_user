@@ -43,43 +43,34 @@ const GoogleRedirectLogin = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const alreadyRedirected = sessionStorage.getItem('googleRedirectStarted');
+    const params = new URLSearchParams(window.location.search);
+    const fromApp = params.get('source') === 'app';
 
     getRedirectResult(auth)
       .then(async (result) => {
         if (result?.user) {
           const token = await result.user.getIdToken();
-          console.log('Google sign-in successful:', token);
-
-          const params = new URLSearchParams(window.location.search);
-          const fromApp = params.get('source') === 'app';
 
           if (fromApp) {
-            console.log('Deep link redirecting to app with token:', token);
-
-            if (window.AndroidApp) {
-              window.AndroidApp.postMessage(`Redirecting to app with token: ${token}`);
-            }
-
+            // Redirect back to Android app
             window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
             return;
           }
 
-          sessionStorage.removeItem('googleRedirectStarted');
-          navigate(location.state?.from || '/');
-        } else if (!alreadyRedirected) {
-          sessionStorage.setItem('googleRedirectStarted', 'true');
+          // Normal web flow
+          navigate('/');
+        } else {
+          // Start redirect flow
           signInWithRedirect(auth, googleProvider);
         }
       })
-      .catch((error) => {
-        console.error('Google sign-in failed:', error);
-        sessionStorage.removeItem('googleRedirectStarted');
-        navigate('/');
+      .catch((err) => {
+        console.error('Google sign-in failed', err);
+        navigate('/home');
       });
   }, [navigate, location]);
 
-  return <p>Logging in with Google... Please wait</p>;
+  return <p>Logging in with Google...</p>;
 };
 
 export default GoogleRedirectLogin;
