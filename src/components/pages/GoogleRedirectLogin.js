@@ -46,22 +46,27 @@ const GoogleRedirectLogin = () => {
     const params = new URLSearchParams(window.location.search);
     const fromApp = params.get('source') === 'app';
 
+    const alreadyAttempted = sessionStorage.getItem('googleRedirectAttempted');
+
     getRedirectResult(auth)
       .then(async (result) => {
         if (result?.user) {
           const token = await result.user.getIdToken();
 
           if (fromApp) {
-            // Redirect back to Android app
+            // Deep link back to app
             window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
             return;
           }
 
-          // Normal web flow
           navigate('/');
-        } else {
-          // Start redirect flow
+        } else if (!alreadyAttempted) {
+          // First time → try redirect
+          sessionStorage.setItem('googleRedirectAttempted', 'true');
           signInWithRedirect(auth, googleProvider);
+        } else {
+          console.warn('Redirect loop prevented.');
+          navigate('/home');
         }
       })
       .catch((err) => {
