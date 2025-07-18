@@ -44,9 +44,15 @@ const GoogleRedirectLogin = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const fromApp = params.get('source') === 'app';
-
+    const fromAppParam = params.get('source') === 'app';
     const alreadyAttempted = sessionStorage.getItem('googleRedirectAttempted');
+
+    // Persist flag
+    if (fromAppParam) {
+      sessionStorage.setItem('fromApp', 'true');
+    }
+
+    const fromApp = sessionStorage.getItem('fromApp') === 'true';
 
     getRedirectResult(auth)
       .then(async (result) => {
@@ -54,14 +60,13 @@ const GoogleRedirectLogin = () => {
           const token = await result.user.getIdToken();
 
           if (fromApp) {
-            // Deep link back to app
+            // Redirect back to app via deep link
             window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
             return;
           }
 
           navigate('/');
         } else if (!alreadyAttempted) {
-          // First time → try redirect
           sessionStorage.setItem('googleRedirectAttempted', 'true');
           signInWithRedirect(auth, googleProvider);
         } else {
@@ -79,4 +84,5 @@ const GoogleRedirectLogin = () => {
 };
 
 export default GoogleRedirectLogin;
+
 
