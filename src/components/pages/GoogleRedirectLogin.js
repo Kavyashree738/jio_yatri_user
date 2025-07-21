@@ -43,25 +43,22 @@ const GoogleRedirectLogin = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Clear any previous authentication flags immediately
-    sessionStorage.removeItem('auth_redirecting');
-    sessionStorage.removeItem('auth_attempted');
-
     const handleAuthFlow = async () => {
-      const isRedirecting = sessionStorage.getItem('auth_redirecting') === 'true';
-      const wasAttempted = sessionStorage.getItem('auth_attempted') === 'true';
       const fromApp = new URLSearchParams(window.location.search).get('source') === 'app';
+      const wasAttempted = sessionStorage.getItem('auth_attempted') === 'true';
 
       try {
-        // First, try to get the redirect result
+        // **Step 1: Check if we have a redirect result**
         const result = await getRedirectResult(auth);
 
         if (result?.user) {
-          // Successful authentication
           const token = await result.user.getIdToken();
-          
+          console.log("Google login success, token:", token);
+
+          // Clear flags after success
+          sessionStorage.removeItem('auth_attempted');
+
           if (fromApp) {
-            // For app - use bridge or deep link
             if (window.AndroidApp?.onLoginSuccess) {
               window.AndroidApp.onLoginSuccess(token);
             } else {
@@ -70,34 +67,27 @@ const GoogleRedirectLogin = () => {
             return;
           }
 
-          // For web - proceed normally
           navigate('/', { replace: true });
           return;
         }
 
-        // If no result and not mid-flow, start new auth
-        if (!isRedirecting && !wasAttempted) {
-          sessionStorage.setItem('auth_redirecting', 'true');
+        // **Step 2: Start redirect only if not already attempted**
+        if (!wasAttempted) {
           sessionStorage.setItem('auth_attempted', 'true');
-          
-          if (fromApp) {
-            sessionStorage.setItem('fromApp', 'true');
-          }
-
+          console.log("Starting Google redirect login...");
           await signInWithRedirect(auth, googleProvider);
           return;
         }
 
-        // If we get here, something went wrong - break the loop
-        console.error('Auth loop detected - redirecting home');
+        // **Step 3: If we get here, no result and already attempted - fallback**
+        console.error("Google login failed or cancelled, redirecting home...");
+        sessionStorage.removeItem('auth_attempted');
         navigate('/home', { replace: true });
 
       } catch (error) {
         console.error('Authentication error:', error);
-        sessionStorage.clear();
+        sessionStorage.removeItem('auth_attempted');
         navigate('/home', { replace: true });
-      } finally {
-        sessionStorage.removeItem('auth_redirecting');
       }
     };
 
@@ -112,4 +102,5 @@ const GoogleRedirectLogin = () => {
 };
 
 export default GoogleRedirectLogin;
+
 
