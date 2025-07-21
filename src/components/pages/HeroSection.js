@@ -162,11 +162,14 @@ const HeroSection = () => {
 
  const signInWithGoogle = async () => {
     if (isWebView()) {
+    // Set flag for app context
+    sessionStorage.setItem('fromApp', 'true');
+    
     // Android native bridge
     if (window.AndroidApp?.openBrowser) {
       window.AndroidApp.openBrowser(`${window.location.origin}/google-login?source=app`);
     } else {
-      console.warn("AndroidApp bridge not available; fallback to redirect");
+      // Fallback for WebView without bridge
       window.location.href = `${window.location.origin}/google-login?source=app`;
     }
     return;
