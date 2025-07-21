@@ -43,59 +43,70 @@ const GoogleRedirectLogin = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const handleAuthentication = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const fromApp = params.get('source') === 'app' || 
-                     sessionStorage.getItem('fromApp') === 'true';
+    // Clear any previous authentication flags immediately
+    sessionStorage.removeItem('auth_redirecting');
+    sessionStorage.removeItem('auth_attempted');
+
+    const handleAuthFlow = async () => {
+      const isRedirecting = sessionStorage.getItem('auth_redirecting') === 'true';
+      const wasAttempted = sessionStorage.getItem('auth_attempted') === 'true';
+      const fromApp = new URLSearchParams(window.location.search).get('source') === 'app';
 
       try {
-        // Clear any previous attempts
-        sessionStorage.removeItem('googleRedirectAttempted');
-
+        // First, try to get the redirect result
         const result = await getRedirectResult(auth);
-        
+
         if (result?.user) {
+          // Successful authentication
           const token = await result.user.getIdToken();
           
           if (fromApp) {
-            // Try Android bridge first
+            // For app - use bridge or deep link
             if (window.AndroidApp?.onLoginSuccess) {
               window.AndroidApp.onLoginSuccess(token);
-              return;
+            } else {
+              window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
             }
-            
-            // Fallback to deep link
-            window.location.href = `jioyatri://auth?token=${encodeURIComponent(token)}`;
             return;
           }
 
-          // Regular web flow
+          // For web - proceed normally
           navigate('/', { replace: true });
-        } else {
-          // No result - initiate sign-in
-          if (!sessionStorage.getItem('googleRedirectAttempted')) {
-            sessionStorage.setItem('googleRedirectAttempted', 'true');
-            sessionStorage.setItem('fromApp', fromApp ? 'true' : 'false');
-            await signInWithRedirect(auth, googleProvider);
-          } else {
-            console.warn('Redirect loop prevented');
-            navigate('/home', { replace: true });
-          }
+          return;
         }
-      } catch (error) {
-        console.error('Authentication failed:', error);
-        sessionStorage.removeItem('fromApp');
-        sessionStorage.removeItem('googleRedirectAttempted');
+
+        // If no result and not mid-flow, start new auth
+        if (!isRedirecting && !wasAttempted) {
+          sessionStorage.setItem('auth_redirecting', 'true');
+          sessionStorage.setItem('auth_attempted', 'true');
+          
+          if (fromApp) {
+            sessionStorage.setItem('fromApp', 'true');
+          }
+
+          await signInWithRedirect(auth, googleProvider);
+          return;
+        }
+
+        // If we get here, something went wrong - break the loop
+        console.error('Auth loop detected - redirecting home');
         navigate('/home', { replace: true });
+
+      } catch (error) {
+        console.error('Authentication error:', error);
+        sessionStorage.clear();
+        navigate('/home', { replace: true });
+      } finally {
+        sessionStorage.removeItem('auth_redirecting');
       }
     };
 
-    handleAuthentication();
+    handleAuthFlow();
   }, [navigate, location]);
 
   return (
-    <div className="loading-container">
-      <p>Completing Google login...</p>
+    <div className="auth-loading">
+      <p>Redirecting to Google authentication...</p>
     </div>
   );
 };
