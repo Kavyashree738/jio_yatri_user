@@ -1,59 +1,41 @@
-
 // controllers/userController.js
-const User = require('../models/userModel');
+const User = require('../models/User');
 
-// Create or get existing user based on uid/email/phone
-exports.createOrGetUser = async (req, res) => {
+exports.createOrUpdateUser = async (req, res) => {
+  // console.log('📥 Incoming Data:', req.body);
+
+  const { uid, name = '', email = '', phone = '', photo = '' } = req.body;
+  if (!uid) return res.status(400).json({ message: 'uid is required' });
+
   try {
-    const { uid, email, phoneNumber, displayName, photoURL, provider } = req.body;
+    const user = await User.findOneAndUpdate(
+      { uid },
+      { $set: { name, email, phone, photo } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
-    if (!uid || !provider) {
-      return res.status(400).json({ message: 'uid and provider are required' });
-    }
+    // console.log('✅ DB User after update:', user);
+    return res.json({ user });
+  } catch (err) {
+    // console.error('❌ Update Error:', err);
+    res.status(500).json({ message: err.message });
+  }
+};
 
-    // Try find existing user by uid first
-    let user = await User.findOne({ uid });
 
-    // If not found, try find by email (for Google) or phoneNumber (for phone)
+exports.getUserByUid = async (req, res) => {
+  const { uid } = req.params;
+  // console.log('🔍 getUserByUid:', uid);
+  try {
+    const user = await User.findOne({ uid });
     if (!user) {
-      if (provider === 'google' && email) {
-        user = await User.findOne({ email });
-      } else if (provider === 'phone' && phoneNumber) {
-        user = await User.findOne({ phoneNumber });
-      }
+      // console.log('⚠️  User not found:', uid);
+      return res.status(404).json({ message: 'User not found' });
     }
-
-    // If still no user, create new
-    if (!user) {
-      user = new User({
-        uid,
-        email: email || null,
-        phoneNumber: phoneNumber || null,
-        displayName: displayName || '',
-        photoURL: photoURL || '',
-        provider,
-      });
-      await user.save();
-    } else {
-      // Optionally update info (displayName, photoURL) if changed
-      let needsUpdate = false;
-      if (displayName && user.displayName !== displayName) {
-        user.displayName = displayName;
-        needsUpdate = true;
-    }
-      if (photoURL && user.photoURL !== photoURL) {
-        user.photoURL = photoURL;
-        needsUpdate = true;
-      }
-      if (needsUpdate) {
-    await user.save();
-      }
-    }
-
-    // Return user info
-    res.status(200).json({ user });
-  } catch (error) {
-    console.error('Error in createOrGetUser:', error);
-    res.status(500).json({ message: 'Server error' });
+    // console.log('✅ User found:', uid);
+    return res.json(user);
+  } catch (err) {
+    // console.error('❌ getUserByUid error:', err);
+    return res.status(500).json({ message: err.message });
   }
 };
