@@ -8,6 +8,7 @@ const addressRoutes=require('./routes/addressRoutes')
 const paymentRoutes=require('./routes/paymentRoutes')
 const ratingRoutes = require('./routes/ratingRoutes');
 const driverRoutes = require('./routes/driverRoutes');
+const userRoutes=require('./routes/userRoutes')
 const app = express();
 
 const PORT = process.env.PORT || 5000;
@@ -103,7 +104,7 @@ app.use('/api/payment',paymentRoutes)
 app.use('/api/driver',driverRoutes)
 
 app.use('/api/ratings', ratingRoutes);
-// app.use('/api/user', userRoutes);
+app.use('/api/user', userRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
