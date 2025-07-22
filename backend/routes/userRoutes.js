@@ -1,8 +1,9 @@
 const express = require('express');
-const router = express.Router();
-const { createOrGetUser } = require('../controllers/userController');
-const verifyFirebaseToken = require('../middleware/verifyFirebaseToken');
+const { createOrUpdateUser, getUserByUid } = require('../controllers/userController');
 
-router.post('/', verifyFirebaseToken, createOrGetUser);
+const router = express.Router();
+
+router.post('/', createOrUpdateUser);
+router.get('/:uid', getUserByUid);
 
 module.exports = router;
