@@ -451,7 +451,7 @@ const UserShipments = () => {
             ) : (
               <p>No shipments found.</p>
             )}
-            <a href="/new-shipment">Create your first shipment</a>
+            <a href="/shipment">Create your first shipment</a>
           </div>
         ) : (
           <div className="shipments-list">
