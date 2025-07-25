@@ -24,8 +24,8 @@ const Home = () => {
     <div className="home-page">
       <Header/>
       
-     <HeroSection/> 
-    {user && <FrontendShipment />}
+     {!user && <HeroSection />}
+     {user && <ShipmentPage />}
       <WelcomeSection/>
        <ServiceSection/>
        <HelpCenter/>
