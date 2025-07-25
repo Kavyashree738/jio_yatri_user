@@ -15,7 +15,6 @@ import HelpCenter from './HelpCenter';
 import HouseShiftingFeatures from './HouseShiftingFeatures';
 import UserProfile from '../UserProfile'
 import ShipmentPage from './ShipmentPage';
-import FrontendShipment from './FrontendShipment'
 import { auth } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 const Home = () => {
