@@ -1488,9 +1488,8 @@
 
 .shipment-container {
   flex: 1;
-  overflow-y: auto;
   padding-bottom: 80px;
-  overflow-x: hidden;
+
 }
 
 /* Sender and Receiver Sections */
