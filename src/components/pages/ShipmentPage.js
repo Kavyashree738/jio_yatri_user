@@ -1350,6 +1350,851 @@
 // }
 
 // export default ShipmentPage;
+// import React, { useState, useEffect, useRef } from 'react';
+// import { useNavigate, useLocation } from 'react-router-dom';
+// import { useAuth } from '../../context/AuthContext';
+// import axios from 'axios';
+// import Header from './Header';
+// import Footer from './Footer';
+// import LocationMap from './LocationMap';
+// import { FaMapMarkerAlt, FaChevronRight, FaUser, FaPhone, FaMapMarkedAlt } from 'react-icons/fa';
+// import '../../styles/components.css';
+
+// const vehicleTypes = [
+//   {
+//     type: 'TwoWheeler',
+//     name: '2 Wheeler',
+//     rate: 20,
+//     emoji: '🛵',
+//     capacity: 'Up to 8kg',
+//     available: true
+//   },
+//   {
+//     type: 'ThreeWheeler',
+//     name: '3 Wheeler',
+//     rate: 30,
+//     emoji: '🛺',
+//     capacity: 'Up to 500kg',
+//     available: true
+//   },
+//   {
+//     type: 'Truck',
+//     name: 'Truck',
+//     rate: 40,
+//     emoji: '🚚',
+//     capacity: 'Up to 1200kg',
+//     available: true
+//   },
+//   {
+//     type: 'Pickup9ft',
+//     name: 'Pickup (9ft)',
+//     rate: 50,
+//     emoji: '🛻',
+//     capacity: 'Up to 1700kg',
+//     available: true,
+//     // comingSoon: true
+//   },
+//   {
+//     type: 'Tata407',
+//     name: 'Tata 407',
+//     rate: 60,
+//     emoji: '🚛',
+//     capacity: 'Up to 2500kg',
+//     available: true,
+//     // comingSoon: true
+//   },
+//   {
+//     type: 'ContainerTruck',
+//     name: 'Container Truck',
+//     rate: 80,
+//     emoji: '🚒',
+//     capacity: 'Up to 5000kg',
+//     available: false,
+//     comingSoon: true
+//   }
+// ];
+
+// const paymentMethods = [
+//   { id: 'razorpay', name: 'Pay Online', description: 'Secure payment with Razorpay', icon: '💳' },
+//   { id: 'pay_after', name: 'Pay After Delivery', description: 'Pay online after delivery is completed', icon: '⏳' }
+// ];
+
+// const loadRazorpay = () => {
+//   return new Promise((resolve) => {
+//     if (window.Razorpay) {
+//       resolve(true);
+//       return;
+//     }
+
+//     const script = document.createElement('script');
+//     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+//     script.onload = () => resolve(true);
+//     script.onerror = () => resolve(false);
+//     document.body.appendChild(script);
+//   });
+// };
+
+// const scrollToTop = () => {
+//   window.scrollTo({ top: 0, behavior: 'smooth' });
+// };
+
+// function ShipmentPage() {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+//   const { user } = useAuth();
+
+//   const [currentStep, setCurrentStep] = useState(location.state?.currentStep || 1);
+//   const [isSubmitting, setIsSubmitting] = useState(false);
+//   const [error, setError] = useState(null);
+//   const [success, setSuccess] = useState(false);
+//   const [trackingNumber, setTrackingNumber] = useState('');
+//   const [calculatedCosts, setCalculatedCosts] = useState({});
+//   const [distance, setDistance] = useState(0);
+//   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('razorpay');
+//   const [paymentProcessing, setPaymentProcessing] = useState(false);
+//   const [currentLocation, setCurrentLocation] = useState(null);
+//   const [locationError, setLocationError] = useState(null);
+//   const debounceTimer = useRef(null);
+
+//   const steps = [
+//     { id: 1, title: "Sender/Receiver" },
+//     { id: 2, title: "Addresses" },
+//     { id: 3, title: "Vehicle" },
+//     { id: 4, title: "Summary" }
+//   ];
+
+//   const [shipmentData, setShipmentData] = useState(() => {
+//     const locationState = location.state?.shipmentData;
+//     return locationState || {
+//       sender: {
+//         name: '',
+//         phone: '',
+//         email: '',
+//         address: {
+//           addressLine1: '',
+//           coordinates: null
+//         }
+//       },
+//       receiver: {
+//         name: '',
+//         phone: '',
+//         email: '',
+//         address: {
+//           addressLine1: '',
+//           coordinates: null
+//         }
+//       },
+//       vehicleType: 'TwoWheeler',
+//       distance: 0,
+//       cost: 0,
+//       paymentMethod: 'razorpay'
+//     };
+//   });
+
+//   useEffect(() => {
+//     scrollToTop();
+//   }, [currentStep, success]);
+
+//   useEffect(() => {
+//     if (navigator.geolocation) {
+//       navigator.geolocation.getCurrentPosition(
+//         (position) => {
+//           const { latitude, longitude } = position.coords;
+//           setCurrentLocation({ lat: latitude, lng: longitude });
+
+//           setShipmentData(prev => {
+//             if (!prev.sender.address.coordinates) {
+//               return {
+//                 ...prev,
+//                 sender: {
+//                   ...prev.sender,
+//                   address: {
+//                     ...prev.sender.address,
+//                     coordinates: { lat: latitude, lng: longitude }
+//                   }
+//                 }
+//               };
+//             }
+//             return prev;
+//           });
+//         },
+//         (error) => {
+//           setLocationError(error.message);
+//           console.error('Geolocation error:', error);
+//         }
+//       );
+//     } else {
+//       setLocationError('Geolocation is not supported by this browser.');
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     const { selectedAddress, type, currentStep: stepFromState } = location.state || {};
+
+//     if (selectedAddress && type) {
+//       setShipmentData(prev => ({
+//         ...prev,
+//         [type]: {
+//           ...prev[type],
+//           address: {
+//             addressLine1: selectedAddress.address,
+//             coordinates: selectedAddress.coordinates
+//           }
+//         }
+//       }));
+
+//       if (stepFromState) {
+//         setCurrentStep(stepFromState);
+//       } else {
+//         setCurrentStep(2);
+//       }
+
+//       navigate(location.pathname, { replace: true, state: {} });
+//     }
+//   }, [location.state, navigate, location.pathname]);
+
+//   useEffect(() => {
+//     const { sender, receiver } = shipmentData;
+//     if (sender.address.coordinates && receiver.address.coordinates) {
+//       clearTimeout(debounceTimer.current);
+//       debounceTimer.current = setTimeout(() => {
+//         calculateDistance(true);
+//       }, 500);
+//     }
+//     return () => clearTimeout(debounceTimer.current);
+//   }, [shipmentData.sender.address.coordinates, shipmentData.receiver.address.coordinates]);
+
+//   const handleInputChange = (e, type) => {
+//     const { name, value } = e.target;
+//     setShipmentData(prev => ({
+//       ...prev,
+//       [type]: {
+//         ...prev[type],
+//         [name]: value
+//       }
+//     }));
+//   };
+
+//   const handleVehicleSelect = (type) => {
+//     setShipmentData(prev => ({
+//       ...prev,
+//       vehicleType: type,
+//       cost: calculatedCosts[type] || 0
+//     }));
+//   };
+
+//   const handlePaymentMethodSelect = (method) => {
+//     setSelectedPaymentMethod(method);
+//     setShipmentData(prev => ({
+//       ...prev,
+//       paymentMethod: method
+//     }));
+//   };
+
+//   const navigateToAddressSelection = (type) => {
+//     navigate('/select-address', {
+//       state: {
+//         type,
+//         currentAddress: shipmentData[type].address,
+//         shipmentData: shipmentData,
+//         currentStep: currentStep
+//       }
+//     });
+//   };
+
+//   const calculateDistance = async (isAutomatic = false) => {
+//     const { sender, receiver } = shipmentData;
+
+//     if (!sender.address.coordinates || !receiver.address.coordinates) {
+//       if (!isAutomatic) {
+//         setError('Please select valid addresses for both sender and receiver');
+//       }
+//       return false;
+//     }
+
+//     if (!isAutomatic) setIsSubmitting(true);
+//     setError(null);
+
+//     try {
+//       const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments/calculate-distance', {
+//         origin: sender.address.coordinates,
+//         destination: receiver.address.coordinates
+//       });
+
+//       const calculatedDistance = response.data.distance;
+//       setDistance(calculatedDistance);
+
+//       const costs = {};
+//       vehicleTypes.forEach(vehicle => {
+//         costs[vehicle.type] = calculatedDistance * vehicle.rate;
+//       });
+
+//       setCalculatedCosts(costs);
+
+//       setShipmentData(prev => ({
+//         ...prev,
+//         distance: calculatedDistance,
+//         cost: costs[prev.vehicleType] || 0
+//       }));
+
+//       return true;
+//     } catch (error) {
+//       if (!isAutomatic) {
+//         setError(error.response?.data?.message || 'Failed to calculate distance');
+//       }
+//       return false;
+//     } finally {
+//       if (!isAutomatic) setIsSubmitting(false);
+//     }
+//   };
+
+//   const processRazorpayPayment = async (shipmentId) => {
+//     if (!shipmentId) {
+//       setError('Invalid shipment ID');
+//       return;
+//     }
+
+//     setPaymentProcessing(true);
+//     setError(null);
+
+//     try {
+//       const token = await user.getIdToken();
+
+//       const orderResponse = await axios.post(
+//         `https://jio-yatri-user.onrender.com/api/payment/${shipmentId}/initiate`,
+//         {},
+//         {
+//           headers: { Authorization: `Bearer ${token}` },
+//           withCredentials: true
+//         }
+//       );
+
+//       const order = orderResponse.data.data;
+
+//       const scriptLoaded = await loadRazorpay();
+//       if (!scriptLoaded) {
+//         throw new Error('Razorpay SDK failed to load');
+//       }
+
+//       if (!window.Razorpay) {
+//         throw new Error('Razorpay not available after script load');
+//       }
+
+//       const options = {
+//         key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+//         amount: order.amount,
+//         currency: 'INR',
+//         name: 'MokshaAmbani Logistics',
+//         description: `Payment for Shipment #${trackingNumber}`,
+//         order_id: order.id,
+//         handler: async function (response) {
+//           try {
+//             await axios.post(
+//               'https://jio-yatri-user.onrender.com/api/payment/verify',
+//               {
+//                 razorpay_payment_id: response.razorpay_payment_id,
+//                 razorpay_order_id: response.razorpay_order_id,
+//                 razorpay_signature: response.razorpay_signature,
+//                 shipmentId: shipmentId
+//               },
+//               {
+//                 headers: { Authorization: `Bearer ${token}` },
+//                 withCredentials: true
+//               }
+//             );
+//             setSuccess(true);
+//           } catch (error) {
+//             setError('Payment verification failed. Please contact support.');
+//           } finally {
+//             setPaymentProcessing(false);
+//           }
+//         },
+//         prefill: {
+//           name: shipmentData.sender.name,
+//           email: shipmentData.sender.email || '',
+//           contact: shipmentData.sender.phone
+//         },
+//         theme: { color: '#3399cc' },
+//         modal: {
+//           ondismiss: () => {
+//             setPaymentProcessing(false);
+//           }
+//         }
+//       };
+
+//       const rzp = new window.Razorpay(options);
+//       rzp.on('payment.failed', function (response) {
+//         setError(`Payment failed: ${response.error.description}`);
+//         setPaymentProcessing(false);
+//       });
+
+//       rzp.open();
+
+//     } catch (error) {
+//       setError(error.response?.data?.message || 'Payment processing failed');
+//       setPaymentProcessing(false);
+//     }
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+
+//     // Only proceed with payment if we're on the final step
+//     if (currentStep < steps.length) {
+//       return;
+//     }
+
+//     if (!user) {
+//       setError('Please login to create shipments');
+//       return;
+//     }
+
+//     setIsSubmitting(true);
+//     setError(null);
+
+//     try {
+//       const token = await user.getIdToken();
+//       const payload = {
+//         sender: {
+//           name: shipmentData.sender.name,
+//           phone: shipmentData.sender.phone,
+//           email: shipmentData.sender.email || '',
+//           address: {
+//             addressLine1: shipmentData.sender.address.addressLine1,
+//             coordinates: shipmentData.sender.address.coordinates
+//           }
+//         },
+//         receiver: {
+//           name: shipmentData.receiver.name,
+//           phone: shipmentData.receiver.phone,
+//           email: shipmentData.receiver.email || '',
+//           address: {
+//             addressLine1: shipmentData.receiver.address.addressLine1,
+//             coordinates: shipmentData.receiver.address.coordinates
+//           }
+//         },
+//         vehicleType: shipmentData.vehicleType,
+//         distance: shipmentData.distance,
+//         cost: shipmentData.cost,
+//         paymentMethod: shipmentData.paymentMethod
+//       };
+
+//       const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments', payload, {
+//         headers: {
+//           'Authorization': `Bearer ${token}`,
+//           'Content-Type': 'application/json'
+//         }
+//       });
+
+//       const shipmentId = response.data.shipment?._id;
+//       setTrackingNumber(response.data.trackingNumber);
+
+//       if (shipmentData.paymentMethod === 'pay_after') {
+//         setSuccess(true);
+//         return;
+//       }
+
+//       await processRazorpayPayment(shipmentId);
+
+//     } catch (error) {
+//       setError(
+//         error.response?.data?.message ||
+//         error.response?.data?.error ||
+//         'Failed to submit shipment. Please try again.'
+//       );
+//     } finally {
+//       setIsSubmitting(false);
+//     }
+//   };
+
+//   const handleNextStep = () => {
+//     if (currentStep === 1) {
+//       if (!shipmentData.sender.name || !shipmentData.sender.phone ||
+//         !shipmentData.receiver.name || !shipmentData.receiver.phone) {
+//         setError('Please fill all sender and receiver details');
+//         return;
+//       }
+//     } else if (currentStep === 2) {
+//       if (!shipmentData.sender.address.addressLine1 || !shipmentData.receiver.address.addressLine1) {
+//         setError('Please select both pickup and delivery locations');
+//         return;
+//       }
+//     } else if (currentStep === 3) {
+//       if (!shipmentData.vehicleType) {
+//         setError('Please select a vehicle type');
+//         return;
+//       }
+//     }
+
+//     setError(null);
+//     setCurrentStep(prev => prev + 1);
+//   };
+
+//   const handlePrevStep = () => {
+//     setCurrentStep(prev => prev - 1);
+//   };
+
+//   const renderStepContent = () => {
+//     switch (currentStep) {
+//       case 1:
+//         return (
+//           <div className="sender-receiver-section">
+//             {/* Map Background for Step 1 */}
+//             <div className="map-background">
+//               <LocationMap
+//                 senderCoordinates={shipmentData.sender.address.coordinates}
+//                 receiverCoordinates={shipmentData.receiver.address.coordinates}
+//                 currentLocation={currentLocation}
+//               />
+//             </div>
+
+//             <div className="address-section">
+//               <div className="section-header">
+//                 <h3 className="section-titles">Sender Information</h3>
+//               </div>
+//               <div className="input-group">
+//                 <FaUser className="input-icon" />
+//                 <input
+//                   type="text"
+//                   name="name"
+//                   value={shipmentData.sender.name}
+//                   onChange={(e) => handleInputChange(e, 'sender')}
+//                   placeholder="Name"
+//                   required
+//                   className="transparent-input"
+//                 />
+//               </div>
+//               <div className="input-group">
+//                 <FaPhone className="input-icon" />
+//                 <div className="phone-input-container">
+//                   <span className="phone-prefix">+91</span>
+//                   <input
+//                     type="tel"
+//                     name="phone"
+//                     value={shipmentData.sender.phone}
+//                     onChange={(e) => handleInputChange(e, 'sender')}
+//                     placeholder="Phone Number"
+//                     required
+//                     pattern="[0-9]{10}"
+//                     className="transparent-input phone-input"
+//                   />
+//                 </div>
+//               </div>
+//             </div>
+
+//             <div className="address-section">
+//               <div className="section-header">
+//                 <h3 className="section-titles">Receiver Information</h3>
+//               </div>
+//               <div className="input-group">
+//                 <FaUser className="input-icon" />
+//                 <input
+//                   type="text"
+//                   name="name"
+//                   value={shipmentData.receiver.name}
+//                   onChange={(e) => handleInputChange(e, 'receiver')}
+//                   placeholder="Name"
+//                   required
+//                   className="transparent-input"
+//                 />
+//               </div>
+//               <div className="input-group">
+//                 <FaPhone className="input-icon" />
+//                 <div className="phone-input-container">
+//                   <span className="phone-prefix">+91</span>
+//                   <input
+//                     type="tel"
+//                     name="phone"
+//                     value={shipmentData.receiver.phone}
+//                     onChange={(e) => handleInputChange(e, 'receiver')}
+//                     placeholder="Phone Number"
+//                     required
+//                     pattern="[0-9]{10}"
+//                     className="transparent-input phone-input"
+//                   />
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         );
+//       case 2:
+//         return (
+//           <>
+//             <div className="address-overlay">
+//               <div className="sender-address-input">
+//                 <FaMapMarkerAlt className="address-icon" />
+//                 <input
+//                   type="text"
+//                   value={shipmentData.sender.address.addressLine1 || ''}
+//                   onClick={() => navigateToAddressSelection('sender')}
+//                   readOnly
+//                   placeholder="Pickup location"
+//                   className="address-text"
+//                 />
+//                 <FaChevronRight className="address-arrow" />
+//               </div>
+
+//               <div className="receiver-address-input">
+//                 <FaMapMarkerAlt className="address-icon" />
+//                 <input
+//                   type="text"
+//                   value={shipmentData.receiver.address.addressLine1 || ''}
+//                   onClick={() => navigateToAddressSelection('receiver')}
+//                   readOnly
+//                   placeholder="Delivery location"
+//                   className="address-text"
+//                 />
+//                 <FaChevronRight className="address-arrow" />
+//               </div>
+//             </div>
+
+//             <div className="map-navigation-buttons">
+//               <button
+//                 type="button"
+//                 className="map-nav-button button-secondary"
+//                 onClick={handlePrevStep}
+//                 disabled={isSubmitting}
+//               >
+//                 Back
+//               </button>
+//               <button
+//                 type="button"
+//                 className="map-nav-button button-primary"
+//                 onClick={handleNextStep}
+//                 disabled={isSubmitting}
+//               >
+//                 Next
+//               </button>
+//             </div>
+//           </>
+//         );
+//       case 3:
+//         return (
+//           <div className="vehicle-selection-section">
+//             <div className="section-header">
+//               <div className="section-icon">🚚</div>
+//               <h3 className="section-titles">Select Vehicle</h3>
+//             </div>
+//             <div className="vehicle-options">
+//               {vehicleTypes.map((vehicle) => (
+//                 <div
+//                   key={vehicle.type}
+//                   className={`vehicle-option ${shipmentData.vehicleType === vehicle.type ? 'selected' : ''} ${!vehicle.available ? 'unavailable' : ''}`}
+//                   onClick={() => vehicle.available && handleVehicleSelect(vehicle.type)}
+//                 >
+//                   <span className="vehicle-emoji">{vehicle.emoji}</span>
+//                   <span className="vehicle-name">
+//                     {vehicle.name}
+//                     {vehicle.comingSoon && <span className="coming-soon-badge">Coming Soon</span>}
+//                   </span>
+//                   <span className="vehicle-capacity">{vehicle.capacity}</span>
+//                   {shipmentData.distance > 0 && (
+//                     <span className="vehicle-price">₹{(shipmentData.distance * vehicle.rate).toFixed(2)}</span>
+//                   )}
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         );
+//       case 4:
+//         return (
+//           <div className="summary-section">
+//             <div className="section-header">
+//               <div className="section-icon">📋</div>
+//               <h3 className="section-titles">Order Summary</h3>
+//             </div>
+
+//             <div className="summary-item">
+//               <span className="summary-label">Sender:</span>
+//               <span className="summary-value">{shipmentData.sender.name}</span>
+//             </div>
+//             <div className="summary-item">
+//               <span className="summary-label">Receiver:</span>
+//               <span className="summary-value">{shipmentData.receiver.name}</span>
+//             </div>
+//             <div className="summary-item">
+//               <span className="summary-label">Distance:</span>
+//               <span className="summary-value">{shipmentData.distance.toFixed(2)} km</span>
+//             </div>
+//             <div className="summary-item">
+//               <span className="summary-label">Vehicle:</span>
+//               <span className="summary-value">
+//                 {vehicleTypes.find(v => v.type === shipmentData.vehicleType)?.name}
+//               </span>
+//             </div>
+//             <div className="summary-item">
+//               <span className="summary-label">Total Cost:</span>
+//               <span className="summary-value">₹{shipmentData.cost.toFixed(2)}</span>
+//             </div>
+
+//             <div className="payment-method-section">
+//               <h3 className="payment-method-title">💳 Payment Method</h3>
+//               <div className="payment-methods-container">
+//                 {paymentMethods.map(method => (
+//                   <div
+//                     key={method.id}
+//                     className={`payment-method-card ${selectedPaymentMethod === method.id ? 'selected' : ''}`}
+//                     onClick={() => handlePaymentMethodSelect(method.id)}
+//                     data-method={method.id}
+//                   >
+//                     <div className="payment-method-icon">{method.icon}</div>
+//                     <div className="payment-method-info">
+//                       <h4 className="payment-method-name">{method.name}</h4>
+//                     </div>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           </div>
+//         );
+//       default:
+//         return null;
+//     }
+//   };
+
+//   if (success) {
+//     return (
+//       <div className="confirmation-page">
+//         <Header />
+//         <div className="content-wrap">
+//           <div className="confirmation-container">
+//             <div className="success-icon">
+//               <div className="checkmark-circle">
+//                 <svg className="checkmark-icon" viewBox="0 0 52 52">
+//                   <circle className="checkmark-circle-bg" cx="26" cy="26" r="25" fill="none" />
+//                   <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+//                 </svg>
+//               </div>
+//             </div>
+//             <h1 className="success-title">Order Confirmed!</h1>
+//             <p className="success-subtitle">Your shipment has been successfully created</p>
+//             <div className="order-id">
+//               <span>Tracking Number: {trackingNumber}</span>
+//             </div>
+//             <div className="payment-method-display">
+//               <span>Payment Method: </span>
+//               <strong>
+//                 {shipmentData.paymentMethod === 'razorpay'
+//                   ? 'Online Payment'
+//                   : 'Pay After Delivery'}
+//               </strong>
+//             </div>
+//             <div className="total-summary">
+//               <div className="total-label">Total Amount</div>
+//               <div className="total-amount">₹{shipmentData.cost.toFixed(2)}</div>
+//             </div>
+//             <div className="action-buttons">
+//               <button
+//                 className="btn-secondary"
+//                 onClick={() => {
+//                   navigate('/home');
+//                   scrollToTop();
+//                 }}
+//               >
+//                 Back to Home
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   if (paymentProcessing) {
+//     return (
+//       <div className="payment-processing-overlay">
+//         <div className="payment-processing-content">
+//           <div className="payment-processing-spinner"></div>
+//           <h3>Processing Payment...</h3>
+//           <p>Please wait while we process your payment</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="shipment-page">
+//       <Header />
+
+//       <div className="step-indicator">
+//         {steps.map((step, index) => (
+//           <div
+//             key={step.id}
+//             className={`step ${currentStep > step.id ? 'completed' : ''} ${currentStep === step.id ? 'active' : ''}`}
+//           >
+//             {index > 0 && <div className="step-connector"></div>}
+//             <div className="step-number">{step.id}</div>
+//             <div className="step-title">{step.title}</div>
+//           </div>
+//         ))}
+//       </div>
+
+//       {currentStep === 2 && (
+//         <div className="map-background">
+//           <LocationMap
+//             senderCoordinates={shipmentData.sender.address.coordinates}
+//             receiverCoordinates={shipmentData.receiver.address.coordinates}
+//             currentLocation={currentLocation}
+//           />
+//         </div>
+//       )}
+
+//       <div className={`form-containers ${currentStep === 2 ? 'with-map-background' : ''}`}>
+//         {error && <div className="error-message">{error}</div>}
+
+//         {currentStep === 4 ? (
+//           <form onSubmit={handleSubmit} className="step-content active">
+//             {renderStepContent()}
+//             <div className="navigation-buttons">
+//               <button
+//                 type="button"
+//                 className="nav-button button-secondary"
+//                 onClick={handlePrevStep}
+//                 disabled={isSubmitting}
+//               >
+//                 Back
+//               </button>
+//               <button
+//                 type="submit"
+//                 className="nav-button button-primary"
+//                 disabled={isSubmitting}
+//               >
+//                 {isSubmitting ? 'Processing...' : 'Confirm Booking'}
+//               </button>
+//             </div>
+//           </form>
+//         ) : (
+//           <div className="step-content active">
+//             {renderStepContent()}
+//             <div className="navigation-buttons">
+//               {currentStep > 1 && (
+//                 <button
+//                   type="button"
+//                   className="nav-button button-secondary"
+//                   onClick={handlePrevStep}
+//                   disabled={isSubmitting}
+//                 >
+//                   Back
+//                 </button>
+//               )}
+//               <button
+//                 type="button"
+//                 className="nav-button button-primary"
+//                 onClick={handleNextStep}
+//                 disabled={isSubmitting}
+//               >
+//                 Next
+//               </button>
+//             </div>
+//           </div>
+//         )}
+
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default ShipmentPage;
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -1357,7 +2202,7 @@ import axios from 'axios';
 import Header from './Header';
 import Footer from './Footer';
 import LocationMap from './LocationMap';
-import { FaMapMarkerAlt, FaChevronRight, FaUser, FaPhone, FaMapMarkedAlt } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaChevronRight, FaUser, FaPhone, FaExchangeAlt } from 'react-icons/fa';
 import '../../styles/components.css';
 
 const vehicleTypes = [
@@ -1392,7 +2237,6 @@ const vehicleTypes = [
     emoji: '🛻',
     capacity: 'Up to 1700kg',
     available: true,
-    // comingSoon: true
   },
   {
     type: 'Tata407',
@@ -1401,7 +2245,6 @@ const vehicleTypes = [
     emoji: '🚛',
     capacity: 'Up to 2500kg',
     available: true,
-    // comingSoon: true
   },
   {
     type: 'ContainerTruck',
@@ -1415,8 +2258,8 @@ const vehicleTypes = [
 ];
 
 const paymentMethods = [
-  { id: 'razorpay', name: 'Pay Online', description: 'Secure payment with Razorpay', icon: '💳' },
-  { id: 'pay_after', name: 'Pay After Delivery', description: 'Pay online after delivery is completed', icon: '⏳' }
+  { id: 'razorpay', name: 'Online', description: 'Secure payment with Razorpay', icon: '💳' },
+  { id: 'pay_after', name: 'Cash', description: 'Pay online after delivery is completed', icon: '💸' }
 ];
 
 const loadRazorpay = () => {
@@ -1443,26 +2286,21 @@ function ShipmentPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [currentStep, setCurrentStep] = useState(location.state?.currentStep || 1);
+  const [currentStep, setCurrentStep] = useState(1); // 1: Sender/Receiver, 2: Vehicle/Payment, 3: Confirmation
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [trackingNumber, setTrackingNumber] = useState('');
   const [calculatedCosts, setCalculatedCosts] = useState({});
   const [distance, setDistance] = useState(0);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('razorpay');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('pay_after');
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const debounceTimer = useRef(null);
-
-  const steps = [
-    { id: 1, title: "Sender/Receiver" },
-    { id: 2, title: "Addresses" },
-    { id: 3, title: "Vehicle" },
-    { id: 4, title: "Summary" }
-  ];
-
+  const [userClickedBack, setUserClickedBack] = useState(false);
+  const [shouldAutoProgress, setShouldAutoProgress] = useState(true);
   const [shipmentData, setShipmentData] = useState(() => {
     const locationState = location.state?.shipmentData;
     return locationState || {
@@ -1493,7 +2331,7 @@ function ShipmentPage() {
 
   useEffect(() => {
     scrollToTop();
-  }, [currentStep, success]);
+  }, [success, currentStep]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -1529,7 +2367,7 @@ function ShipmentPage() {
   }, []);
 
   useEffect(() => {
-    const { selectedAddress, type, currentStep: stepFromState } = location.state || {};
+    const { selectedAddress, type } = location.state || {};
 
     if (selectedAddress && type) {
       setShipmentData(prev => ({
@@ -1543,15 +2381,14 @@ function ShipmentPage() {
         }
       }));
 
-      if (stepFromState) {
-        setCurrentStep(stepFromState);
-      } else {
-        setCurrentStep(2);
+      // If both addresses are set, move to next step
+      if (shipmentData.sender.address.coordinates && shipmentData.receiver.address.coordinates) {
+        calculateDistance(true);
       }
 
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state, navigate, location.pathname]);
+  }, [location.state, navigate, location.pathname, shipmentData.sender.address.coordinates, shipmentData.receiver.address.coordinates]);
 
   useEffect(() => {
     const { sender, receiver } = shipmentData;
@@ -1564,7 +2401,29 @@ function ShipmentPage() {
     return () => clearTimeout(debounceTimer.current);
   }, [shipmentData.sender.address.coordinates, shipmentData.receiver.address.coordinates]);
 
+  useEffect(() => {
+    if (currentStep === 1 && validateStep1() && shouldAutoProgress) {
+      const timer = setTimeout(() => {
+        calculateDistance().then(valid => {
+          if (valid) setCurrentStep(2);
+        });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [shipmentData, currentStep, shouldAutoProgress]);
+
+
+
+
+  // Back button handler (Step 2 → Step 1)
+  const handleBackToDetails = () => {
+    setShouldAutoProgress(false); // Disable auto-progression
+    setCurrentStep(1); // Go back to Step 1
+  };
+
+  // Example: When an input field changes, re-enable auto-progression
   const handleInputChange = (e, type) => {
+    setShouldAutoProgress(true); // Re-enable auto-progression
     const { name, value } = e.target;
     setShipmentData(prev => ({
       ...prev,
@@ -1574,7 +2433,16 @@ function ShipmentPage() {
       }
     }));
   };
-
+  const validateStep1 = () => {
+    return (
+      shipmentData.sender.name.trim() &&
+      shipmentData.sender.phone.trim() &&
+      shipmentData.receiver.name.trim() &&
+      shipmentData.receiver.phone.trim() &&
+      shipmentData.sender.address.addressLine1.trim() &&
+      shipmentData.receiver.address.addressLine1.trim()
+    );
+  };
   const handleVehicleSelect = (type) => {
     setShipmentData(prev => ({
       ...prev,
@@ -1596,8 +2464,7 @@ function ShipmentPage() {
       state: {
         type,
         currentAddress: shipmentData[type].address,
-        shipmentData: shipmentData,
-        currentStep: currentStep
+        shipmentData: shipmentData
       }
     });
   };
@@ -1616,7 +2483,7 @@ function ShipmentPage() {
     setError(null);
 
     try {
-      const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments/calculate-distance', {
+      const response = await axios.post('http://localhost:5000/api/shipments/calculate-distance', {
         origin: sender.address.coordinates,
         destination: receiver.address.coordinates
       });
@@ -1661,7 +2528,7 @@ function ShipmentPage() {
       const token = await user.getIdToken();
 
       const orderResponse = await axios.post(
-        `https://jio-yatri-user.onrender.com/api/payment/${shipmentId}/initiate`,
+        `http://localhost:5000/api/payment/${shipmentId}/initiate`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -1690,7 +2557,7 @@ function ShipmentPage() {
         handler: async function (response) {
           try {
             await axios.post(
-              'https://jio-yatri-user.onrender.com/api/payment/verify',
+              'http://localhost:5000/api/payment/verify',
               {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
@@ -1703,6 +2570,7 @@ function ShipmentPage() {
               }
             );
             setSuccess(true);
+            setCurrentStep(3);
           } catch (error) {
             setError('Payment verification failed. Please contact support.');
           } finally {
@@ -1736,16 +2604,34 @@ function ShipmentPage() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Only proceed with payment if we're on the final step
-    if (currentStep < steps.length) {
+  const handleNextStep = () => {
+    // Validate sender and receiver details before proceeding
+    if (!shipmentData.sender.name || !shipmentData.sender.phone ||
+      !shipmentData.receiver.name || !shipmentData.receiver.phone) {
+      setError('Please fill all sender and receiver details');
       return;
     }
 
+    if (!shipmentData.sender.address.addressLine1 || !shipmentData.receiver.address.addressLine1) {
+      setError('Please select both pickup and delivery locations');
+      return;
+    }
+
+    calculateDistance().then(valid => {
+      if (valid) setCurrentStep(2);
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (!user) {
       setError('Please login to create shipments');
+      return;
+    }
+
+    if (!shipmentData.vehicleType) {
+      setError('Please select a vehicle type');
       return;
     }
 
@@ -1779,7 +2665,7 @@ function ShipmentPage() {
         paymentMethod: shipmentData.paymentMethod
       };
 
-      const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments', payload, {
+      const response = await axios.post('http://localhost:5000/api/shipments', payload, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -1791,6 +2677,7 @@ function ShipmentPage() {
 
       if (shipmentData.paymentMethod === 'pay_after') {
         setSuccess(true);
+        setCurrentStep(3);
         return;
       }
 
@@ -1807,252 +2694,20 @@ function ShipmentPage() {
     }
   };
 
-  const handleNextStep = () => {
-    if (currentStep === 1) {
-      if (!shipmentData.sender.name || !shipmentData.sender.phone ||
-        !shipmentData.receiver.name || !shipmentData.receiver.phone) {
-        setError('Please fill all sender and receiver details');
-        return;
-      }
-    } else if (currentStep === 2) {
-      if (!shipmentData.sender.address.addressLine1 || !shipmentData.receiver.address.addressLine1) {
-        setError('Please select both pickup and delivery locations');
-        return;
-      }
-    } else if (currentStep === 3) {
-      if (!shipmentData.vehicleType) {
-        setError('Please select a vehicle type');
-        return;
-      }
-    }
+  if (paymentProcessing) {
+    return (
+      <div className="payment-processing-overlay">
+        <div className="payment-processing-content">
+          <div className="payment-processing-spinner"></div>
+          <h3>Processing Payment...</h3>
+          <p>Please wait while we process your payment</p>
+        </div>
+      </div>
+    );
+  }
 
-    setError(null);
-    setCurrentStep(prev => prev + 1);
-  };
-
-  const handlePrevStep = () => {
-    setCurrentStep(prev => prev - 1);
-  };
-
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="sender-receiver-section">
-            {/* Map Background for Step 1 */}
-            <div className="map-background">
-              <LocationMap
-                senderCoordinates={shipmentData.sender.address.coordinates}
-                receiverCoordinates={shipmentData.receiver.address.coordinates}
-                currentLocation={currentLocation}
-              />
-            </div>
-
-            <div className="address-section">
-              <div className="section-header">
-                <h3 className="section-titles">Sender Information</h3>
-              </div>
-              <div className="input-group">
-                <FaUser className="input-icon" />
-                <input
-                  type="text"
-                  name="name"
-                  value={shipmentData.sender.name}
-                  onChange={(e) => handleInputChange(e, 'sender')}
-                  placeholder="Name"
-                  required
-                  className="transparent-input"
-                />
-              </div>
-              <div className="input-group">
-                <FaPhone className="input-icon" />
-                <div className="phone-input-container">
-                  <span className="phone-prefix">+91</span>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={shipmentData.sender.phone}
-                    onChange={(e) => handleInputChange(e, 'sender')}
-                    placeholder="Phone Number"
-                    required
-                    pattern="[0-9]{10}"
-                    className="transparent-input phone-input"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="address-section">
-              <div className="section-header">
-                <h3 className="section-titles">Receiver Information</h3>
-              </div>
-              <div className="input-group">
-                <FaUser className="input-icon" />
-                <input
-                  type="text"
-                  name="name"
-                  value={shipmentData.receiver.name}
-                  onChange={(e) => handleInputChange(e, 'receiver')}
-                  placeholder="Name"
-                  required
-                  className="transparent-input"
-                />
-              </div>
-              <div className="input-group">
-                <FaPhone className="input-icon" />
-                <div className="phone-input-container">
-                  <span className="phone-prefix">+91</span>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={shipmentData.receiver.phone}
-                    onChange={(e) => handleInputChange(e, 'receiver')}
-                    placeholder="Phone Number"
-                    required
-                    pattern="[0-9]{10}"
-                    className="transparent-input phone-input"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      case 2:
-        return (
-          <>
-            <div className="address-overlay">
-              <div className="sender-address-input">
-                <FaMapMarkerAlt className="address-icon" />
-                <input
-                  type="text"
-                  value={shipmentData.sender.address.addressLine1 || ''}
-                  onClick={() => navigateToAddressSelection('sender')}
-                  readOnly
-                  placeholder="Pickup location"
-                  className="address-text"
-                />
-                <FaChevronRight className="address-arrow" />
-              </div>
-
-              <div className="receiver-address-input">
-                <FaMapMarkerAlt className="address-icon" />
-                <input
-                  type="text"
-                  value={shipmentData.receiver.address.addressLine1 || ''}
-                  onClick={() => navigateToAddressSelection('receiver')}
-                  readOnly
-                  placeholder="Delivery location"
-                  className="address-text"
-                />
-                <FaChevronRight className="address-arrow" />
-              </div>
-            </div>
-
-            <div className="map-navigation-buttons">
-              <button
-                type="button"
-                className="map-nav-button button-secondary"
-                onClick={handlePrevStep}
-                disabled={isSubmitting}
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                className="map-nav-button button-primary"
-                onClick={handleNextStep}
-                disabled={isSubmitting}
-              >
-                Next
-              </button>
-            </div>
-          </>
-        );
-      case 3:
-        return (
-          <div className="vehicle-selection-section">
-            <div className="section-header">
-              <div className="section-icon">🚚</div>
-              <h3 className="section-titles">Select Vehicle</h3>
-            </div>
-            <div className="vehicle-options">
-              {vehicleTypes.map((vehicle) => (
-                <div
-                  key={vehicle.type}
-                  className={`vehicle-option ${shipmentData.vehicleType === vehicle.type ? 'selected' : ''} ${!vehicle.available ? 'unavailable' : ''}`}
-                  onClick={() => vehicle.available && handleVehicleSelect(vehicle.type)}
-                >
-                  <span className="vehicle-emoji">{vehicle.emoji}</span>
-                  <span className="vehicle-name">
-                    {vehicle.name}
-                    {vehicle.comingSoon && <span className="coming-soon-badge">Coming Soon</span>}
-                  </span>
-                  <span className="vehicle-capacity">{vehicle.capacity}</span>
-                  {shipmentData.distance > 0 && (
-                    <span className="vehicle-price">₹{(shipmentData.distance * vehicle.rate).toFixed(2)}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="summary-section">
-            <div className="section-header">
-              <div className="section-icon">📋</div>
-              <h3 className="section-titles">Order Summary</h3>
-            </div>
-
-            <div className="summary-item">
-              <span className="summary-label">Sender:</span>
-              <span className="summary-value">{shipmentData.sender.name}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Receiver:</span>
-              <span className="summary-value">{shipmentData.receiver.name}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Distance:</span>
-              <span className="summary-value">{shipmentData.distance.toFixed(2)} km</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Vehicle:</span>
-              <span className="summary-value">
-                {vehicleTypes.find(v => v.type === shipmentData.vehicleType)?.name}
-              </span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-label">Total Cost:</span>
-              <span className="summary-value">₹{shipmentData.cost.toFixed(2)}</span>
-            </div>
-
-            <div className="payment-method-section">
-              <h3 className="payment-method-title">💳 Payment Method</h3>
-              <div className="payment-methods-container">
-                {paymentMethods.map(method => (
-                  <div
-                    key={method.id}
-                    className={`payment-method-card ${selectedPaymentMethod === method.id ? 'selected' : ''}`}
-                    onClick={() => handlePaymentMethodSelect(method.id)}
-                    data-method={method.id}
-                  >
-                    <div className="payment-method-icon">{method.icon}</div>
-                    <div className="payment-method-info">
-                      <h4 className="payment-method-name">{method.name}</h4>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  if (success) {
+  // Step 3: Confirmation Page
+  if (currentStep === 3) {
     return (
       <div className="confirmation-page">
         <Header />
@@ -2100,98 +2755,290 @@ function ShipmentPage() {
     );
   }
 
-  if (paymentProcessing) {
+  // Step 1: Sender and Receiver Details
+  if (currentStep === 1) {
     return (
-      <div className="payment-processing-overlay">
-        <div className="payment-processing-content">
-          <div className="payment-processing-spinner"></div>
-          <h3>Processing Payment...</h3>
-          <p>Please wait while we process your payment</p>
+      <div className="shipment-page rapido-style">
+        <Header />
+        <div className="shipment-container">
+          <h2 className="step-title">Enter Sender & Receiver Details</h2>
+
+          {/* Sender Section */}
+          <div className="sender-section">
+            <div className="section-header-title">
+              <h3>Parcel Pickup</h3>
+            </div>
+            <div className="input-group">
+              <input
+                type="text"
+                name="name"
+                value={shipmentData.sender.name}
+                onChange={(e) => handleInputChange(e, 'sender')}
+                placeholder="Sender Name"
+                className="form-input"
+              />
+            </div>
+            <div className="input-group">
+              <input
+                type="tel"
+                name="phone"
+                value={shipmentData.sender.phone}
+                onChange={(e) => handleInputChange(e, 'sender')}
+                placeholder="Sender Phone"
+                className="form-input"
+              />
+            </div>
+            <div
+              className="address-input"
+              onClick={() => navigateToAddressSelection('sender')}
+            >
+              <div style={{ position: 'relative' }} className='location-icon'>
+                <FaMapMarkerAlt className="address-icon" />
+                <input
+                  type="text"
+                  value={shipmentData.sender.address.addressLine1 || ''}
+                  readOnly
+                  placeholder="Pickup location"
+                  className="address-text"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="map-preview">
+            <LocationMap
+              senderCoordinates={shipmentData.sender.address.coordinates}
+              receiverCoordinates={shipmentData.receiver.address.coordinates}
+              currentLocation={currentLocation}
+            />
+          </div>
+
+          {/* Receiver Section */}
+          <div className="receiver-section">
+            <div className="section-header-title">
+              <h3>Parcel Dropdown</h3>
+            </div>
+            <div className="input-group">
+              <input
+                type="text"
+                name="name"
+                value={shipmentData.receiver.name}
+                onChange={(e) => handleInputChange(e, 'receiver')}
+                placeholder="Receiver Name"
+                className="form-input"
+              />
+            </div>
+            <div className="input-group">
+              <input
+                type="tel"
+                name="phone"
+                value={shipmentData.receiver.phone}
+                onChange={(e) => handleInputChange(e, 'receiver')}
+                placeholder="Receiver Phone"
+                className="form-input"
+              />
+            </div>
+            <div
+              className="address-input"
+              onClick={() => navigateToAddressSelection('receiver')}
+            >
+              <div style={{ position: 'relative' }} className='location-icon'>
+                <FaMapMarkerAlt className="address-icon" />
+                <input
+                  type="text"
+                  value={shipmentData.receiver.address.addressLine1 || ''}
+                  readOnly
+                  placeholder="Delivery location"
+                  className="address-text"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Map Preview */}
+          <h6 className='services'>Services</h6>
+          <div className="vehicle-types-containers">
+
+            {vehicleTypes.map((vehicle) => (
+              <div
+                key={vehicle.type}
+                className={`vehicle-type-card ${!vehicle.available ? 'disabled' : ''}`}
+                onClick={() => vehicle.available && handleVehicleSelect(vehicle.type)}
+              >
+                <div className="vehicle-emojis">{vehicle.emoji}</div>
+              </div>
+            ))}
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <button
+            className="next-button"
+            onClick={handleNextStep}
+            disabled={isSubmitting || !validateStep1()}
+          >
+            {isSubmitting ? 'Calculating...' : 'Continue'}
+          </button>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="shipment-page">
-      <Header />
+  // Step 2: Vehicle Selection and Payment
+  if (currentStep === 2) {
+    return (
 
-      <div className="step-indicator">
-        {steps.map((step, index) => (
-          <div
-            key={step.id}
-            className={`step ${currentStep > step.id ? 'completed' : ''} ${currentStep === step.id ? 'active' : ''}`}
-          >
-            {index > 0 && <div className="step-connector"></div>}
-            <div className="step-number">{step.id}</div>
-            <div className="step-title">{step.title}</div>
-          </div>
-        ))}
-      </div>
-
-      {currentStep === 2 && (
-        <div className="map-background">
+      <div className="shipment-page rapido-style">
+        <Header />
+        <div className="map-preview">
           <LocationMap
             senderCoordinates={shipmentData.sender.address.coordinates}
             receiverCoordinates={shipmentData.receiver.address.coordinates}
             currentLocation={currentLocation}
           />
+
+          <div className="button-group">
+            <button className="back-buttons" onClick={handleBackToDetails}>
+              ←
+            </button>
+
+          </div>
         </div>
-      )}
+        <div className="shipment-container">
+          <h2 className="step-title">Select Vehicle & Payment</h2>
 
-      <div className={`form-containers ${currentStep === 2 ? 'with-map-background' : ''}`}>
-        {error && <div className="error-message">{error}</div>}
-
-        {currentStep === 4 ? (
-          <form onSubmit={handleSubmit} className="step-content active">
-            {renderStepContent()}
-            <div className="navigation-buttons">
-              <button
-                type="button"
-                className="nav-button button-secondary"
-                onClick={handlePrevStep}
-                disabled={isSubmitting}
-              >
-                Back
-              </button>
-              <button
-                type="submit"
-                className="nav-button button-primary"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Processing...' : 'Confirm Booking'}
-              </button>
-            </div>
-          </form>
-        ) : (
-          <div className="step-content active">
-            {renderStepContent()}
-            <div className="navigation-buttons">
-              {currentStep > 1 && (
-                <button
-                  type="button"
-                  className="nav-button button-secondary"
-                  onClick={handlePrevStep}
-                  disabled={isSubmitting}
+          {/* Vehicle Selection Section */}
+          <div className="vehicle-selection-section">
+            <h3 className="section-vehicle-title">Choose Your Vehicle</h3>
+            <div className="vehicle-options-container">
+              {vehicleTypes.map((vehicle) => (
+                <div
+                  key={vehicle.type}
+                  className={`vehicle-option ${shipmentData.vehicleType === vehicle.type ? 'selected' : ''} ${!vehicle.available ? 'unavailable' : ''}`}
+                  onClick={() => vehicle.available && handleVehicleSelect(vehicle.type)}
                 >
-                  Back
-                </button>
-              )}
-              <button
-                type="button"
-                className="nav-button button-primary"
-                onClick={handleNextStep}
-                disabled={isSubmitting}
-              >
-                Next
-              </button>
+                  <div className="vehicle-icons">{vehicle.emoji}</div>
+                  <div className="vehicle-info">
+                    <div className="vehicle-name">{vehicle.name}</div>
+                    <div className="vehicle-capacity">{vehicle.capacity}</div>
+                  </div>
+                  {shipmentData.distance > 0 && (
+                    <div className="vehicle-price">₹{(shipmentData.distance * vehicle.rate).toFixed(2)}</div>
+                  )}
+                  {vehicle.comingSoon && <div className="coming-soon">Coming Soon</div>}
+                </div>
+              ))}
             </div>
           </div>
-        )}
 
+          {/* Summary Section */}
+          <div className="summary-section">
+            <div className="summary-item">
+              <span className="summary-label">Distance:</span>
+              <span className="summary-value">{shipmentData.distance.toFixed(2)} km</span>
+            </div>
+            <div className="summary-item">
+              <span className="summary-label">Vehicle:</span>
+              <span className="summary-value">
+                {vehicleTypes.find(v => v.type === shipmentData.vehicleType)?.name}
+              </span>
+            </div>
+            <div className="summary-item total">
+              <span className="summary-label">Total Cost:</span>
+              <span className="summary-value">₹{shipmentData.cost.toFixed(2)}</span>
+            </div>
+          </div>
+
+          {/* Payment Section */}
+          {/* <div className="payment-section">
+            <h3 className="section-vehicle-title">Select Payment Method</h3>
+            <div className="payment-options">
+              {paymentMethods.map(method => (
+                <div
+                  key={method.id}
+                  className={`payment-option ${selectedPaymentMethod === method.id ? 'selected' : ''}`}
+                  onClick={() => handlePaymentMethodSelect(method.id)}
+                >
+                  <span className="payment-icon">{method.icon}</span>
+                  <span className="payment-name">{method.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+          <button
+            className="back-button"
+            onClick={handleBackToDetails} // Use the new handler
+          >
+            ← Back to Details
+          </button>
+          <button
+            className="confirm-button"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Processing...' : 'Confirm Booking'}
+          </button> */}
+
+          <div className="payment-section">
+            <h3 className="section-vehicle-title">Payment Method</h3>
+
+            <div className="dropdown-payment-selector">
+              <div
+                className="selected-payment"
+                onClick={() => setIsPaymentDropdownOpen(!isPaymentDropdownOpen)}
+              >
+                <span className="payment-icon">
+                  {paymentMethods.find(m => m.id === selectedPaymentMethod)?.icon}
+                </span>
+                <span className="payment-name">
+                  {paymentMethods.find(m => m.id === selectedPaymentMethod)?.name}
+                </span>
+                <span className={`dropdown-arrow ${isPaymentDropdownOpen ? 'open' : ''}`}>
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="#4A5568" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+              </div>
+
+              {isPaymentDropdownOpen && (
+                <div className="payment-options-dropdown">
+                  {paymentMethods.map(method => (
+                    <div
+                      key={method.id}
+                      className={`payment-option ${selectedPaymentMethod === method.id ? 'selected' : ''}`}
+                      onClick={() => {
+                        handlePaymentMethodSelect(method.id);
+                        setIsPaymentDropdownOpen(false);
+                      }}
+                    >
+                      <span className="payment-icon">{method.icon}</span>
+                      <span className="payment-name">{method.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+          <button
+            className="confirm-button"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Processing...' : 'Book Vehicle'}
+          </button>
+        </div>
+
+        {error && <div className="error-message">{error}</div>}
       </div>
-    </div>
-  );
+
+        </div >
+      </div >
+    );
+  }
+
+  return null;
 }
 
 export default ShipmentPage;
+
