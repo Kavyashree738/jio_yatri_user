@@ -3204,7 +3204,7 @@ function ShipmentPage() {
     setError(null);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/shipments/calculate-distance', {
+      const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments/calculate-distance', {
         origin: sender.address.coordinates,
         destination: receiver.address.coordinates
       });
@@ -3249,7 +3249,7 @@ function ShipmentPage() {
       const token = await user.getIdToken();
 
       const orderResponse = await axios.post(
-        `http://localhost:5000/api/payment/${shipmentId}/initiate`,
+        `https://jio-yatri-user.onrender.com/api/payment/${shipmentId}/initiate`,
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -3278,7 +3278,7 @@ function ShipmentPage() {
         handler: async function (response) {
           try {
             await axios.post(
-              'http://localhost:5000/api/payment/verify',
+              'https://jio-yatri-user.onrender.com/api/payment/verify',
               {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
@@ -3386,7 +3386,7 @@ function ShipmentPage() {
         paymentMethod: shipmentData.paymentMethod
       };
 
-      const response = await axios.post('http://localhost:5000/api/shipments', payload, {
+      const response = await axios.post('https://jio-yatri-user.onrender.com/api/shipments', payload, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
