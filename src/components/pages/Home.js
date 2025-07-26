@@ -3,7 +3,6 @@ import Header from './Header'
 import '../../styles/Home.css'; 
 import HeroSection from './HeroSection';
  import WelcomeSection from './WelcomeSection';
-// import ServiceSection from './ServiceSection';
 import TestimonialsSection from './TestimonialsSection';
 import Footer from './Footer';
 import Contact from './Contact'
@@ -26,7 +25,6 @@ const Home = () => {
      {!user && <HeroSection />}
      {user && <ShipmentPage />}
       <WelcomeSection/>
-       // <ServiceSection/>
        <HelpCenter/>
        <WhyChoosePorter/>
        <PorterPromo/>
