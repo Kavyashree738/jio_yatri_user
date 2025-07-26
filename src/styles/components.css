@@ -83,8 +83,8 @@
 
 /* Map Section Styles */
 .map-section {
-  position: relative;
-  height: 100vh;
+  /* position: relative; */
+  height: 50vh;
   width: 100%;
 }
 
@@ -1488,8 +1488,9 @@
 
 .shipment-container {
   flex: 1;
+  overflow-y: auto;
   padding-bottom: 80px;
-  overflow-y:auto;
+  /* overflow-x: hidden; */
 }
 
 /* Sender and Receiver Sections */
@@ -1582,6 +1583,7 @@
 .vehicle-selection-section {
   background: white;
   padding: 15px;
+  width:100%;
   margin: 10px;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -1622,7 +1624,7 @@
 }
 
 .vehicle-icons {
-  font-size: 3rem;
+  font-size: 2rem;
   margin-bottom: 5px;
 }
 
@@ -1807,7 +1809,7 @@
 }
 
 .vehicle-icons {
-  font-size: 3rem;
+  font-size: 1.5rem;
 }
 
 .vehicle-name {
@@ -1997,7 +1999,7 @@
 
 .back-buttons {
   position:absolute;
-  bottom:400px;
+  bottom:350px;
   left:10px;
   font-size: 2rem;
   background-color: #1041e2;
@@ -2144,4 +2146,9 @@
 .payment-option.selected .payment-name {
   color: #3182CE;
   font-weight: 500;
+}
+.vehicle-rate {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 4px;
 }
