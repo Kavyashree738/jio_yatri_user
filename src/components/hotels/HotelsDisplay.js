@@ -194,19 +194,23 @@ const openWhatsApp = (phone, hotelName) => {
 
                 <div className="hd-hotel-actions">
                   {visiblePhoneNumbers.includes(hotel._id) ? (
-                    <div className="hd-action-btn hd-call">
-                      <FaPhone className="hd-icon" /> {hotel.phone}
-                    </div>
-                  ) : (
-                    <button
-                      className="hd-action-btn hd-call"
-                      onClick={() =>
-                        setVisiblePhoneNumbers([...visiblePhoneNumbers, hotel._id])
-                      }
-                    >
-                      <FaPhone className="hd-icon" /> Show Number
-                    </button>
-                  )}
+  <a
+    href={`tel:${hotel.phone}`}
+    className="hd-action-btn hd-call"
+    style={{ textDecoration: 'none' }}
+  >
+    <FaPhone className="hd-icon" /> {hotel.phone}
+  </a>
+) : (
+  <button
+    className="hd-action-btn hd-call"
+    onClick={() =>
+      setVisiblePhoneNumbers([...visiblePhoneNumbers, hotel._id])
+    }
+  >
+    <FaPhone className="hd-icon" /> Show Number
+  </button>
+)}
 
                   <button
                     className="hd-action-btn hd-whatsapp"
