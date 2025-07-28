@@ -71,7 +71,7 @@ const DeliveryPage = () => {
     setDeliveryData(prev => ({ ...prev, loading: true, error: null }));
 
     try {
-      const response = await axios.post('/api/deliveries/calculate-distance', {
+      const response = await axios.post('https://jio-yatri-user.onrender.com/api/deliveries/calculate-distance', {
         origin: deliveryData.hotel.address.coordinates,
         destination: deliveryData.receiver.address.coordinates
       });
@@ -108,7 +108,7 @@ const DeliveryPage = () => {
     setDeliveryData(prev => ({ ...prev, loading: true }));
 
     try {
-      const response = await axios.post('/api/deliveries', {
+      const response = await axios.post('https://jio-yatri-user.onrender.com/api/deliveries', {
         hotelId: deliveryData.hotel.id,
         receiver: deliveryData.receiver,
         items: deliveryData.items,
