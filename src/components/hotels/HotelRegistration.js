@@ -163,7 +163,7 @@ const HotelRegistration = () => {
       hotelImages.forEach(img => formDataToSend.append('hotelImages', img));
 
       const res = await axios.post(
-        `${process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000'}/api/hotels/register`,
+        `https://jio-yatri-user.onrender.com/api/hotels/register`,
         formDataToSend,
         {
           headers: {
