@@ -1,0 +1,1347 @@
+/* HotelRegistration.css */
+
+/* Base Styles */
+.hr-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+  min-height: 100vh;
+  padding: 20px 0;
+  margin-top:80px;
+}
+
+.hr-card {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.hr-header {
+  padding: 30px;
+  background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+  color: white;
+  text-align: center;
+  position: relative;
+}
+
+.hr-title {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.hr-subtitle {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 1.5rem;
+}
+
+/* Progress Bar */
+.hr-progress-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+
+.hr-progress-bar {
+  height: 100%;
+  background: white;
+  border-radius: 5px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.hr-progress-text {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #000dff;
+}
+
+/* Navigation */
+.hr-navigation {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 1.5rem;
+}
+
+.hr-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 30px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hr-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.hr-nav-btn.hr-active {
+  background: white;
+  color: #000dff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.hr-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.hr-nav-icon {
+  font-size: 1rem;
+}
+
+.hr-form {
+  padding: 0;
+}
+
+.hr-section {
+  padding: 30px;
+  display: block;
+}
+
+.hr-section.hr-hidden {
+  display: none;
+}
+
+.hr-section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2c3e50;
+}
+
+.hr-section-icon {
+  font-size: 1.2rem;
+  color: #6b73ff;
+}
+
+.hr-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.hr-form-group {
+  margin-bottom: 15px;
+}
+
+.hr-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hr-input-icon {
+  color: #6b73ff;
+  font-size: 0.9rem;
+}
+
+.hr-required {
+  color: #e53e3e;
+}
+
+.hr-input, .hr-select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background-color: #f8fafc;
+}
+
+.hr-input:focus, .hr-select:focus {
+  outline: none;
+  border-color: #6b73ff;
+  box-shadow: 0 0 0 3px rgba(107, 115, 255, 0.2);
+  background-color: white;
+}
+
+.hr-time-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.hr-time-input {
+  padding: 10px 15px;
+}
+
+/* Address Group */
+.hr-address-group {
+  margin-top: 20px;
+}
+
+/* Category Icons */
+.hr-category-icon {
+  font-size: 1.2rem;
+}
+
+.hr-veg {
+  color: #38a169;
+}
+
+.hr-non-veg {
+  color: #e53e3e;
+}
+
+.hr-both {
+  color: #6b73ff;
+}
+
+/* Menu Section */
+.hr-menu-input-container {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.hr-menu-input-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr auto;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .hr-menu-input-grid {
+    grid-template-columns: 1fr;
+  }
+  .hr-container{
+     margin-top:20px;
+  }
+}
+
+.hr-menu-items-table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.hr-table-header {
+  display: flex;
+  background: #6b73ff;
+  color: white;
+  font-weight: 600;
+  padding: 12px 15px;
+}
+
+.hr-table-col {
+  flex: 1;
+  padding: 0 10px;
+}
+
+.hr-name { flex: 3; }
+.hr-price { flex: 1; text-align: center; }
+.hr-desc { flex: 2; }
+.hr-action { flex: 0.5; text-align: center; }
+
+.hr-table-body {
+  background: white;
+}
+
+.hr-table-row {
+  display: flex;
+  padding: 12px 15px;
+  border-bottom: 1px solid #edf2f7;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+
+.hr-table-row:hover {
+  background: #f8fafc;
+}
+
+.hr-table-row:last-child {
+  border-bottom: none;
+}
+
+/* Empty State */
+.hr-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin: 20px 0;
+  color: #718096;
+}
+
+.hr-empty-icon {
+  font-size: 3rem;
+  color: #cbd5e0;
+  margin-bottom: 15px;
+}
+
+/* File Upload */
+.hr-file-upload-group {
+  margin-bottom: 25px;
+}
+
+.hr-upload-hint {
+  font-size: 0.85rem;
+  color: #718096;
+  margin-bottom: 10px;
+}
+
+.hr-file-upload-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.hr-file-upload-label {
+  display: flex;
+  flex: 1;
+}
+
+.hr-file-upload-label input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.hr-file-upload-text {
+  flex: 1;
+  padding: 12px 15px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e0;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hr-file-upload-button {
+  padding: 12px 20px;
+  background: #6b73ff;
+  color: white;
+  font-weight: 600;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.hr-file-upload-button:hover {
+  background: #5a62e0;
+}
+
+.hr-btn-clear {
+  margin-left: 10px;
+  padding: 10px;
+  background: #fed7d7;
+  color: #e53e3e;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hr-btn-clear:hover {
+  background: #feb2b2;
+}
+
+/* Image Previews */
+.hr-image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.hr-image-preview {
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.hr-image-name {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hr-btn-remove-image {
+  margin-left: 8px;
+  padding: 2px;
+  background: none;
+  border: none;
+  color: #e53e3e;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+/* Review Section */
+.hr-review-container {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.hr-review-section {
+  margin-bottom: 25px;
+}
+
+.hr-review-section:last-child {
+  margin-bottom: 0;
+}
+
+.hr-review-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #4a5568;
+}
+
+.hr-review-icon {
+  color: #6b73ff;
+  font-size: 1rem;
+}
+
+.hr-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.hr-review-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.hr-full-width {
+  grid-column: 1 / -1;
+}
+
+.hr-review-label {
+  font-size: 0.85rem;
+  color: #718096;
+  margin-bottom: 4px;
+}
+
+.hr-review-value {
+  font-weight: 500;
+}
+
+/* Review Menu Items */
+.hr-review-menu-items {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.hr-review-menu-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.hr-review-menu-item:last-child {
+  border-bottom: none;
+}
+
+.hr-menu-item-name {
+  font-weight: 500;
+}
+
+.hr-menu-item-price {
+  color: #6b73ff;
+  font-weight: 600;
+}
+
+.hr-review-more-items {
+  text-align: center;
+  padding: 10px;
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+/* Images Review */
+.hr-review-images-info {
+  display: flex;
+  gap: 20px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.hr-images-count {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hr-count-bubble {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: #6b73ff;
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+}
+
+/* Buttons */
+.hr-section-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.hr-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.hr-btn-prev {
+  background: #edf2f7;
+  color: #4a5568;
+}
+
+.hr-btn-prev:hover {
+  background: #e2e8f0;
+}
+
+.hr-btn-next, .hr-btn-add {
+  background: #6b73ff;
+  color: white;
+}
+
+.hr-btn-next:hover, .hr-btn-add:hover {
+  background: #5a62e0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hr-btn-submit {
+  background: #38a169;
+  color: white;
+  padding: 12px 25px;
+}
+
+.hr-btn-submit:hover {
+  background: #2f855a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
+}
+
+.hr-btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.hr-btn-remove {
+  background: #fed7d7;
+  color: #e53e3e;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.hr-btn-remove:hover {
+  background: #feb2b2;
+}
+
+/* Spinner */
+.hr-spinner {
+  animation: hr-spin 1s linear infinite;
+}
+
+@keyframes hr-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Alerts */
+.hr-alert {
+  padding: 15px;
+  border-radius: 8px;
+  margin: 0 30px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  position: relative;
+}
+
+.hr-error {
+  background: #fff5f5;
+  border-left: 4px solid #e53e3e;
+  color: #e53e3e;
+}
+
+.hr-success {
+  background: #f0fff4;
+  border-left: 4px solid #38a169;
+  color: #38a169;
+}
+
+.hr-alert-icon {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.hr-alert-message {
+  flex: 1;
+}
+
+.hr-alert-close {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.hr-alert-close:hover {
+  opacity: 1;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hr-card {
+    border-radius: 0;
+  }
+  
+  .hr-header {
+    padding: 20px;
+  }
+  
+  .hr-title {
+    font-size: 1.8rem;
+  }
+  
+  .hr-section {
+    padding: 20px;
+  }
+  
+  .hr-form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .hr-table-header {
+    display: none;
+  }
+  
+  /* .hr-table-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+    gap: 8px;
+  } */
+  
+  .hr-table-col {
+    width: 100%;
+    padding: 0;
+  }
+  
+  .hr-action {
+    align-self: flex-end;
+  }
+  
+  .hr-review-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .hr-section-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .hr-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .hr-title {
+    font-size: 1.5rem;
+  }
+  
+  .hr-navigation {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .hr-nav-btn {
+    justify-content: center;
+  }
+}
+.ht-registration-container,
+.ht-registration-card,
+.ht-registration-form {
+  overflow: visible !important;
+  position: relative;
+}
+.suggestions-dropdown-container{
+  background-color: #fffcfc;
+}
+/* Add these styles to your HotelRegistration.css */
+
+/* Address Autocomplete Container */
+.hr-address-group {
+  position: relative; /* Establish positioning context for dropdown */
+  z-index: 1; /* Ensure dropdown appears above other elements */
+}
+
+/* Suggestions Dropdown Styles */
+.suggestions-dropdown-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Ensure dropdown appears above other content */
+  margin-top: -1px; /* Align with input border */
+}
+
+.suggestion-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background-color: #f8fafc;
+}
+
+.suggestion-item.active {
+  background-color: #edf2f7;
+}
+
+/* Ensure form containers don't clip dropdown */
+.ht-registration-container,
+.ht-registration-card,
+.ht-registration-form {
+  overflow: visible !important;
+}
+
+/* Fix for any parent containers that might be clipping */
+.hr-section {
+  overflow: visible;
+}
+
+.hr-form-group {
+  overflow: visible;
+}
+
+/* Specific fix for the address input container */
+.hr-address-group .hr-input {
+  position: relative;
+  z-index: 2; /* Ensure input appears above dropdown when active */
+}
+/* Add this to your HotelRegistration.css */
+
+/* Address Autocomplete Container */
+.hr-address-group {
+  position: relative;
+  z-index: 10; /* Higher z-index to ensure dropdown appears above other elements */
+}
+
+/* Suggestions Dropdown */
+.suggestions-dropdown-container {
+  position: absolute;
+  width: 100%;
+  max-height: 700px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  margin-top: -1px;
+  
+}
+
+.suggestion-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.suggestion-item:hover {
+  background-color: #f8fafc;
+}
+
+.suggestion-item.active {
+  background-color: #edf2f7;
+  font-weight: 500;
+}
+
+/* Ensure parent containers don't clip the dropdown */
+.hr-container,
+.hr-card,
+.hr-form,
+.hr-section {
+  overflow: visible !important;
+}
+/* Menu Items in Review Section */
+.hr-review-menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hr-review-menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.hr-menu-item-content {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex: 1;
+}
+
+.hr-menu-item-name {
+  font-weight: 500;
+  min-width: 150px;
+}
+
+.hr-menu-item-price {
+  color: #6b73ff;
+  font-weight: 600;
+  min-width: 80px;
+  text-align: right;
+}
+
+.hr-btn-remove {
+  background: #fed7d7;
+  color: #e53e3e;
+  padding: 8px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.hr-btn-remove:hover {
+  background: #feb2b2;
+  transform: scale(1.05);
+}
+
+.hr-review-more-items {
+  text-align: center;
+  padding: 10px;
+  color: #718096;
+  font-size: 0.9rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+/* Menu Items in Review Section - Responsive */
+.hr-review-menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.hr-review-menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 12px 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.hr-menu-item-name {
+  font-weight: 500;
+  flex: 1;
+  min-width: 120px;
+  margin-right: 15px;
+  word-break: break-word;
+}
+
+.hr-menu-item-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.hr-menu-item-price {
+  color: #6b73ff;
+  font-weight: 600;
+  min-width: 70px;
+  text-align: right;
+}
+
+.hr-btn-remove {
+  background: #fed7d7;
+  color: #e53e3e;
+  padding: 6px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.hr-btn-remove:hover {
+  background: #feb2b2;
+  transform: scale(1.05);
+}
+
+.hr-review-more-items {
+  text-align: center;
+  padding: 10px;
+  color: #718096;
+  font-size: 0.9rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-top: 5px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 576px) {
+  .hr-review-menu-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .hr-menu-item-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hr-menu-item-price {
+    text-align: left;
+  }
+
+  .hr-btn-remove {
+    padding: 5px 8px;
+    border-radius: 4px;
+  }
+}
+
+@media (max-width: 400px) {
+  .hr-menu-item-name {
+    min-width: 100%;
+    margin-right: 0;
+    margin-bottom: 5px;
+  }
+}
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hr-container {
+    padding: 10px 0;
+  }
+
+  .hr-header {
+    padding: 20px 15px;
+  }
+
+  .hr-title {
+    font-size: 1.5rem;
+  }
+
+  .hr-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .hr-section {
+    padding: 20px 15px;
+  }
+
+  .hr-section-title {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Form elements */
+  .hr-input, .hr-select {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  /* File Upload */
+  .hr-file-upload-group {
+    margin-bottom: 15px;
+  }
+
+  .hr-file-upload-text,
+  .hr-file-upload-button {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .hr-upload-hint {
+    font-size: 0.8rem;
+  }
+
+  /* Image Previews */
+  .hr-image-previews {
+    gap: 8px;
+  }
+
+  .hr-image-preview {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .hr-image-name {
+    max-width: 100px;
+  }
+
+  /* Menu Items */
+  .hr-menu-input-container {
+    padding: 15px;
+  }
+
+  /* Buttons */
+  .hr-btn {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+
+  /* Progress Bar */
+  .hr-progress-container {
+    margin: 1rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .hr-title {
+    font-size: 1.3rem;
+  }
+
+  .hr-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .hr-section-title {
+    font-size: 1.1rem;
+  }
+
+  /* File Upload - Stack vertically on very small screens */
+  .hr-file-upload-container {
+    flex-direction: column;
+  }
+
+  .hr-file-upload-text {
+    border-radius: 8px;
+    border-right: 1px dashed #cbd5e0;
+    border-bottom: none;
+    width: 100%;
+    text-align: center;
+  }
+
+  .hr-file-upload-button {
+    border-radius: 8px;
+    width: 100%;
+    margin-top: 5px;
+  }
+
+  /* Image Previews */
+  .hr-image-previews {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hr-image-preview {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hr-image-name {
+    max-width: none;
+  }
+
+  /* Navigation Buttons */
+  .hr-navigation {
+    flex-direction: column;
+  }
+
+  .hr-nav-btn {
+    justify-content: center;
+  }
+
+  /* Menu Input Grid */
+  .hr-menu-input-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Table adjustments */
+  .hr-table-header {
+    display: none;
+  }
+
+  .hr-table-row {
+    /* flex-direction: column; */
+    align-items: flex-start;
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .hr-table-col {
+    width: 100%;
+    padding: 0;
+  }
+
+  .hr-action {
+    align-self: flex-end;
+  }
+
+  /* Review Section */
+  .hr-review-container {
+    padding: 15px;
+  }
+
+  .hr-review-subtitle {
+    font-size: 1rem;
+  }
+
+  .hr-review-grid {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+
+  /* Section Actions */
+  .hr-section-actions {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .hr-btn {
+    width: 100%;
+  }
+}
+
+/* Special adjustments for very small screens */
+@media (max-width: 360px) {
+  /* .hr-container {
+    margin-top: 40px;
+  } */
+
+  .hr-title {
+    font-size: 1.2rem;
+  }
+
+  .hr-section {
+    padding: 15px 10px;
+  }
+
+  .hr-input, .hr-select {
+    padding: 8px 10px;
+  }
+
+  /* Make all buttons slightly smaller */
+  .hr-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Image Upload Specific Responsive Fixes */
+.hr-file-upload-container {
+  display: flex;
+  flex-direction: row;
+}
+
+@media (max-width: 400px) {
+  .hr-file-upload-container {
+    flex-direction: column;
+  }
+  
+  .hr-file-upload-text {
+    border-radius: 8px 8px 0 0;
+    border-right: 1px dashed #cbd5e0;
+    border-bottom: none;
+  }
+  
+  .hr-file-upload-button {
+    border-radius: 0 0 8px 8px;
+    width: 100%;
+  }
+  
+  .hr-btn-clear {
+    margin-left: 0;
+    margin-top: 8px;
+    align-self: center;
+  }
+}
+
+/* Ensure address dropdown is visible on mobile */
+@media (max-width: 768px) {
+  .suggestions-dropdown-container {
+    max-height: 300px;
+  }
+  
+  .hr-address-group {
+    z-index: 100;
+  }
+}
+/* Enhanced Responsive Styles */
+@media (max-width: 768px) {
+  .hr-file-upload-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hr-file-upload-label {
+    width: 100%;
+  }
+
+  .hr-file-upload-text {
+    border-radius: 8px;
+    border: 1px dashed #cbd5e0;
+    text-align: center;
+    padding: 15px;
+  }
+
+  .hr-file-upload-button {
+    width: 50%;
+    justify-content: center;
+    border-radius: 8px;
+  }
+
+  .hr-btn-clear {
+    position: static;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 8px;
+    padding: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .hr-btn-clear > svg {
+    margin-right: 8px;
+  }
+
+  .hr-image-previews {
+    grid-template-columns: 1fr;
+  }
+
+  .hr-image-preview {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .hr-image-name {
+    width: 100%;
+    white-space: normal;
+    word-break: break-all;
+  }
+
+  .hr-section-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .hr-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .hr-file-upload-text,
+  .hr-file-upload-button {
+    padding: 12px 10px;
+    font-size: 14px;
+  }
+
+  .hr-label {
+    font-size: 16px;
+  }
+
+  .hr-upload-hint {
+    font-size: 13px;
+  }
+
+  .hr-section-title {
+    font-size: 20px;
+  }
+}
+
+
+
