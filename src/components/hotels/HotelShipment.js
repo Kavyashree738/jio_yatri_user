@@ -268,7 +268,7 @@ function HotelShipment() {
         setError(null);
 
         try {
-            const response = await axios.post('http://localhost:5000/api/hotel-shipments/calculate-distance', {
+            const response = await axios.post('https://jio-yatri-user.onrender.com/api/hotel-shipments/calculate-distance', {
                 origin: hotel.address.coordinates,
                 destination: shipmentData.receiver.address.coordinates
             });
@@ -315,7 +315,7 @@ function HotelShipment() {
             const token = await user.getIdToken();
 
             const orderResponse = await axios.post(
-                `http://localhost:5000/api/payment/${shipmentId}/initiate`,
+                `https://jio-yatri-user.onrender.com/api/payment/${shipmentId}/initiate`,
                 {},
                 {
                     headers: { Authorization: `Bearer ${token}` },
@@ -344,7 +344,7 @@ function HotelShipment() {
                 handler: async function (response) {
                     try {
                         await axios.post(
-                            'http://localhost:5000/api/payment/verify',
+                            'https://jio-yatri-user.onrender.com/api/payment/verify',
                             {
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_order_id: response.razorpay_order_id,
@@ -464,7 +464,7 @@ function HotelShipment() {
                 paymentMethod: shipmentData.paymentMethod
             };
 
-            const response = await axios.post('http://localhost:5000/api/hotel-shipments', payload, {
+            const response = await axios.post('https://jio-yatri-user.onrender.com/api/hotel-shipments', payload, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
