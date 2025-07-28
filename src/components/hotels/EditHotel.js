@@ -47,7 +47,7 @@ const EditHotel = () => {
     const fetchHotel = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_BASE_URL || "http://localhost:5000"}/api/hotels/${id}`
+          `https://jio-yatri-user.onrender.com/api/hotels/${id}`
         );
         const hotelData = res.data.data;
         setHotel({
