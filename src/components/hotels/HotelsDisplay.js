@@ -60,22 +60,32 @@ const HotelsDisplay = () => {
     adaptiveHeight: true
   };
 
-  const openWhatsApp = (phone, hotelName) => {
-    if (!phone || typeof phone !== 'string' || phone.trim() === '') {
-      alert("Phone number is missing");
-      return;
-    }
+const openWhatsApp = (phone, hotelName) => {
+  if (!phone || typeof phone !== 'string' || phone.trim() === '') {
+    alert("Phone number is missing");
+    return;
+  }
 
-    const rawPhone = phone.replace(/\D/g, '');
-    const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
+  const rawPhone = phone.replace(/\D/g, '');
+  const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
 
-    const message = encodeURIComponent(
-      `Hi, I found your business "${hotelName}" on JioYatri and would like to place an order.`
-    );
+  const message = encodeURIComponent(
+    `Hi, I found your business "${hotelName}" on JioYatri and would like to place an order.`
+  );
 
-    const url = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
-    window.open(url, '_blank');
-  };
+  // ✅ Use different URL for mobile and desktop
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const baseUrl = isMobile
+    ? 'https://wa.me'
+    : 'https://web.whatsapp.com/send';
+
+  const url = isMobile
+    ? `${baseUrl}/${phoneNumber}?text=${message}`
+    : `${baseUrl}?phone=${phoneNumber}&text=${message}`;
+
+  window.open(url, '_blank');
+};
+
 
   const handleDeliveryOrder = (hotel) => {
     navigate('/hotel-shipment', {
