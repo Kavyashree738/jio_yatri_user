@@ -70,14 +70,14 @@ const hotelSchema = new mongoose.Schema({
 // Virtual for getting menu image URL
 hotelSchema.virtual('menuImageUrl').get(function () {
   if (!this.menuImage) return null;
-  return `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/hotels/images/${this.menuImage}`;
+  return `https://jio-yatri-user.onrender.com/api/hotels/images/${this.menuImage}`;
 });
 
 // Virtual for getting hotel image URLs
 hotelSchema.virtual('hotelImageUrls').get(function () {
   if (!this.hotelImages || this.hotelImages.length === 0) return [];
   return this.hotelImages.map(img =>
-    `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/hotels/images/${img}`
+    `https://jio-yatri-user.onrender.com/api/hotels/images/${img}`
   );
 });
 
