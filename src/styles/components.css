@@ -1483,13 +1483,13 @@
   flex-direction: column;
   height: 100vh;
   background-color: #f5f5f5;
-  margin-top:130px;
 }
 
 .shipment-container {
   flex: 1;
   overflow-y: auto;
   padding-bottom: 80px;
+  margin-top:50px;
   /* overflow-x: hidden; */
 }
 
@@ -2151,4 +2151,105 @@
   font-size: 0.8rem;
   color: #666;
   margin-top: 4px;
+}
+
+
+
+
+
+
+/* Sender Section Styles */
+.sender-sections {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+
+.hotel-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hotel-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hotel-icon {
+  font-size: 20px;
+}
+
+.hotel-address, .hotel-contact {
+  font-size: 14px;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hotel-address .icon, .hotel-contact .icon {
+  color: #e74c3c;
+  min-width: 16px;
+}
+/* Keep all other existing shipment styles */
+.sender-sections h3{
+  color:blue;
+}
+.receiver-section h3{
+  color:blue;
+}
+
+
+.input-error {
+  border-color: #ff4444 !important;
+}
+
+.input-error-message {
+  color: #ff4444;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* For the phone input specifically */
+input[type="tel"] {
+  letter-spacing: 1px; /* Makes numbers more readable */
+}
+@media (max-width: 768px) {
+  .shipment-container {
+  margin-top: 0px;
+}
+
+}
+.shop-order-container {
+  width: 100%;
+  padding: 16px;
+  background-color: #fdfdfd;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  border-radius: 12px;
+}
+
+.shop-order-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  background-color: #e8f0ff;
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+
+.shop-icon {
+  font-size: 20px;
+  color: #2c62f6;
 }

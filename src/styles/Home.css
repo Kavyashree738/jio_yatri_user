@@ -1,3 +1,338 @@
+/* ========== RESET ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f6f9;
+  color: #2c3e50;
+}
+
+/* ========== TOP STRIP ========== */
+.top-strip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  color: white;
+  font-weight: 600;
+  padding: 8px 15px;
+  text-align: center;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.top-strip h1 {
+  font-size: 1.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  letter-spacing: 0.3px;
+}
+
+/* ========== MAIN HEADER ========== */
+.main-header {
+  position: fixed;
+  top: 40px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  z-index: 999;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.logo img {
+  height: 35px;
+  object-fit: contain;
+  border-radius: 3px;
+}
+
+/* ========== NAVIGATION LINKS ========== */
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: #2c3e50;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 3px 0;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: #3498db;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 1.5px;
+  background: #3498db;
+  transition: width 0.2s;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.profile-icon {
+  background: none;
+  border: none;
+  color: #2c3e50;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.profile-icon:hover {
+  color: #3498db;
+  transform: scale(1.05);
+}
+
+/* ========== SEARCH BAR ========== */
+.header-search,
+.mobile-search-bar {
+  display: flex;
+  align-items: center;
+  position: relative;
+  max-width: 300px;
+  width: 100%;
+}
+
+.header-search input,
+.mobile-search-bar input {
+  flex: 1;
+  padding: 8px 12px;
+  padding-right: 40px;
+  border: 1px solid #e0e6ed;
+  border-radius: 20px;
+  background: #f8f9fa;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.header-search input:focus,
+.mobile-search-bar input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  background: white;
+}
+
+.search-icon-container {
+  position: absolute;
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #7f8c8d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-icon-container:hover {
+  color: #3498db;
+}
+
+/* ========== SECONDARY NAVIGATION ========== */
+.secondary-nav {
+  position: fixed;
+  top: 100px;
+  left: 0;
+  right: 0;
+  background: #f8f9fa;
+  border-top: 1px solid #e0e6ed;
+  border-bottom: 1px solid #e0e6ed;
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  height: 50px;
+  z-index: 998;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.secondary-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.secondary-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  min-width: 70px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 18px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.secondary-nav-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.secondary-nav-item span {
+  margin-top: 2px;
+}
+
+/* ========== MOBILE BOTTOM NAVIGATION ========== */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background: #fff;
+  border-top: 1px solid #e0e6ed;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  padding: 5px 0;
+}
+
+.mobile-nav-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #7f8c8d;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.mobile-nav-icon {
+  font-size: 1.2rem;
+  margin-bottom: 3px;
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link:hover .mobile-nav-icon {
+  color: #3498db;
+  transform: scale(1.1);
+}
+
+/* ========== UTILITY CLASSES ========== */
+.desktop-only {
+  display: none;
+}
+
+.mobile-only {
+  display: flex;
+}
+
+/* ========== RESPONSIVE STYLES ========== */
+@media (min-width: 769px) {
+  .desktop-only {
+    display: flex !important;
+  }
+
+  .mobile-only,
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+
+  body {
+    padding-top: 150px;
+    /* top-strip + header + secondary nav */
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-header {
+    display: none;
+  }
+
+  .secondary-nav {
+    top: 40px;
+    height: 50px;
+  }
+
+  .mobile-search-bar {
+    padding: 5px 10px;
+
+
+    /* border-bottom: 1px solid #e0e6ed; */
+  }
+
+  body {
+    padding-top: 90px;
+    padding-bottom: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .top-strip h1 {
+    font-size: 0.95rem;
+  }
+
+  .secondary-nav-item {
+    min-width: 60px;
+    font-size: 0.7rem;
+  }
+
+  .mobile-nav-icon {
+    font-size: 1.1rem;
+    margin-bottom: 2px;
+  }
+
+  .mobile-search-bar input {
+    font-size: 14px;
+  }
+
+  .search-icon-container {
+    right: 30px;
+  }
+}
+
 /* ===== Top Strip ===== */
 .top-strip {
   position: fixed;
@@ -18,7 +353,7 @@
   max-width: 100%;
   width: 100%;
   overflow-x: hidden;
-  overflow-y:hidden;
+  overflow-y: hidden;
   flex-wrap: wrap;
 }
 
@@ -347,12 +682,11 @@
 /* Secondary Navigation - Desktop */
 .secondary-nav {
   width: 100%;
-  background: #f8f9fa;
   border-top: 1px solid #e0e6ed;
   padding: 8px 0;
-  height: 45px;
-  margin-top:-40px;
-  margin-bottom:20px;
+  height: 50px;
+  margin-top: -40px;
+  margin-bottom: 20px;
 }
 
 .secondary-nav-container {
@@ -376,12 +710,12 @@
   padding: 5px 8px;
   border-radius: 6px;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .secondary-nav-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .secondary-nav-icon {
@@ -427,7 +761,7 @@
   min-width: 60px;
   padding: 4px 6px;
   border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
@@ -494,8 +828,13 @@
 
 /* Animation for mobile scrolling */
 @keyframes scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 /* ===== Responsive ===== */
@@ -526,7 +865,7 @@
   .top-strip h1 {
     font-size: 0.95rem;
   }
-  
+
   .mobile-secondary-nav-item {
     font-size: 0.65rem;
     min-width: 55px;
@@ -537,8 +876,69 @@
     font-size: 1rem;
   }
 }
+
 .header-container {
   display: flex;
   flex-direction: column;
-  align-items: center; /* or flex-start if you want left alignment */
+  align-items: center;
+  /* or flex-start if you want left alignment */
+}
+
+.secondary-nav {
+  margin-top: 5px;
+}
+
+/* Mobile Search Bar */
+.mobile-search-bar {
+  display: none;
+  padding: 3px 15px;
+  border-bottom: 1px solid #e0e6ed;
+  position: fixed;
+  top: 100px;
+  /* Adjust this based on your header height */
+  left: 0;
+  right: 0;
+  z-index: 997;
+}
+
+.mobile-search-bar input {
+  width: 100%;
+  padding: 8px 15px;
+  border: 1px solid #e0e6ed;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  outline: none;
+  box-shadow: 0 0 10px rgba(44, 98, 246, 0.137);
+  outline: none;
+}
+
+/* Show mobile search bar only on mobile */
+@media (max-width: 768px) {
+  .mobile-search-bar {
+    display: block;
+  }
+
+  /* Adjust body padding to account for search bar */
+  .page-content {
+    padding-top: 100px;
+    /* Only applies to main page content */
+    /* if mobile nav is fixed at bottom */
+  }
+
+}
+
+.secondary-nav {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 8px 15px;
+  display: flex;
+  gap: 10px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  justify-content: flex-start;
+  /* <-- Important */
+}
+
+.secondary-nav::-webkit-scrollbar {
+  display: none;
 }
