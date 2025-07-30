@@ -14,6 +14,7 @@ import HelpCenter from './HelpCenter';
 import HouseShiftingFeatures from './HouseShiftingFeatures';
 import UserProfile from '../UserProfile'
 import ShipmentPage from './ShipmentPage';
+import SearchBar from '../pages/SearchBar'
 import { auth } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
 const Home = () => {
@@ -21,7 +22,7 @@ const Home = () => {
   return (
     <div className="home-page">
       <Header/>
-      
+      <SearchBar/>
      {!user && <HeroSection />}
      {user && <ShipmentPage />}
       <WelcomeSection/>
