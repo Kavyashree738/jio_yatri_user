@@ -17,6 +17,7 @@ const admin = require('firebase-admin');
 const authRoutes=require('./routes/authRoutes')
 const hotelRoutes = require('./routes/hotelRoutes');
 const hotelShipment=require('./routes/hotelShipmentRoutes')
+const shopRoutes=require('./routes/shopRoutes')
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -109,6 +110,7 @@ app.use('/api/ratings', ratingRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/hotels', hotelRoutes);
 app.use('/api/hotel-shipments',hotelShipment );
+app.use('/api/shops', shopRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
