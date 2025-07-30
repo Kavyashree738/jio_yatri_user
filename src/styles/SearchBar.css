@@ -1,0 +1,133 @@
+/* Search Bar Container */
+.search-bar-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+  margin-top:50px;
+}
+
+/* Search Input Wrapper */
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.search-input-wrapper:focus-within {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #4299e1;
+}
+
+/* Search Icon */
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  color: #718096;
+  font-size: 1.1rem;
+}
+
+/* Search Input */
+.search-input-wrapper input {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 2.5rem;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  color: #2d3748;
+  outline: none;
+  background: transparent;
+}
+
+.search-input-wrapper input::placeholder {
+  color: #a0aec0;
+  opacity: 1;
+}
+
+/* Voice Search Button */
+.voice-search-btn {
+  position: absolute;
+  right: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #f7fafc;
+  border: none;
+  border-radius: 50%;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.voice-search-btn:hover {
+  background: #edf2f7;
+  color: #2d3748;
+}
+
+.voice-search-btn.listening {
+  color: #ffffff;
+  background: #e53e3e;
+  animation: pulse 1.5s infinite;
+}
+
+/* Pulse animation for listening state */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(229, 62, 62, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-bar-container {
+    padding: 0.8rem;
+  }
+  
+  .search-input-wrapper input {
+    padding: 0.7rem 1rem 0.7rem 2.3rem;
+    font-size: 0.9rem;
+  }
+  
+  .search-icon {
+    font-size: 1rem;
+    left: 0.8rem;
+  }
+  
+  .voice-search-btn {
+    width: 2.2rem;
+    height: 2.2rem;
+    right: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-input-wrapper input {
+    padding: 0.6rem 1rem 0.6rem 2rem;
+  }
+  
+  .search-icon {
+    font-size: 0.9rem;
+    left: 0.7rem;
+  }
+  
+  .voice-search-btn {
+    width: 2rem;
+    height: 2rem;
+  }
+}
