@@ -46,7 +46,7 @@ router.put(
   verifyFirebaseToken,
   shipmentController.updateDriverLocation
 );
-
+router.get('/shop/:shopId', verifyFirebaseToken, shipmentController.getShopShipments);
 router.get('/driver/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
