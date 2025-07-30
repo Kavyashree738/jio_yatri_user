@@ -62,12 +62,29 @@ const { v4: uuidv4 } = require('uuid');
 
 exports.createShipment = async (req, res) => {
   try {
-    const { sender, receiver, vehicleType, distance, cost } = req.body;
+    const { 
+      sender, 
+      receiver, 
+      vehicleType, 
+      distance, 
+      cost,
+      shopId,          // Will be undefined for regular shipments
+      isShopOrder      // Will be false if not provided
+    } = req.body;
+    
     const userId = req.user.uid;
+
+    // Validate only for shop orders
+    if (isShopOrder && !shopId) {
+      return res.status(400).json({ 
+        error: 'Shop ID is required for shop orders' 
+      });
+    }
 
     const trackingNumber = uuidv4().split('-')[0].toUpperCase();
 
-    const newShipment = new Shipment({
+    // Base shipment data
+    const shipmentData = {
       sender: {
         name: sender.name,
         phone: sender.phone,
@@ -90,17 +107,43 @@ exports.createShipment = async (req, res) => {
       trackingNumber,
       userId,
       status: 'pending'
-    });
+    };
 
+    // Only add shop fields if it's a shop order
+    if (isShopOrder) {
+      shipmentData.shopId = shopId;
+      shipmentData.isShopOrder = true;
+    }
+
+    const newShipment = new Shipment(shipmentData);
     const savedShipment = await newShipment.save();
+
+    // Update user's shipment count
+    await User.findOneAndUpdate(
+      { uid: userId },
+      {
+        $inc: { totalShipments: 1, totalAmountPaid: cost },
+        $push: { shipments: savedShipment._id }
+      }
+    );
 
     res.status(201).json({
       message: 'Shipment created successfully',
       trackingNumber: savedShipment.trackingNumber,
       shipment: savedShipment
     });
+
   } catch (error) {
     console.error('Error creating shipment:', error);
+    
+    // Handle duplicate tracking number
+    if (error.code === 11000 && error.keyPattern.trackingNumber) {
+      return res.status(409).json({
+        message: 'Please try again',
+        error: 'Duplicate tracking number'
+      });
+    }
+
     res.status(500).json({ 
       message: 'Failed to create shipment',
       error: error.message,
@@ -617,5 +660,18 @@ exports.getShipmentById = async (req, res) => {
   } catch (error) {
     console.error('Error fetching shipment:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+exports.getShopShipments = async (req, res) => {
+  try {
+    const { shopId } = req.params;
+    const shipments = await Shipment.find({ shopId })
+      .populate('shopId', 'name phone address')
+      .sort({ createdAt: -1 });
+    
+    res.json(shipments);
+  } catch (error) {
+    console.error('Error fetching shop shipments:', error);
+    res.status(500).json({ message: 'Failed to fetch shop shipments' });
   }
 };
