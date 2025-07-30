@@ -247,22 +247,22 @@ const HeroSection = () => {
                 {isLoading ? 'Sending...' : 'Send Verification Code'}
               </button>
 
-              <div className="divider">or</div>
+              // <div className="divider">or</div>
 
-              <div className="social-buttons">
-                <button type="button" className="google-btn" onClick={signInWithGoogle}>
-                  <FcGoogle className="social-icon" />
-                  <span>{isLoading ? 'Signing in...' : 'Continue with Google'}</span>
-                </button>
-                <button type="button" className="apple-btn">
-                  <FaApple className="social-icon" size={20} />
-                  <span>Continue with Apple</span>
-                </button>
-                <button type="button" className="email-btn">
-                  <MdEmail className="social-icon" size={20} />
-                  <span>Continue with Email</span>
-                </button>
-              </div>
+              // <div className="social-buttons">
+              //   <button type="button" className="google-btn" onClick={signInWithGoogle}>
+              //     <FcGoogle className="social-icon" />
+              //     <span>{isLoading ? 'Signing in...' : 'Continue with Google'}</span>
+              //   </button>
+              //   <button type="button" className="apple-btn">
+              //     <FaApple className="social-icon" size={20} />
+              //     <span>Continue with Apple</span>
+              //   </button>
+              //   <button type="button" className="email-btn">
+              //     <MdEmail className="social-icon" size={20} />
+              //     <span>Continue with Email</span>
+              //   </button>
+              // </div>
             </form>
           ) : showWelcomeMessage ? (
             <div className="welcome-message">
