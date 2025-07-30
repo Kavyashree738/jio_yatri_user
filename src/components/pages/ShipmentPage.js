@@ -1318,7 +1318,7 @@ function ShipmentPage() {
   if (currentStep === 1) {
     return (
       <>
-      {/* <Header/> */}
+      <Header/>
       <div className="shipment-page rapido-style">
         <div className="shipment-container">
           <h2 className="step-title">Enter Sender & Receiver Details</h2>
