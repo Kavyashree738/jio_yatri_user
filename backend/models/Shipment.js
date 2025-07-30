@@ -86,10 +86,20 @@ const shipmentSchema = new mongoose.Schema({
     transactionId: String,
     date: { type: Date, default: Date.now },
     recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-  }]
+  }],
+      shopId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Shop'
+  },
+  isShopOrder: {
+    type: Boolean,
+    default: false
+  }
 }, { timestamps: true });
 
 shipmentSchema.index({ 'payment.status': 1 });
 shipmentSchema.index({ 'payment.method': 1 });
+shipmentSchema.index({ shopId: 1 });
+shipmentSchema.index({ isShopOrder: 1 });
 
 module.exports = mongoose.model('Shipment', shipmentSchema);
