@@ -65,7 +65,7 @@ const baseShopSchema = new mongoose.Schema({
 baseShopSchema.virtual('shopImageUrls').get(function() {
   if (!this.shopImages || this.shopImages.length === 0) return [];
   return this.shopImages.map(img => 
-    `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${img}`
+    `https://jio-yatri-user.onrender.com/api/shops/images/${img}`
   );
 });
 
@@ -92,7 +92,7 @@ grocerySchema.virtual('itemsWithUrls').get(function() {
   return this.items.map(item => ({
     ...item.toObject(),
     imageUrl: item.image ? 
-      `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${item.image}` : 
+      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` : 
       null
   }));
 });
@@ -115,7 +115,7 @@ vegetableSchema.virtual('itemsWithUrls').get(function() {
   return this.items.map(item => ({
     ...item.toObject(),
     imageUrl: item.image ? 
-      `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${item.image}` : 
+      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` : 
       null
   }));
 });
@@ -139,7 +139,7 @@ provisionSchema.virtual('itemsWithUrls').get(function() {
   return this.items.map(item => ({
     ...item.toObject(),
     imageUrl: item.image ? 
-      `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${item.image}` : 
+      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` : 
       null
   }));
 });
@@ -163,7 +163,7 @@ medicalSchema.virtual('itemsWithUrls').get(function() {
   return this.items.map(item => ({
     ...item.toObject(),
     imageUrl: item.image ? 
-      `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${item.image}` : 
+      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` : 
       null
   }));
 });
@@ -189,7 +189,7 @@ hotelSchema.virtual('roomsWithUrls').get(function() {
     ...room.toObject(),
     imageUrls: room.images ? 
       room.images.map(img => 
-        `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${img}`
+        `https://jio-yatri-user.onrender.com/api/shops/images/${img}`
       ) : []
   }));
 });
