@@ -1,3 +1,4 @@
+// ShopDetails.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
@@ -35,35 +36,6 @@ const ShopDetails = () => {
     return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
   };
 
-
-  useEffect(() => {
-    console.log("Shop data received:", shop);
-    if (shop?.items) {
-      console.log("First item details:", {
-        name: shop.items[0]?.name,
-        price: shop.items[0]?.price,
-        imageId: shop.items[0]?.image,
-        imageUrl: shop.items[0]?.imageUrl,
-        fullItem: shop.items[0]
-      });
-
-      // Test image URLs
-      if (shop.items[0]?.imageUrl) {
-        console.log("Testing image URL:", shop.items[0].imageUrl);
-        fetch(shop.items[0].imageUrl)
-          .then(response => {
-            console.log("Image fetch response:", {
-              status: response.status,
-              ok: response.ok,
-              headers: [...response.headers.entries()]
-            });
-          })
-          .catch(error => {
-            console.error("Image fetch error:", error);
-          });
-      }
-    }
-  }, [shop]);
   useEffect(() => {
     const fetchShop = async () => {
       try {
@@ -93,19 +65,28 @@ const ShopDetails = () => {
     }
   };
 
-  const openWhatsApp = (phone, shopName) => {
-    if (!phone) {
-      alert("Phone number is missing");
-      return;
-    }
+const openWhatsApp = (phone, shopName) => {
+  if (!phone) {
+    alert("Phone number is missing");
+    return;
+  }
 
-    const rawPhone = phone.replace(/\D/g, '');
-    const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
-    const message = encodeURIComponent(
-      `Hi, I found your business "${shopName}" on JioYatri and would like to inquire.`
-    );
-    window.open(`https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`, '_blank');
-  };
+  const rawPhone = phone.replace(/\D/g, '');
+  const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
+  const message = encodeURIComponent(
+    `Hi, I found your business "${shopName}" on JioYatri.`
+  );
+
+  const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+
+  const url = isMobile
+    ? `https://wa.me/${phoneNumber}?text=${message}` // opens WhatsApp app on mobile
+    : `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`; // opens WhatsApp Web on desktop
+
+  window.open(url, '_blank');
+};
+
+
 
   const handleOrder = (shop, e) => {
     e.stopPropagation();
@@ -113,6 +94,7 @@ const ShopDetails = () => {
       state: { shop }
     });
   };
+
   if (loading) {
     return (
       <div className="sd-loading-screen">
@@ -148,7 +130,6 @@ const ShopDetails = () => {
           <FaChevronLeft /> Back to List
         </button>
 
-        {/* Shop Category Indicator */}
         <div className="sd-category-badge">
           {categoryIcons[shop.category] || <FaStore />}
           <span>{shop.category || 'Shop'}</span>
@@ -164,18 +145,10 @@ const ShopDetails = () => {
                   alt={`${shop.shopName} ${currentImageIndex + 1}`}
                   className="sd-current-image"
                 />
-                <button
-                  className="sd-nav-btn sd-prev-btn"
-                  onClick={() => navigateImage('prev')}
-                  aria-label="Previous image"
-                >
+                <button className="sd-nav-btn sd-prev-btn" onClick={() => navigateImage('prev')}>
                   <FaChevronLeft />
                 </button>
-                <button
-                  className="sd-nav-btn sd-next-btn"
-                  onClick={() => navigateImage('next')}
-                  aria-label="Next image"
-                >
+                <button className="sd-nav-btn sd-next-btn" onClick={() => navigateImage('next')}>
                   <FaChevronRight />
                 </button>
                 <div className="sd-image-counter">
@@ -188,7 +161,6 @@ const ShopDetails = () => {
                     className={`sd-thumbnail ${index === currentImageIndex ? 'sd-active' : ''}`}
                     key={index}
                     onClick={() => handleThumbnailClick(index)}
-                    aria-label={`View image ${index + 1}`}
                   >
                     <img src={img} alt={`Thumbnail ${index + 1}`} />
                   </div>
@@ -227,35 +199,23 @@ const ShopDetails = () => {
                     <FaPhone /> {shop.phone}
                   </a>
                 ) : (
-                  <button
-                    className="sd-call-btn"
-                    onClick={() => setShowPhone(true)}
-                  >
+                  <button className="sd-call-btn" onClick={() => setShowPhone(true)}>
                     <FaPhone /> Show Number
                   </button>
                 )}
-                <button
-                  className="sd-whatsapp-btn"
-                  onClick={() => openWhatsApp(shop.phone, shop.shopName)}
-                >
+                <button className="sd-whatsapp-btn" onClick={() => openWhatsApp(shop.phone, shop.shopName)}>
                   <FaWhatsapp /> WhatsApp
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Shop Description */}
-          {shop.description && (
-            <div className="sd-description-section">
-              <h2 className="sd-section-title">About</h2>
-              <p className="sd-shop-description">{shop.description}</p>
-            </div>
-          )}
+          {/* Products */}
           <div className="sd-products-section">
             <h2 className="sd-section-title">Products</h2>
-            {shop.items?.length > 0 ? (
+            {(shop.itemsWithUrls || shop.items)?.length > 0 ? (
               <div className="sd-products-grid">
-                {shop.items.map((item) => (
+                {(shop.itemsWithUrls || shop.items).map((item) => (
                   <div className="sd-product-card" key={item._id || item.name}>
                     <div className="sd-product-image-container">
                       {item.imageUrl ? (
@@ -296,14 +256,11 @@ const ShopDetails = () => {
                 ))}
               </div>
             ) : (
-              <p className="sd-no-products"></p>
+              <p className="sd-no-products">No products available.</p>
             )}
           </div>
 
-          <button
-            className="sd-action-btn sd-order"
-            onClick={(e) => handleOrder(shop, e)}
-          >
+          <button className="sd-action-btn sd-order" onClick={(e) => handleOrder(shop, e)}>
             <FaShoppingBag className="sd-icon" /> Order Now
           </button>
         </div>
