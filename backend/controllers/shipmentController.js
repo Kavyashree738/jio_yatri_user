@@ -1,6 +1,7 @@
 const axios = require('axios');
 const Shipment = require('../models/Shipment');
 const Driver=require('../models/Driver')
+const User = require('../models/User');
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 const mongoose = require('mongoose');  // Add this line at the top
 exports.calculateDistance = async (req, res) => {
