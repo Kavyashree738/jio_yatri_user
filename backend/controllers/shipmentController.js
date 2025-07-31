@@ -119,14 +119,14 @@ exports.createShipment = async (req, res) => {
     const newShipment = new Shipment(shipmentData);
     const savedShipment = await newShipment.save();
 
-    // Update user's shipment count
-    await User.findOneAndUpdate(
-      { uid: userId },
-      {
-        $inc: { totalShipments: 1, totalAmountPaid: cost },
-        $push: { shipments: savedShipment._id }
-      }
-    );
+    // // Update user's shipment count
+    // await User.findOneAndUpdate(
+    //   { uid: userId },
+    //   {
+    //     $inc: { totalShipments: 1, totalAmountPaid: cost },
+    //     $push: { shipments: savedShipment._id }
+    //   }
+    // );
 
     res.status(201).json({
       message: 'Shipment created successfully',
