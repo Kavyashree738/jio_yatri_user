@@ -48,11 +48,11 @@ useEffect(() => {
             const res = await axios.get(
                 `https://jio-yatri-user.onrender.com/api/shops/category/${category}`
             );
-            console.log('Fetched shops data:', res.data.data); // Debug log
+           
             setShops(res.data.data);
             setLoading(false);
         } catch (err) {
-            console.error('Error fetching shops:', err); // Debug log
+          
             setError(err.response?.data?.error || err.message || 'Failed to fetch shops');
             setLoading(false);
         }
@@ -125,10 +125,8 @@ useEffect(() => {
     const handleEditShop = (shopId, e) => {
         e.stopPropagation();
 
-        // Debugging logs
-        console.log("Current User UID:", user?.uid);
-        console.log("Shop UserID:", shops.find(s => s._id === shopId)?.userId);
-        console.log("Is owner?", user?.uid === shops.find(s => s._id === shopId)?.userId);
+
+        
 
         // Verify ownership before navigating
         const shopToEdit = shops.find(s => s._id === shopId);
@@ -138,7 +136,7 @@ useEffect(() => {
         }
 
         if (user?.uid !== shopToEdit.userId) {
-            console.error("User doesn't own this shop");
+    
             alert("You don't have permission to edit this shop");
             return;
         }
