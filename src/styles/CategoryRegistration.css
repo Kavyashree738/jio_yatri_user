@@ -677,3 +677,60 @@
     justify-content: center;
   }
 }
+
+.hr-loading-container,
+.hr-auth-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 20px;
+  border-radius: 12px;
+  background: #f9f9f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin: 40px auto;
+  width: 90%;
+  max-width: 500px;
+}
+
+.hr-spinner {
+  font-size: 3rem;
+  color: #3498db;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.hr-loading-container p,
+.hr-auth-error p {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.hr-auth-error button,
+.hr-loading-container button {
+  background-color: #3498db;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.hr-auth-error button:hover,
+.hr-loading-container button:hover {
+  background-color: #2980b9;
+}

@@ -200,3 +200,32 @@
   margin-top:0px;
 }
 }
+/* Edit Button Styles */
+.sd-edit-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.sd-edit-button:hover {
+    background: #fff;
+    color: #0066cc;
+    transform: scale(1.1);
+}
+
+.sd-shop-card {
+    position: relative; /* Needed for absolute positioning of edit button */
+}

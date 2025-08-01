@@ -716,6 +716,8 @@ import Footer from './Footer';
 import LocationMap from './LocationMap';
 import { FaMapMarkerAlt, FaChevronRight, FaUser, FaPhone, FaExchangeAlt } from 'react-icons/fa';
 import '../../styles/components.css';
+import SearchBar from '../pages/SearchBar'
+import SecondaryNav from './SecondaryNav';
 
 const vehicleTypes = [
   {
@@ -1319,6 +1321,8 @@ function ShipmentPage() {
     return (
       <>
       <Header/>
+      <SecondaryNav/>
+      <SearchBar/>
       <div className="shipment-page rapido-style">
         <div className="shipment-container">
           <h2 className="step-title">Enter Sender & Receiver Details</h2>

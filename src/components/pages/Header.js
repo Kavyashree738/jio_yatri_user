@@ -1,37 +1,26 @@
-import React, { useRef, useState } from 'react';
+// src/components/layout/Header.js
+
+import React from 'react';
 import {
   FaUserCircle,
   FaHome,
   FaBuilding,
   FaTruck,
   FaBoxes,
-  FaShoppingCart,
-  FaUtensils,
-  FaCarrot,
-  FaMedkit,
-  FaStore
+  FaShoppingCart
 } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
+
 import logo from '../../assets/images/logo.jpg';
 import { useAuth } from '../../context/AuthContext';
 
 const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const secondaryNavRef = useRef(null);
-  const [needsScroll, setNeedsScroll] = useState(false);
 
   const handleProfileClick = () => {
     navigate('/profile');
   };
-
-  const secondaryNavItems = [
-    { name: 'Hotels', path: '/shops/hotel', icon: <FaUtensils />, color: '#FF6B6B' },
-    { name: 'Groceries', path: '/shops/grocery', icon: <FaStore />, color: '#4ECDC4' },
-    { name: 'Vegetables', path: '/shops/vegetable', icon: <FaCarrot />, color: '#45B7D1' },
-    { name: 'Provisions', path: '/shops/provision', icon: <FaBoxes />, color: '#FFA07A' },
-    { name: 'Medical', path: '/shops/medical', icon: <FaMedkit />, color: '#98D8C8' }
-  ];
 
   return (
     <>
@@ -40,20 +29,8 @@ const Header = () => {
         <h1>Mokshambani Tech Services PVT LTD</h1>
       </div>
 
-      {/* Mobile Secondary Navigation (below top strip) */}
-      <div className="secondary-nav mobile-only" ref={secondaryNavRef}>
-        {secondaryNavItems.map((item, index) => (
-          <Link
-            key={index}
-            to={item.path}
-            className="secondary-nav-item"
-            style={{ backgroundColor: item.color }}
-          >
-            {item.icon}
-            <span>{item.name}</span>
-          </Link>
-        ))}
-      </div>
+      {/* Secondary Navigation Component */}
+
 
       {/* Desktop Header */}
       <header className="main-header">
@@ -76,24 +53,7 @@ const Header = () => {
             </button>
           )}
         </div>
-
-       
       </header>
-
-       {/* Desktop Secondary Navigation */}
-        <div className="secondary-nav desktop-only" ref={secondaryNavRef}>
-          {secondaryNavItems.map((item, index) => (
-            <Link
-              key={index}
-              to={item.path}
-              className="secondary-nav-item"
-              style={{ backgroundColor: item.color }}
-            >
-              {item.icon}
-              <span>{item.name}</span>
-            </Link>
-          ))}
-        </div>
 
       {/* Mobile Bottom Nav */}
       <div className="mobile-bottom-nav">
@@ -129,7 +89,3 @@ const Header = () => {
 };
 
 export default Header;
-
-
-
-

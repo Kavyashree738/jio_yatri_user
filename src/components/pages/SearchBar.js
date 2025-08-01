@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch, FaMicrophone } from 'react-icons/fa';
-import '../../styles/SearchBar.css'
+import '../../styles/SearchBar.css';
+
 const secondaryNavItems = [
-  { name: 'Hotels', path: '/shops/hotel', icon: '🍽️', color: '#FF6B6B' },
-  { name: 'Groceries', path: '/shops/grocery', icon: '🛒', color: '#4ECDC4' },
-  { name: 'Vegetables', path: '/shops/vegetable', icon: '🥕', color: '#45B7D1' },
-  { name: 'Provisions', path: '/shops/provision', icon: '📦', color: '#FFA07A' },
-  { name: 'Medical', path: '/shops/medical', icon: '🏥', color: '#98D8C8' }
+  { name: 'Hotels', path: '/shops/hotel', keywords: ['hotel', 'hotels'] },
+  { name: 'Groceries', path: '/shops/grocery', keywords: ['grocery', 'groceries'] },
+  { name: 'Vegetables', path: '/shops/vegetable', keywords: ['vegetable', 'vegetables', 'veggies'] },
+  { name: 'Provisions', path: '/shops/provision', keywords: ['provision', 'provisions'] },
+  { name: 'Medical', path: '/shops/medical', keywords: ['medical', 'medicals', 'medicine'] }
 ];
 
 const normalizeText = (text) => text.trim().toLowerCase();
@@ -19,7 +20,9 @@ const SearchBar = () => {
 
   const handleSearchNavigation = (query) => {
     const normalizedQuery = normalizeText(query);
+
     const matchedItem = secondaryNavItems.find(item =>
+      item.keywords?.some(keyword => normalizeText(keyword).includes(normalizedQuery)) ||
       normalizeText(item.name).includes(normalizedQuery)
     );
 
@@ -64,8 +67,7 @@ const SearchBar = () => {
   return (
     <div className="search-bar-container">
       <div className="search-input-wrapper">
-        <FaSearch className="search-icon" />
-        <form onSubmit={handleSearchSubmit}>
+        <form onSubmit={handleSearchSubmit} className="search-form">
           <input
             type="text"
             value={searchQuery}

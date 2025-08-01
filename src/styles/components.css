@@ -2224,7 +2224,7 @@ input[type="tel"] {
 }
 @media (max-width: 768px) {
   .shipment-container {
-  margin-top: 55px;
+  margin-top: 0px;
 }
 
 }
@@ -2253,3 +2253,5 @@ input[type="tel"] {
   font-size: 20px;
   color: #2c62f6;
 }
+
+

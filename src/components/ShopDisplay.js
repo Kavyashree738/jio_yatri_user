@@ -3,7 +3,8 @@ import axios from 'axios';
 import {
     FaStar, FaPhone, FaWhatsapp, FaShoppingBag,
     FaClock, FaMapMarkerAlt, FaChevronLeft, FaChevronRight,
-    FaMotorcycle, FaPlus, FaUtensils, FaStore, FaCarrot, FaBoxes, FaMedkit
+    FaMotorcycle, FaPlus, FaUtensils, FaStore, FaCarrot,
+    FaBoxes, FaMedkit, FaEdit
 } from 'react-icons/fa';
 import Slider from 'react-slick';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -12,7 +13,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import Header from '../components/pages/Header';
 import Footer from '../components/pages/Footer';
 import '../styles/ShopDisplay.css';
-
+import { useAuth } from '../context/AuthContext'; // Import useAuth hook
 
 const ShopDisplay = () => {
     const { category } = useParams();
@@ -21,6 +22,7 @@ const ShopDisplay = () => {
     const [error, setError] = useState(null);
     const [visiblePhoneNumbers, setVisiblePhoneNumbers] = useState([]);
     const navigate = useNavigate();
+    const { user } = useAuth(); // Get current user
 
     const categoryInfo = {
         hotel: { name: 'Hotels & Restaurants', icon: <FaUtensils /> },
@@ -38,24 +40,25 @@ const ShopDisplay = () => {
         return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
     };
 
+    // In your ShopDisplay component, add these debugging logs:
 
-    useEffect(() => {
-        const fetchShops = async () => {
-            try {
-                const res = await axios.get(
-                    `https://jio-yatri-user.onrender.com/api/shops/category/${category}`
-                );
-                setShops(res.data.data);
-                setLoading(false);
-            } catch (err) {
-                setError(err.response?.data?.error || err.message || 'Failed to fetch shops');
-                setLoading(false);
-            }
-        };
-        fetchShops();
-    }, [category]);
-
-
+useEffect(() => {
+    const fetchShops = async () => {
+        try {
+            const res = await axios.get(
+                `https://jio-yatri-user.onrender.com/api/shops/category/${category}`
+            );
+            console.log('Fetched shops data:', res.data.data); // Debug log
+            setShops(res.data.data);
+            setLoading(false);
+        } catch (err) {
+            console.error('Error fetching shops:', err); // Debug log
+            setError(err.response?.data?.error || err.message || 'Failed to fetch shops');
+            setLoading(false);
+        }
+    };
+    fetchShops();
+}, [category]);
 
     const NextArrow = ({ onClick }) => (
         <div className="sd-arrow sd-next-arrow" onClick={onClick}>
@@ -95,25 +98,18 @@ const ShopDisplay = () => {
     };
 
     const openWhatsApp = (phone, shopName) => {
-  if (!phone) {
-    alert("Phone number is missing");
-    return;
-  }
+        if (!phone) {
+            alert("Phone number is missing");
+            return;
+        }
 
-  const rawPhone = phone.replace(/\D/g, '');
-  const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
-  const message = encodeURIComponent(
-    `Hi, I found your business "${shopName}" on JioYatri.`
-  );
-
-  const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-
-  const url = isMobile
-    ? `https://wa.me/${phoneNumber}?text=${message}` // opens WhatsApp app on mobile
-    : `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`; // opens WhatsApp Web on desktop
-
-  window.open(url, '_blank');
-};
+        const rawPhone = phone.replace(/\D/g, '');
+        const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
+        const message = encodeURIComponent(
+            `Hi, I found your business "${shopName}" on JioYatri and would like to inquire.`
+        );
+        window.open(`https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`, '_blank');
+    };
 
     const handleOrder = (shop, e) => {
         e.stopPropagation();
@@ -126,11 +122,33 @@ const ShopDisplay = () => {
         navigate(`/shop/${shopId}`);
     };
 
+    const handleEditShop = (shopId, e) => {
+        e.stopPropagation();
+
+        // Debugging logs
+        console.log("Current User UID:", user?.uid);
+        console.log("Shop UserID:", shops.find(s => s._id === shopId)?.userId);
+        console.log("Is owner?", user?.uid === shops.find(s => s._id === shopId)?.userId);
+
+        // Verify ownership before navigating
+        const shopToEdit = shops.find(s => s._id === shopId);
+        if (!shopToEdit) {
+            console.error("Shop not found");
+            return;
+        }
+
+        if (user?.uid !== shopToEdit.userId) {
+            console.error("User doesn't own this shop");
+            alert("You don't have permission to edit this shop");
+            return;
+        }
+
+        navigate(`/edit-shop/${shopId}`);
+    };
     if (loading) {
         return (
             <div className="sd-loading-container">
                 <div className="sd-spinner"></div>
-                {/* <p>Loading {categoryInfo[category]?.name || 'shops'}...</p> */}
             </div>
         );
     }
@@ -179,6 +197,17 @@ const ShopDisplay = () => {
                             className="sd-shop-card"
                             onClick={() => handleShopClick(shop._id)}
                         >
+                            {/* Add edit button for shop owner */}
+                            {user && user.uid === shop.userId && (
+                                <button
+                                    className="sd-edit-button"
+                                    onClick={(e) => handleEditShop(shop._id, e)}
+                                    title="Edit Shop"
+                                >
+                                    <FaEdit />
+                                </button>
+                            )}
+
                             <div className="sd-shop-images-scrollable">
                                 <div className="sd-image-scroll-container">
                                     {shop.shopImageUrls?.map((imgUrl, index) => (
@@ -212,7 +241,6 @@ const ShopDisplay = () => {
                                     <span>
                                         {shop.openingTime ? `Opens at ${formatTime(shop.openingTime)}` : 'Opening time not available'}
                                         {shop.closingTime && ` | Closes at ${formatTime(shop.closingTime)}`}
-
                                     </span>
                                 </div>
 
