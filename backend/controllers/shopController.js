@@ -222,7 +222,9 @@ exports.updateShop = async (req, res) => {
       }
       updateData.items = items;
     }
-
+     if (typeof updateData.address === 'string') {
+      updateData.address = JSON.parse(updateData.address);
+    }
     const updatedShop = await Shop.findByIdAndUpdate(req.params.id, updateData, { new: true });
     res.json({ success: true, data: updatedShop });
   } catch (error) {
