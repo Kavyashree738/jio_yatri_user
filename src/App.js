@@ -15,15 +15,16 @@ import { AuthProvider } from './context/AuthContext';
 import UserShipments from './components/UserShipments';
 import SelectAddressPage from './components/SelectAddressPage';
 import UserProfile from './components/UserProfile';
-// import HotelRegistration from './components/hotels/HotelRegistration';
-// import HotelsDisplay from './components/hotels/HotelsDisplay';
-// import HotelDetails from './components/hotels/HotelDetails';
-// import EditHotel from './components/hotels/EditHotel';
-// import HotelShipment from './components/hotels/HotelShipment'
+import HotelRegistration from './components/hotels/HotelRegistration';
+import HotelsDisplay from './components/hotels/HotelsDisplay';
+import HotelDetails from './components/hotels/HotelDetails';
+import EditHotel from './components/hotels/EditHotel';
+import HotelShipment from './components/hotels/HotelShipment'
 import CategoryRegistration from './components/CategoryRegistration';
 import ShopDisplay from './components/ShopDisplay';
 import ShopDetails from './components/ShopDetails'
 import ShopOrder from './components/ShopOrder';
+import EditShopRegistration from './components/EditShopRegistration'
 function AppWrapper() {
 
   return (
@@ -40,11 +41,17 @@ function AppWrapper() {
       <Route path="/select-address" element={<SelectAddressPage />} />
       <Route path="/profile" element={<UserProfile />} />
       <Route path="/google-login" element={<GoogleRedirectLogin />} />
+      <Route path="/hotel" element={<HotelRegistration />} />
+      <Route path="/hotel-display" element={<HotelsDisplay />} />
+      <Route path="/hotel/:id" element={<HotelDetails />} />
+      <Route path="/hotels/:id/edit" element={<EditHotel />} />
+      <Route path="/hotel-shipment" element={<HotelShipment />} />
       <Route path="/register" element={<CategoryRegistration />} />
       <Route path="/shops/:category" element={<ShopDisplay />} />
       <Route path="/shop/:id" element={<ShopDetails />} />
       <Route path="/shop-order/:shopId" element={<ShopOrder />} />
-
+     <Route path="/edit-shop/:shopId" element={<EditShopRegistration />} />
+  
     </Routes>
   );
 }

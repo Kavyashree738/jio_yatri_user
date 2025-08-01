@@ -19,7 +19,6 @@ import ShipmentPage from './ShipmentPage';
 // import FullFlow from '../FullFlow'
 import { auth } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
-import FrontShipment from './FrontShipment'
 // import SearchBar from '../pages/SearchBar'
 import '../../styles/FrontShipment.css';
 const Home = () => {
