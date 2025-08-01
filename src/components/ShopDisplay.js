@@ -97,19 +97,26 @@ useEffect(() => {
         ]
     };
 
-    const openWhatsApp = (phone, shopName) => {
-        if (!phone) {
-            alert("Phone number is missing");
-            return;
-        }
+const openWhatsApp = (phone, shopName) => {
+  if (!phone) {
+    alert("Phone number is missing");
+    return;
+  }
 
-        const rawPhone = phone.replace(/\D/g, '');
-        const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
-        const message = encodeURIComponent(
-            `Hi, I found your business "${shopName}" on JioYatri and would like to inquire.`
-        );
-        window.open(`https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`, '_blank');
-    };
+  const rawPhone = phone.replace(/\D/g, '');
+  const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
+  const message = encodeURIComponent(
+    `Hi, I found your business "${shopName}" on JioYatri.`
+  );
+
+  const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+
+  const url = isMobile
+    ? `https://wa.me/${phoneNumber}?text=${message}` // opens WhatsApp app on mobile
+    : `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`; // opens WhatsApp Web on desktop
+
+  window.open(url, '_blank');
+};
 
     const handleOrder = (shop, e) => {
         e.stopPropagation();
