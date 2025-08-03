@@ -25,6 +25,7 @@ import ShopDisplay from './components/ShopDisplay';
 import ShopDetails from './components/ShopDetails'
 import ShopOrder from './components/ShopOrder';
 import EditShopRegistration from './components/EditShopRegistration'
+import PrivacyPolicy from './components/PrivacyPolicy';
 function AppWrapper() {
 
   return (
@@ -51,6 +52,7 @@ function AppWrapper() {
       <Route path="/shop/:id" element={<ShopDetails />} />
       <Route path="/shop-order/:shopId" element={<ShopOrder />} />
      <Route path="/edit-shop/:shopId" element={<EditShopRegistration />} />
+    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
   
     </Routes>
   );
