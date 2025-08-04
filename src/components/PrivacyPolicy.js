@@ -116,13 +116,12 @@ const PrivacyPolicy = () => {
         <div className="contact-info">
           <h3>MOKSHAMBANI TECH SERVICES PVT. LTD</h3>
           <p><a href="https://jioyatri.com">https://jioyatri.com</a></p>
-          <p>Email: <a href="mailto:privacy@jioyatri.com">privacy@jioyatri.com</a></p>
-          <p>Phone: [Your Contact Number]</p>
+          <p>Email: <a href="helpjioyatri@gmail.com">helpjioyatri@gmail.com</a></p>
+          <p>Phone: 9844559599</p>
           <p>Address: Ward. No. 10 Opp. Ramamandira Choultry N R Extension , CHINTAMANI-563125,Chickkaballapur Dist</p>
-          <p>Hours: Monday to Friday, 10 AM to 6 PM</p>
         </div>
         <p>
-          For general inquiries, please email <a href="mailto:support@jioyatri.com">support@jioyatri.com</a>
+          For general inquiries, please email <a href="helpjioyatri@gmail.com">helpjioyatri@gmail.com</a>
         </p>
       </section>
     </div>
@@ -130,5 +129,6 @@ const PrivacyPolicy = () => {
     </>
   );
 };
+
 
 export default PrivacyPolicy;
