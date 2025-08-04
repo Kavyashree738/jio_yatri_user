@@ -645,6 +645,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from './pages/Header';
 import Footer from './pages/Footer';
@@ -655,6 +656,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import '../styles/UserShipments.css';
 
 const UserShipments = () => {
+  const navigate = useNavigate();
   const [shipments, setShipments] = useState([]);
   const [filteredShipments, setFilteredShipments] = useState([]);
   const [error, setError] = useState('');
@@ -874,7 +876,12 @@ const UserShipments = () => {
         <div className="no-shipments">
           <h4>Your Shipments</h4>
           <p>Please log in to view or create shipments</p>
-          <a href="/home">Sign in</a>
+         <button 
+              onClick={() => navigate('/home')}
+              className="sign-in-button"
+            >
+              Sign in
+            </button>
         </div>
       </div>
       <Footer/>
