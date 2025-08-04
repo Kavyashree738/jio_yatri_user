@@ -682,7 +682,7 @@ const UserShipments = () => {
       setError('');
 
       const response = await axios.get(
-        `http://localhost:5000/api/shipments/my-shipments`,
+        `https://jio-yatri-user.onrender.com/api/shipments/my-shipments`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -785,7 +785,7 @@ const UserShipments = () => {
   const handleCancelShipment = async (shipmentId) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/shipments/${shipmentId}/cancel`,
+        `https://jio-yatri-user.onrender.com/api/shipments/${shipmentId}/cancel`,
         {},
         {
           headers: {
@@ -827,7 +827,7 @@ const UserShipments = () => {
     setIsSubmittingRating(true);
     try {
       await axios.post(
-        `http://localhost:5000/api/ratings`,
+        `https://jio-yatri-user.onrender.com/api/ratings`,
         {
           shipmentId: currentShipmentForRating._id,
           rating,
