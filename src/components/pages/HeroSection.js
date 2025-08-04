@@ -202,7 +202,7 @@ const HeroSection = () => {
           transition={{ duration: 0.8 }}
         >
           <div className="text">
-            <h1>JIO YATRI</h1>
+            <h1>JIOYATRI</h1>
             <h2>Delivery</h2>
           </div>
           <h2>Door-to-Door Intercity Courier from Bangalore</h2>
