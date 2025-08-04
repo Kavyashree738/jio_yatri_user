@@ -32,7 +32,7 @@ const WelcomeSection = () => {
           className="text-side animate-on-scroll animate-left"
         >
           <h1>
-            Welcome to <span className="brand">JIO YATRI</span>
+            Welcome to <span className="brand">JIOYATRI</span>
           </h1>
           <h2>Your Trusted Intercity Courier Partner</h2>
           <p>
