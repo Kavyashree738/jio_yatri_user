@@ -13,6 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 import delivery from '../../assets/images/delivery-service.png';
 
 
+
 const HeroSection = () => {
   const controls = useAnimation();
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -25,6 +26,9 @@ const HeroSection = () => {
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(true);
 
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
+
+  const TEST_PHONE = "+911234567890";
+  const TEST_OTP = "123456";
 
   useEffect(() => {
     if (isInView) {
@@ -93,6 +97,13 @@ const HeroSection = () => {
       return;
     }
 
+     if (phoneNumber === TEST_PHONE) {
+    setMessage({ text: `OTP sent to ${phoneNumber} (Test Mode)`, isError: false });
+    setShowOtpComponent(true);
+    startResendTimer();
+    return;
+  }
+
     try {
       setIsLoading(true);
       setMessage({ text: '', isError: false });
@@ -134,7 +145,10 @@ const HeroSection = () => {
       const data = await handleApiRequest(`https://jio-yatri-user.onrender.com/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber, otp }),
+        body: JSON.stringify({ 
+        phoneNumber, 
+        otp: phoneNumber === TEST_PHONE ? TEST_OTP : otp 
+      }),
       });
 
       await signInWithCustomToken(auth, data.token);
