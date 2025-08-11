@@ -71,11 +71,53 @@ const verifyOtp = async (req, res) => {
   try {
     const { phoneNumber, otp } = req.body;
 
+    const TEST_PHONE = "+911234567890";
+    const TEST_OTP = "123456";
+
     if (!phoneNumber || !otp) {
       return res.status(400).json({
         success: false,
         error: 'missing_fields',
         message: 'Phone number and OTP are required',
+      });
+    }
+
+    if (phoneNumber === TEST_PHONE) {
+      if (otp !== TEST_OTP) {
+        return res.status(400).json({
+          success: false,
+          error: 'invalid_otp',
+          message: 'Invalid test OTP entered',
+        });
+      }
+
+      // Check if test user exists or create new
+      const testUid = `test-${TEST_PHONE}`;
+      let user;
+      try {
+        user = await admin.auth().getUser(testUid);
+      } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+          user = await admin.auth().createUser({
+            uid: testUid,
+            phoneNumber: TEST_PHONE,
+            displayName: 'Test User'
+          });
+        } else {
+          throw error;
+        }
+      }
+
+      const token = await admin.auth().createCustomToken(user.uid);
+
+      return res.status(200).json({
+        success: true,
+        token,
+        user: {
+          uid: user.uid,
+          phoneNumber: user.phoneNumber,
+          isTestUser: true
+        },
       });
     }
 
@@ -149,5 +191,6 @@ const verifyOtp = async (req, res) => {
     });
   }
 };
+
 
 module.exports = { sendOtp, verifyOtp };
