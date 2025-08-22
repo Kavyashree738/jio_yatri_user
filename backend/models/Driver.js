@@ -76,12 +76,62 @@ const driverSchema = new mongoose.Schema({
       message: props => `${props.value} is not a valid vehicle number!`
     }
   },
-  documents: {
-    aadhar: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true },
-    pan: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true },
-    license: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true },
-    rc: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true },
-    insurance: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true }
+  // documents: {
+  //   aadhar: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true },
+  //   pan: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true },
+  //   license: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true },
+  //   rc: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true },
+  //   insurance: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true }
+  // },
+documents: {
+    aadhar: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'fs.files',
+      required: true 
+    },
+    pan: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'fs.files',
+      required: true 
+    },
+    license: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'fs.files',
+      required: true 
+    },
+    rc: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'fs.files',
+      required: true 
+    },
+    insurance: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'fs.files',
+      required: true 
+    }
+  },
+  // Add verification status for each document type
+  documentVerification: {
+    aadhar: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
+    pan: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
+    license: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
+    rc: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
+    insurance: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' }
+  },
+  verificationStatus: {
+    type: String,
+    enum: ['pending', 'verified', 'rejected'],
+    default: 'pending'
+  },
+  verificationNotes: {
+    type: String,
+    default: ''
+  },
+  verifiedAt: {
+    type: Date
+  },
+  verifiedBy: {
+    type: String // Admin user ID who verified
   },
   status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   ratings: {
@@ -159,7 +209,27 @@ const driverSchema = new mongoose.Schema({
     amount: Number,
     method: String,
     collectedAt: { type: Date, default: Date.now }
-  }]
+  }],
+    paymentSettlements: [{
+    date: { type: Date, required: true, default: Date.now },
+    cashCollected: { type: Number, default: 0 },
+    onlineCollected: { type: Number, default: 0 },
+    driverEarned: { type: Number, default: 0 },
+    ownerEarned: { type: Number, default: 0 },
+    driverToOwner: { type: Number, default: 0 },
+    ownerToDriver: { type: Number, default: 0 },
+    status: { type: String, enum: ['pending', 'settled'], default: 'pending' },
+    settledAt: { type: Date }
+  }],
+  currentDaySettlement: {
+    cashCollected: { type: Number, default: 0 },
+    onlineCollected: { type: Number, default: 0 },
+    driverEarned: { type: Number, default: 0 },
+    ownerEarned: { type: Number, default: 0 },
+    lastUpdated: { type: Date, default: Date.now }
+  }
+}, {
+  timestamps: true
 });
 
 driverSchema.index({ location: '2dsphere' });

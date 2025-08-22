@@ -12,7 +12,7 @@ const baseShopSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return /^[0-9]{10}$/.test(v);
       },
       message: props => `${props.value} is not a valid phone number!`
@@ -22,7 +22,7 @@ const baseShopSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return /^[0-9]{10}$/.test(v);
       },
       message: props => `${props.value} is not a valid PhonePe number!`
@@ -33,12 +33,14 @@ const baseShopSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
       },
       message: props => `${props.value} is not a valid email!`
     }
   },
+  fcmToken: { type: String, default: null },            // single device (optional)
+  fcmTokens: { type: [String], default: [] },           // multi-device (recommended)
   address: {
     address: { type: String, required: true },
     coordinates: {
@@ -49,26 +51,81 @@ const baseShopSchema = new mongoose.Schema({
   openingTime: { type: String, required: true },
   closingTime: { type: String, required: true },
   shopImages: [{ type: mongoose.Schema.Types.ObjectId }], // Removed ref as we handle manually
-  category: { 
-    type: String, 
-    required: true, 
-    enum: ['grocery', 'vegetable', 'provision', 'medical', 'hotel'] 
-  }
-}, {
-  timestamps: true,
-  discriminatorKey: 'category',
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true }
-});
+  category: {
+    type: String,
+    required: true,
+    enum: ['grocery', 'vegetable', 'provision', 'medical', 'hotel']
+  },
+  referralCode: {
+    type: String,
+    unique: true,
+    sparse: true,
+    index: true,
+    uppercase: true,
+    trim: true
+  },
+  referredBy: {
+    type: String,   // stores the referrer's referralCode
+    default: null,
+    index: true,
+    uppercase: true,
+    trim: true
+  },
+  referralRewards: [{
+    amount: { type: Number, default: 20 },
+    description: { type: String, default: '' },
+    referredShopId: { type: String, required: true },  // Shop._id of the new shop
+    createdAt: { type: Date, default: Date.now }
+  }],
+  totalReferrals: { type: Number, default: 0 },
+  referralEarnings: { type: Number, default: 0 }
+},
+
+  {
+    timestamps: true,
+    discriminatorKey: 'category',
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  });
 
 // Virtual for shop image URLs
-baseShopSchema.virtual('shopImageUrls').get(function() {
+baseShopSchema.virtual('shopImageUrls').get(function () {
   if (!this.shopImages || this.shopImages.length === 0) return [];
-  return this.shopImages.map(img => 
+  return this.shopImages.map(img =>
     `https://jio-yatri-user.onrender.com/api/shops/images/${img}`
   );
 });
 
+baseShopSchema.statics.generateReferralCode = async function (prefix = 'MG') {
+  let code;
+  let attempts = 0;
+  const maxAttempts = 10;
+
+  do {
+    const randomPart = Math.floor(1000 + Math.random() * 9000); // 4 digits
+    code = `${prefix}${randomPart}`;
+    attempts++;
+    if (attempts > maxAttempts) {
+      throw new Error(`Failed to generate unique referral code after ${maxAttempts} attempts`);
+    }
+  } while (await this.exists({ referralCode: code }));
+
+  return code;
+};
+
+baseShopSchema.pre('save', function(next) {
+  if (Array.isArray(this.fcmTokens)) {
+    this.fcmTokens = [...new Set(this.fcmTokens.filter(Boolean))];
+  }
+  next();
+});
+
+
+baseShopSchema.pre('save', async function () {
+  if (!this.referralCode) {
+    this.referralCode = await this.constructor.generateReferralCode('MG'); // SB = Shop/Business
+  }
+});
 // Create base Shop model
 const Shop = mongoose.model('Shop', baseShopSchema);
 
@@ -87,12 +144,12 @@ const grocerySchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-grocerySchema.virtual('itemsWithUrls').get(function() {
+grocerySchema.virtual('itemsWithUrls').get(function () {
   if (!this.items) return [];
   return this.items.map(item => ({
     ...item.toObject(),
-    imageUrl: item.image ? 
-      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` : 
+    imageUrl: item.image ?
+      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` :
       null
   }));
 });
@@ -110,12 +167,12 @@ const vegetableSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-vegetableSchema.virtual('itemsWithUrls').get(function() {
+vegetableSchema.virtual('itemsWithUrls').get(function () {
   if (!this.items) return [];
   return this.items.map(item => ({
     ...item.toObject(),
-    imageUrl: item.image ? 
-      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` : 
+    imageUrl: item.image ?
+      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` :
       null
   }));
 });
@@ -134,12 +191,12 @@ const provisionSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-provisionSchema.virtual('itemsWithUrls').get(function() {
+provisionSchema.virtual('itemsWithUrls').get(function () {
   if (!this.items) return [];
   return this.items.map(item => ({
     ...item.toObject(),
-    imageUrl: item.image ? 
-      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` : 
+    imageUrl: item.image ?
+      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` :
       null
   }));
 });
@@ -158,39 +215,92 @@ const medicalSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-medicalSchema.virtual('itemsWithUrls').get(function() {
+medicalSchema.virtual('itemsWithUrls').get(function () {
   if (!this.items) return [];
   return this.items.map(item => ({
     ...item.toObject(),
-    imageUrl: item.image ? 
-      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` : 
+    imageUrl: item.image ?
+      `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` :
       null
   }));
 });
 
 // Hotel schema
+// const hotelSchema = new mongoose.Schema({
+//   rooms: [{
+//     type: { type: String, required: true, enum: ['single', 'double', 'suite'] },
+//     pricePerNight: { type: Number, required: true, min: 0 },
+//     amenities: [{ type: String }],
+//     images: [{ type: mongoose.Schema.Types.ObjectId }]
+//   }],
+//   cuisineTypes: [{ type: String }],
+//   hasRestaurant: { type: Boolean, default: false }
+// }, {
+//   toJSON: { virtuals: true },
+//   toObject: { virtuals: true }
+// });
+
+// hotelSchema.virtual('roomsWithUrls').get(function() {
+//   if (!this.rooms) return [];
+//   return this.rooms.map(room => ({
+//     ...room.toObject(),
+//     imageUrls: room.images ? 
+//       room.images.map(img => 
+//         `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${img}`
+//       ) : []
+//   }));
+// });
+
 const hotelSchema = new mongoose.Schema({
-  rooms: [{
-    type: { type: String, required: true, enum: ['single', 'double', 'suite'] },
-    pricePerNight: { type: Number, required: true, min: 0 },
-    amenities: [{ type: String }],
-    images: [{ type: mongoose.Schema.Types.ObjectId }]
-  }],
-  cuisineTypes: [{ type: String }],
-  hasRestaurant: { type: Boolean, default: false }
+  items: [{
+    name: {
+      type: String,
+      required: [true, 'Item name is required'],
+      trim: true
+    },
+    price: {
+      type: Number,
+      required: [true, 'Price is required'],
+      min: [1, 'Price must be at least 1']
+    },
+    veg: {
+      type: Boolean,
+      default: true
+    },
+    description: {
+      type: String,
+      maxlength: [100, 'Description cannot exceed 100 characters']
+    },
+    category: {
+      type: String,
+      enum: ['main', 'breakfast', 'lunch', 'dinner', 'snacks', 'beverages'],
+      required: true
+    },
+    image: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: [true, 'Image is required for each item']  // Enforce image for every item
+    },
+    available: {
+      type: Boolean,
+      default: true
+    },
+    spiceLevel: {
+      type: String,
+      enum: ['mild', 'medium', 'spicy'],
+      default: 'medium'
+    }
+  }]
 }, {
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
 
-hotelSchema.virtual('roomsWithUrls').get(function() {
-  if (!this.rooms) return [];
-  return this.rooms.map(room => ({
-    ...room.toObject(),
-    imageUrls: room.images ? 
-      room.images.map(img => 
-        `https://jio-yatri-user.onrender.com/api/shops/images/${img}`
-      ) : []
+// Automatically generate image URLs for all items
+hotelSchema.virtual('itemsWithUrls').get(function () {
+  if (!this.items) return [];
+  return this.items.map(item => ({
+    ...item.toObject(),
+    imageUrl: `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}`
   }));
 });
 

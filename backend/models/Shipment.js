@@ -32,6 +32,17 @@ const shipmentSchema = new mongoose.Schema({
       coordinates: { type: Object }
     }
   },
+    parcel: {
+    description: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    images: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'ShipmentImage'
+    }]
+  },
   receiver: {
     name: { type: String, required: true },
     phone: { type: String, required: true },
@@ -87,7 +98,7 @@ const shipmentSchema = new mongoose.Schema({
     date: { type: Date, default: Date.now },
     recordedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
   }],
-      shopId: {
+    shopId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Shop'
   },
@@ -101,5 +112,7 @@ shipmentSchema.index({ 'payment.status': 1 });
 shipmentSchema.index({ 'payment.method': 1 });
 shipmentSchema.index({ shopId: 1 });
 shipmentSchema.index({ isShopOrder: 1 });
+// Add this to your model or run manually once
+shipmentSchema.index({ "sender.address.coordinates": "2dsphere" });
 
 module.exports = mongoose.model('Shipment', shipmentSchema);

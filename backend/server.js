@@ -5,19 +5,22 @@ const partnerRoutes = require('./routes/partnerRoutes');
 const enterpriseRoutes = require('./routes/enterpriseRoutes');
 const shipmentRoutes = require('./routes/shipmentRoutes');
 const addressRoutes=require('./routes/addressRoutes')
-const paymentRoutes=require('./routes/paymentRoutes')
-const ratingRoutes = require('./routes/ratingRoutes');
+const authRoutes=require('./routes/authRoutes')
 const driverRoutes = require('./routes/driverRoutes');
-const userRoutes=require('./routes/userRoutes')
 const app = express();
-
+const axios = require('axios');
 const PORT = process.env.PORT || 5000;
 const cors = require('cors');
 const admin = require('firebase-admin'); 
-const authRoutes=require('./routes/authRoutes')
+const userRoutes=require('./routes/userRoutes')
 const hotelRoutes = require('./routes/hotelRoutes');
-const hotelShipment=require('./routes/hotelShipmentRoutes')
+const paymentRoutes=require('./routes/paymentRoutes')
+const ratingRoutes = require('./routes/ratingRoutes');
+const hotelShipmentRouter = require('./routes/hotelShipmentRoutes');
 const shopRoutes=require('./routes/shopRoutes')
+const shipmentImageRoutes = require('./routes/shipmentImageRoutes');
+const settlementRoutes=require('./routes/settlementRoutes')
+const orderRoutes=require('./routes/orders')
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -66,7 +69,7 @@ admin.initializeApp({
 const corsOptions = {
   origin: 'https://jioyatri.com',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS','PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
@@ -97,20 +100,21 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Use it in your routes
 
-app.use(express.json());
 app.use('/api', partnerRoutes);
 app.use('/api', enterpriseRoutes);
+app.use('/api/driver',driverRoutes)
 app.use('/api/shipments', shipmentRoutes);
 app.use('/api/address', addressRoutes); 
+app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/payment',paymentRoutes)
-app.use('/api/driver',driverRoutes)
-
 app.use('/api/ratings', ratingRoutes);
-app.use('/api/user', userRoutes);
 app.use('/api/hotels', hotelRoutes);
-app.use('/api/hotel-shipments',hotelShipment );
+app.use('/api/hotel-shipments', hotelShipmentRouter);
 app.use('/api/shops', shopRoutes);
+app.use('/api/shipment-images', shipmentImageRoutes);
+app.use('/api/settlement', settlementRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
