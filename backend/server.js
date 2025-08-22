@@ -22,10 +22,12 @@ const shipmentImageRoutes = require('./routes/shipmentImageRoutes');
 const settlementRoutes=require('./routes/settlementRoutes')
 const orderRoutes=require('./routes/orders')
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: 'authentication-e6bd0' // Add your project ID here
-});
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: 'authentication-e6bd0.appspot.com'
+  });
+}
 
 // const allowedOrigins = [
 //   'http://localhost:3000',
