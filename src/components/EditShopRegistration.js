@@ -4,9 +4,10 @@ import {
     FaUserCircle, FaHome, FaBuilding, FaTruck, FaBoxes, FaShoppingCart,
     FaUtensils, FaCarrot, FaMedkit, FaStore, FaTimes, FaPlus, FaTrash,
     FaSpinner, FaCheck, FaUpload, FaImage, FaClock, FaPhone, FaWallet,
-    FaEnvelope, FaMapMarkerAlt, FaImages, FaFileImage, FaArrowLeft, FaArrowRight, FaHotel,
+    FaEnvelope, FaMapMarkerAlt, FaImages, FaFileImage, FaArrowLeft, FaArrowRight,
     FaPrescriptionBottleAlt, FaLeaf
 } from 'react-icons/fa';
+import { MdLocalDining } from 'react-icons/md';
 import axios from 'axios';
 import AddressAutocomplete from '../components/AddressAutocomplete';
 import '../styles/CategoryRegistration.css';
@@ -23,13 +24,10 @@ const EditShopRegistration = () => {
         phone: '',
         phonePeNumber: '',
         email: '',
-        address: { address: '', coordinates: { lat: null, lng: null } },
+        address: { address: "", coordinates: { lat: null, lng: null } },
         openingTime: '',
         closingTime: '',
         items: [],
-        rooms: [],
-        hasPharmacy: false,
-        hasRestaurant: false,
         cuisineTypes: []
     });
     const [selectedCategory, setSelectedCategory] = useState('');
@@ -49,10 +47,11 @@ const EditShopRegistration = () => {
         { name: 'Vegetables', value: 'vegetable', icon: <FaCarrot />, color: '#45B7D1' },
         { name: 'Provisions', value: 'provision', icon: <FaBoxes />, color: '#FFA07A' },
         { name: 'Medical', value: 'medical', icon: <FaMedkit />, color: '#98D8C8' },
-        { name: 'Hotels', value: 'hotel', icon: <FaHotel />, color: '#FF6B6B' }
+        { name: 'Food Service', value: 'hotel', icon: <MdLocalDining />, color: '#FF6B6B' }
     ];
 
     const cuisineOptions = ['Indian', 'Chinese', 'Italian', 'Mexican', 'Continental'];
+    const foodCategories = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Beverages'];
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -78,7 +77,6 @@ const EditShopRegistration = () => {
                 }
 
                 const safeItems = Array.isArray(shopData.items) ? shopData.items : [];
-                const safeRooms = Array.isArray(shopData.rooms) ? shopData.rooms : [];
                 const safeShopImages = Array.isArray(shopData.shopImages) ? shopData.shopImages : [];
                 const safeCuisineTypes = Array.isArray(shopData.cuisineTypes) ? shopData.cuisineTypes : [];
 
@@ -91,9 +89,6 @@ const EditShopRegistration = () => {
                     openingTime: shopData.openingTime || '',
                     closingTime: shopData.closingTime || '',
                     items: safeItems,
-                    rooms: safeRooms,
-                    hasPharmacy: shopData.hasPharmacy || false,
-                    hasRestaurant: shopData.hasRestaurant || false,
                     cuisineTypes: safeCuisineTypes
                 });
 
@@ -116,7 +111,6 @@ const EditShopRegistration = () => {
     useEffect(() => {
         let completed = 0;
         const items = Array.isArray(formData.items) ? formData.items : [];
-        const rooms = Array.isArray(formData.rooms) ? formData.rooms : [];
 
         if (formData.shopName) completed += 10;
         if (formData.phone) completed += 10;
@@ -124,14 +118,14 @@ const EditShopRegistration = () => {
         if (formData.address?.address) completed += 10;
         if (formData.openingTime && formData.closingTime) completed += 10;
 
-        if (items.length > 0 || rooms.length > 0) completed += 20;
+        if (items.length > 0) completed += 30;
 
         const shopImagesLength = Array.isArray(shopImages) ? shopImages.length : 0;
         const existingShopImagesLength = Array.isArray(existingShopImages) ? existingShopImages.length : 0;
 
-        if (shopImagesLength > 0 || existingShopImagesLength > 0) completed += 15;
+        if (shopImagesLength > 0 || existingShopImagesLength > 0) completed += 20;
 
-        if (items.some(item => item.image || item.imageUrl)) completed += 15;
+        if (items.some(item => item.image || item.imageUrl)) completed += 10;
 
         setProgress(Math.min(100, completed));
     }, [formData, shopImages, existingShopImages]);
@@ -157,29 +151,11 @@ const EditShopRegistration = () => {
         setFormData({ ...formData, items: updatedItems });
     };
 
-    const handleRoomChange = (index, field, value) => {
-        const updatedRooms = [...(formData.rooms || [])];
-        if (field === 'amenities') {
-            updatedRooms[index][field] = value.split(',').map(item => item.trim());
-        } else {
-            updatedRooms[index][field] = value;
-        }
-        setFormData({ ...formData, rooms: updatedRooms });
-    };
-
     const handleItemImageUpload = (index, file) => {
         const updatedItems = [...(formData.items || [])];
         updatedItems[index].imageUrl = undefined;
         updatedItems[index].image = file;
         setFormData({ ...formData, items: updatedItems });
-    };
-
-    const handleCategorySpecificChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
     };
 
     const handleCuisineTypeChange = (e) => {
@@ -193,33 +169,17 @@ const EditShopRegistration = () => {
     };
 
     const addItem = () => {
-        const baseItem = { name: '', price: '', image: null };
-
-        switch (selectedCategory) {
-            case 'vegetable':
-                setFormData({
-                    ...formData,
-                    items: [...formData.items, { ...baseItem, organic: false }]
-                });
-                break;
-            case 'provision':
-                setFormData({
-                    ...formData,
-                    items: [...formData.items, { ...baseItem, weight: '', brand: '' }]
-                });
-                break;
-            case 'medical':
-                setFormData({
-                    ...formData,
-                    items: [...formData.items, { ...baseItem, prescriptionRequired: false }]
-                });
-                break;
-            default: // grocery
-                setFormData({
-                    ...formData,
-                    items: [...formData.items, { ...baseItem, description: '' }]
-                });
-        }
+        setFormData({
+            ...formData,
+            items: [...formData.items, {
+                name: '',
+                price: '',
+                veg: true,
+                category: 'main',
+                image: null,
+                description: ''
+            }]
+        });
     };
 
     const removeItem = (index) => {
@@ -227,25 +187,8 @@ const EditShopRegistration = () => {
         setFormData({ ...formData, items: updatedItems });
     };
 
-    const addRoom = () => {
-        setFormData({
-            ...formData,
-            rooms: [...formData.rooms, {
-                type: 'single',
-                pricePerNight: '',
-                amenities: []
-            }]
-        });
-    };
-
-    const removeRoom = (index) => {
-        const updatedRooms = (formData.rooms || []).filter((_, i) => i !== index);
-        setFormData({ ...formData, rooms: updatedRooms });
-    };
-
     const validateForm = () => {
         const items = Array.isArray(formData.items) ? formData.items : [];
-        const rooms = Array.isArray(formData.rooms) ? formData.rooms : [];
 
         if (!formData.shopName.trim()) {
             setError('Shop name is required');
@@ -271,101 +214,210 @@ const EditShopRegistration = () => {
             setError('Opening and closing times are required');
             return false;
         }
-
-        if (items.length === 0 && selectedCategory !== 'hotel') {
-            setError('Please add at least one item');
+        if (formData.items.length === 0) {
+            setError('Please add at least one menu item');
             return false;
         }
-        if (rooms.length === 0 && selectedCategory === 'hotel') {
-            setError('Please add at least one room');
-            return false;
-        }
-        if (selectedCategory !== 'hotel' && items.some(item => !item.image && !item.imageUrl)) {
-            setError('Please upload an image for each item');
+        if (formData.items.some(item => !item.image && !item.imageUrl)) {
+            setError('Please upload an image for each menu item');
             return false;
         }
 
         return true;
     };
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    console.log('[DEBUG] Update form submission started');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
+    if (!validateForm()) {
+        console.log('[DEBUG] Form validation failed');
+        return;
+    }
+    if (!user) {
+        console.error('[ERROR] User not authenticated');
+        setError('You must be logged in to update');
+        return;
+    }
 
-        if (!validateForm()) return;
-        if (!user) {
-            setError('You must be logged in to update');
-            return;
-        }
+    setIsSubmitting(true);
+    console.log('[DEBUG] Starting submission process');
 
-        setIsSubmitting(true);
+    try {
+        const formDataToSend = new FormData();
+        console.log('[DEBUG] FormData object created');
 
-        try {
-            const formDataToSend = new FormData();
+        // Add simple fields with debug logging
+        const addField = (name, value) => {
+            formDataToSend.append(name, value);
+            console.log(`[DEBUG] Added field: ${name} = ${value}`);
+        };
 
-            // Add simple fields
-            formDataToSend.append('userId', user.uid);
-            formDataToSend.append('shopId', shopId);
-            formDataToSend.append('category', selectedCategory);
-            formDataToSend.append('shopName', formData.shopName);
-            formDataToSend.append('phone', formData.phone);
-            formDataToSend.append('phonePeNumber', formData.phonePeNumber);
-            formDataToSend.append('email', formData.email || '');
-            formDataToSend.append('address', JSON.stringify(formData.address));
-            formDataToSend.append('openingTime', formData.openingTime);
-            formDataToSend.append('closingTime', formData.closingTime);
+        addField('userId', user.uid);
+        addField('shopId', shopId);
+        addField('category', selectedCategory);
+        addField('shopName', formData.shopName);
+        addField('phone', formData.phone);
+        addField('phonePeNumber', formData.phonePeNumber);
+        addField('email', formData.email || '');
 
-            // Add category-specific fields
-            if (selectedCategory === 'medical') {
-                formDataToSend.append('hasPharmacy', formData.hasPharmacy);
+        // Handle address with debug
+        const addressString = JSON.stringify(formData.address);
+        addField('address', addressString);
+        console.log('[DEBUG] Address data:', formData.address);
+
+        // Add other fields
+        addField('openingTime', formData.openingTime);
+        addField('closingTime', formData.closingTime);
+        addField('cuisineTypes', JSON.stringify(formData.cuisineTypes));
+
+        // Prepare items data with detailed logging
+        console.log('[DEBUG] Processing items:', formData.items);
+        const itemsToSend = formData.items.map((item, index) => {
+            console.log(`[DEBUG] Processing item ${index}:`, item);
+            
+            const itemData = {
+                name: item.name,
+                price: item.price,
+                veg: item.veg,
+                category: item.category,
+                description: item.description || ''
+            };
+
+            // Image handling with detailed logging
+            if (item.imageUrl) {
+                console.log(`[DEBUG] Item ${index} has imageUrl:`, item.imageUrl);
+                const urlParts = item.imageUrl.split('/');
+                itemData.image = urlParts[urlParts.length - 1];
+                console.log(`[DEBUG] Extracted image ID: ${itemData.image}`);
+            } 
+            else if (item.image instanceof File) {
+                console.log(`[DEBUG] Item ${index} has new image file:`, item.image.name);
+                // Will be handled in files section
             }
-            if (selectedCategory === 'hotel') {
-                formDataToSend.append('hasRestaurant', formData.hasRestaurant);
-                formDataToSend.append('cuisineTypes', JSON.stringify(formData.cuisineTypes));
+            else if (item.image) {
+                console.log(`[DEBUG] Item ${index} has direct image ID:`, item.image);
+                itemData.image = item.image;
+            }
+            else {
+                console.warn(`[WARNING] Item ${index} has no image data`);
             }
 
-            // Add arrays as JSON strings
-            formDataToSend.append('items', JSON.stringify(formData.items || []));
-            formDataToSend.append('rooms', JSON.stringify(formData.rooms || []));
-            formDataToSend.append('existingShopImages', JSON.stringify(existingShopImages || []));
-            formDataToSend.append('existingItemImages', JSON.stringify(existingItemImages || []));
+            return itemData;
+        });
+        
+        addField('items', JSON.stringify(itemsToSend));
+        console.log('[DEBUG] Items data prepared:', itemsToSend);
 
-            // Add files
-            shopImages.forEach(file => {
+        // Handle existing shop images with validation
+        const existingShopImagesToSend = existingShopImages || [];
+        console.log('[DEBUG] Existing shop images:', existingShopImagesToSend);
+        addField('existingShopImages', JSON.stringify(existingShopImagesToSend));
+
+        // Handle existing item images with validation
+        const existingItemImageIds = formData.items
+            .filter(item => item.imageUrl)
+            .map(item => {
+                const urlParts = item.imageUrl.split('/');
+                const imageId = urlParts[urlParts.length - 1];
+                console.log(`[DEBUG] Extracted item image ID from URL: ${imageId}`);
+                return imageId;
+            });
+        
+        console.log('[DEBUG] Existing item image IDs:', existingItemImageIds);
+        addField('existingItemImages', JSON.stringify(existingItemImageIds));
+
+        // Add new shop images with validation
+        console.log('[DEBUG] New shop images to upload:', shopImages.length);
+        shopImages.forEach((file, index) => {
+            if (file.size > 5 * 1024 * 1024) {
+                console.warn(`[WARNING] Shop image ${index} exceeds 5MB limit`);
+            } else {
                 formDataToSend.append('shopImages', file);
-            });
-
-            formData.items?.forEach((item, index) => {
-                if (item.image instanceof File) {
-                    formDataToSend.append('itemImages', item.image);
-                }
-            });
-
-            const res = await axios.put(
-                `https://jio-yatri-user.onrender.com/api/shops/${shopId}`,
-                formDataToSend,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${await user.getIdToken()}`
-                    }
-                }
-            );
-
-            if (!res.data.success) {
-                throw new Error(res.data.error || 'Update failed');
+                console.log(`[DEBUG] Added shop image ${index}: ${file.name}`);
             }
+        });
 
-            setSuccess('Update successful! Redirecting...');
-            setTimeout(() => navigate(`/shop/${shopId}`), 2000);
-        } catch (err) {
-            console.error('Update error:', err);
-            setError(err.response?.data?.error || err.message || 'Update failed');
-        } finally {
-            setIsSubmitting(false);
+        // Add new item images with validation
+        console.log('[DEBUG] Processing new item images');
+        formData.items.forEach((item, index) => {
+            if (item.image instanceof File) {
+                if (item.image.size > 5 * 1024 * 1024) {
+                    console.warn(`[WARNING] Item ${index} image exceeds 5MB limit`);
+                } else {
+                    formDataToSend.append('itemImages', item.image);
+                    console.log(`[DEBUG] Added item image ${index}: ${item.image.name}`);
+                }
+            }
+        });
+
+        // Log complete FormData before sending (note: can't directly log FormData)
+        console.log('[DEBUG] FormData prepared, ready to send to API');
+
+        const token = await user.getIdToken();
+        console.log('[DEBUG] Firebase token acquired');
+
+        const apiUrl = `https://jio-yatri-user.onrender.com/api/shops/${shopId}`;
+        console.log(`[DEBUG] Sending to API endpoint: ${apiUrl}`);
+
+        const config = {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`
+            },
+            onUploadProgress: (progressEvent) => {
+                const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                console.log(`[DEBUG] Upload progress: ${percentCompleted}%`);
+            }
+        };
+
+        console.log('[DEBUG] Starting API request...');
+        const res = await axios.put(apiUrl, formDataToSend, config);
+
+        console.log('[DEBUG] API response received:', {
+            status: res.status,
+            data: res.data
+        });
+
+        if (!res.data.success) {
+            console.error('[ERROR] API returned unsuccessful response:', res.data);
+            throw new Error(res.data.error || 'Update failed');
         }
-    };
+
+        console.log('[DEBUG] Update successful, preparing redirect');
+        setSuccess('Update successful! Redirecting...');
+        setTimeout(() => {
+            console.log('[DEBUG] Navigating to shop page');
+            navigate(`/shop/${shopId}`);
+        }, 2000);
+
+    } catch (err) {
+        console.error('[ERROR] Update failed:', {
+            message: err.message,
+            stack: err.stack,
+            response: err.response?.data
+        });
+
+        let errorMessage = 'Update failed';
+        if (err.response) {
+            // Handle different types of API errors
+            if (err.response.status === 413) {
+                errorMessage = 'File size too large (max 5MB)';
+            } else if (err.response.data?.error) {
+                errorMessage = err.response.data.error;
+            }
+        } else if (err.message) {
+            errorMessage = err.message;
+        }
+
+        setError(errorMessage);
+    } finally {
+        console.log('[DEBUG] Submission process completed');
+        setIsSubmitting(false);
+    }
+};
+
 
     const removeExistingShopImage = (index) => {
         const updated = [...existingShopImages];
@@ -387,164 +439,6 @@ const EditShopRegistration = () => {
                 <span>{category.name}</span>
             </div>
         );
-    };
-
-    const renderItemFields = (item, index) => {
-        const commonFields = (
-            <>
-                <div className="hr-form-group">
-                    <label className="hr-label">Name</label>
-                    <input
-                        type="text"
-                        value={item.name}
-                        onChange={(e) => handleItemChange(index, 'name', e.target.value)}
-                        className="hr-input"
-                        required
-                    />
-                </div>
-                <div className="hr-form-group">
-                    <label className="hr-label">Price</label>
-                    <input
-                        type="number"
-                        min="0"
-                        value={item.price}
-                        onChange={(e) => handleItemChange(index, 'price', e.target.value)}
-                        className="hr-input"
-                        required
-                    />
-                </div>
-            </>
-        );
-
-        switch (selectedCategory) {
-            case 'vegetable':
-                return (
-                    <>
-                        {commonFields}
-                        <div className="hr-form-group">
-                            <label className="hr-label">
-                                <input
-                                    type="checkbox"
-                                    checked={item.organic || false}
-                                    onChange={(e) => handleItemChange(index, 'organic', e.target.checked)}
-                                />
-                                Organic
-                            </label>
-                        </div>
-                    </>
-                );
-            case 'provision':
-                return (
-                    <>
-                        {commonFields}
-                        <div className="hr-form-group">
-                            <label className="hr-label">Weight</label>
-                            <input
-                                type="text"
-                                value={item.weight || ''}
-                                onChange={(e) => handleItemChange(index, 'weight', e.target.value)}
-                                className="hr-input"
-                                placeholder="e.g., 1kg, 500g"
-                            />
-                        </div>
-                        <div className="hr-form-group">
-                            <label className="hr-label">Brand</label>
-                            <input
-                                type="text"
-                                value={item.brand || ''}
-                                onChange={(e) => handleItemChange(index, 'brand', e.target.value)}
-                                className="hr-input"
-                            />
-                        </div>
-                    </>
-                );
-            case 'medical':
-                return (
-                    <>
-                        {commonFields}
-                        <div className="hr-form-group">
-                            <label className="hr-label">
-                                <input
-                                    type="checkbox"
-                                    checked={item.prescriptionRequired || false}
-                                    onChange={(e) => handleItemChange(index, 'prescriptionRequired', e.target.checked)}
-                                />
-                                Requires Prescription
-                            </label>
-                        </div>
-                    </>
-                );
-            default: // grocery
-                return (
-                    <>
-                        {commonFields}
-                        <div className="hr-form-group">
-                            <label className="hr-label">Description</label>
-                            <input
-                                type="text"
-                                value={item.description || ''}
-                                onChange={(e) => handleItemChange(index, 'description', e.target.value)}
-                                className="hr-input"
-                            />
-                        </div>
-                    </>
-                );
-        }
-    };
-
-    const renderCategorySpecificFields = () => {
-        switch (selectedCategory) {
-            case 'medical':
-                return (
-                    <div className="hr-form-group">
-                        <label className="hr-label">
-                            <input
-                                type="checkbox"
-                                name="hasPharmacy"
-                                checked={formData.hasPharmacy}
-                                onChange={handleCategorySpecificChange}
-                            />
-                            Has Pharmacy
-                        </label>
-                    </div>
-                );
-            case 'hotel':
-                return (
-                    <>
-                        <div className="hr-form-group">
-                            <label className="hr-label">
-                                <input
-                                    type="checkbox"
-                                    name="hasRestaurant"
-                                    checked={formData.hasRestaurant}
-                                    onChange={handleCategorySpecificChange}
-                                />
-                                Has Restaurant
-                            </label>
-                        </div>
-                        {formData.hasRestaurant && (
-                            <div className="hr-form-group">
-                                <label className="hr-label">Cuisine Types</label>
-                                <div className="hr-checkbox-group">
-                                    {cuisineOptions.map(type => (
-                                        <label key={type} className="hr-checkbox-label">
-                                            <input
-                                                type="checkbox"
-                                                value={type}
-                                                checked={formData.cuisineTypes.includes(type)}
-                                                onChange={handleCuisineTypeChange}
-                                            />
-                                            {type}
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </>
-                );
-            default:
-                return null;
-        }
     };
 
     if (authLoading) {
@@ -613,21 +507,13 @@ const EditShopRegistration = () => {
                                 onClick={() => setActiveSection('items')}
                                 disabled={!formData.shopName}
                             >
-                                {selectedCategory === 'hotel' ? (
-                                    <FaHotel className="hr-nav-icon" />
-                                ) : (
-                                    <FaBoxes className="hr-nav-icon" />
-                                )}
-                                {selectedCategory === 'hotel' ? 'Rooms' : 'Items'}
+                                <MdLocalDining className="hr-nav-icon" />
+                                Menu Items
                             </button>
                             <button
                                 className={`hr-nav-btn ${activeSection === 'images' ? 'hr-active' : ''}`}
                                 onClick={() => setActiveSection('images')}
-                                disabled={
-                                    selectedCategory === 'hotel'
-                                        ? (formData.rooms || []).length === 0
-                                        : (formData.items || []).length === 0
-                                }
+                                disabled={(formData.items || []).length === 0}
                             >
                                 <FaImage className="hr-nav-icon" />
                                 Images
@@ -672,14 +558,14 @@ const EditShopRegistration = () => {
                                 <div className="hr-form-group">
                                     <label className="hr-label">
                                         <FaStore className="hr-input-icon" />
-                                        Shop Name <span className="hr-required">*</span>
+                                        Restaurant Name <span className="hr-required">*</span>
                                     </label>
                                     <input
                                         type="text"
                                         name="shopName"
                                         value={formData.shopName}
                                         onChange={handleInputChange}
-                                        placeholder="Enter shop name"
+                                        placeholder="Enter restaurant name"
                                         className="hr-input"
                                         required
                                     />
@@ -765,7 +651,22 @@ const EditShopRegistration = () => {
                                 </div>
                             </div>
 
-                            {renderCategorySpecificFields()}
+                            {/* <div className="hr-form-group">
+                                <label className="hr-label">Cuisine Types</label>
+                                <div className="hr-checkbox-group">
+                                    {cuisineOptions.map(type => (
+                                        <label key={type} className="hr-checkbox-label">
+                                            <input
+                                                type="checkbox"
+                                                value={type}
+                                                checked={formData.cuisineTypes.includes(type)}
+                                                onChange={handleCuisineTypeChange}
+                                            />
+                                            {type}
+                                        </label>
+                                    ))}
+                                </div>
+                            </div> */}
 
                             <div className="hr-form-group hr-address-group">
                                 <label className="hr-label">
@@ -785,210 +686,196 @@ const EditShopRegistration = () => {
                                     onClick={() => setActiveSection('items')}
                                     disabled={!formData.shopName || !formData.phone || !formData.phonePeNumber || !formData.address.address}
                                 >
-                                    Next: {selectedCategory === 'hotel' ? 'Rooms' : 'Items'}
-                                    {selectedCategory === 'hotel' ? <FaHotel /> : <FaBoxes />}
+                                    Next: Menu Items <MdLocalDining />
                                 </button>
                             </div>
                         </div>
 
-                        {/* Items/Rooms Section */}
+                        {/* Menu Items Section */}
                         <div className={`hr-section ${activeSection !== 'items' ? 'hr-hidden' : ''}`}>
                             <h2 className="hr-section-title">
-                                {selectedCategory === 'hotel' ? (
-                                    <FaHotel className="hr-section-icon" />
-                                ) : (
-                                    <FaBoxes className="hr-section-icon" />
-                                )}
-                                {selectedCategory === 'hotel' ? 'Room Details' : 'Item Details'}
+                                <MdLocalDining className="hr-section-icon" />
+                                Menu Items
                             </h2>
 
-                            {selectedCategory === 'hotel' ? (
-                                <>
-                                    {(formData.rooms || []).map((room, index) => (
-                                        <div key={index} className="hr-item-form">
-                                            <h3 className="hr-item-title">Room {index + 1}</h3>
+                            {(formData.items || []).map((item, index) => (
+                                <div key={index} className="hr-item-form">
+                                    <h3 className="hr-item-title">Menu Item {index + 1}</h3>
 
-                                            <div className="hr-form-grid">
-                                                <div className="hr-form-group">
-                                                    <label className="hr-label">Room Type</label>
-                                                    <select
-                                                        value={room.type}
-                                                        onChange={(e) => handleRoomChange(index, 'type', e.target.value)}
-                                                        className="hr-select"
-                                                    >
-                                                        <option value="single">Single</option>
-                                                        <option value="double">Double</option>
-                                                        <option value="suite">Suite</option>
-                                                    </select>
-                                                </div>
+                                    <div className="hr-form-grid">
+                                        <div className="hr-form-group">
+                                            <label className="hr-label">Dish Name</label>
+                                            <input
+                                                type="text"
+                                                value={item.name}
+                                                onChange={(e) => handleItemChange(index, 'name', e.target.value)}
+                                                className="hr-input"
+                                                required
+                                            />
+                                        </div>
 
-                                                <div className="hr-form-group">
-                                                    <label className="hr-label">Price Per Night</label>
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        value={room.pricePerNight}
-                                                        onChange={(e) => handleRoomChange(index, 'pricePerNight', e.target.value)}
-                                                        className="hr-input"
-                                                        required
-                                                    />
-                                                </div>
+                                        <div className="hr-form-group">
+                                            <label className="hr-label">Price (₹)</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={item.price}
+                                                onChange={(e) => handleItemChange(index, 'price', e.target.value)}
+                                                className="hr-input"
+                                                required
+                                            />
+                                        </div>
 
-                                                <div className="hr-form-group hr-full-width">
-                                                    <label className="hr-label">Amenities (comma separated)</label>
-                                                    <input
-                                                        type="text"
-                                                        value={room.amenities?.join(', ') || ''}
-                                                        onChange={(e) => handleRoomChange(index, 'amenities', e.target.value)}
-                                                        className="hr-input"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="hr-item-actions">
-                                                {index > 0 && (
-                                                    <button
-                                                        type="button"
-                                                        className="hr-btn hr-btn-remove"
-                                                        onClick={() => removeRoom(index)}
-                                                    >
-                                                        <FaTrash /> Remove Room
-                                                    </button>
-                                                )}
+                                        <div className="hr-form-group">
+                                            <label className="hr-label">Type</label>
+                                            <div className="hr-veg-toggle-container">
+                                                <button
+                                                    type="button"
+                                                    className={`hr-veg-toggle ${item.veg ? 'active' : ''}`}
+                                                    onClick={() => handleItemChange(index, 'veg', !item.veg)}
+                                                >
+                                                    {item.veg ? 'Vegetarian' : 'Non-Vegetarian'}
+                                                </button>
                                             </div>
                                         </div>
-                                    ))}
 
-                                    <button
-                                        type="button"
-                                        className="hr-btn hr-btn-add"
-                                        onClick={addRoom}
-                                    >
-                                        <FaPlus /> Add Another Room
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    {(formData.items || []).map((item, index) => (
-                                        <div key={index} className="hr-item-form">
-                                            <h3 className="hr-item-title">Item {index + 1}</h3>
+                                        <div className="hr-form-group">
+                                            <label className="hr-label">Category</label>
+                                            <select
+                                                value={item.category}
+                                                onChange={(e) => handleItemChange(index, 'category', e.target.value)}
+                                                className="hr-select"
+                                            >
+                                                {foodCategories.map(cat => (
+                                                    <option key={cat.toLowerCase()} value={cat.toLowerCase()}>
+                                                        {cat}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
 
-                                            <div className="hr-form-grid">
-                                                {renderItemFields(item, index)}
-                                            </div>
+                                        <div className="hr-form-group hr-full-width">
+                                            <label className="hr-label">Description</label>
+                                            <input
+                                                type="text"
+                                                value={item.description || ''}
+                                                onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                                                className="hr-input"
+                                                placeholder="Short description of the dish"
+                                            />
+                                        </div>
+                                    </div>
 
-                                            {/* Item Image Upload */}
-                                            <div className="hr-form-group hr-full-width">
-                                                <label className="hr-label">
-                                                    <FaImage className="hr-input-icon" />
-                                                    Item Image <span className="hr-required">*</span>
-                                                </label>
-                                                {item.imageUrl ? (
-                                                    <div className="hr-existing-image-container">
-                                                        <div className="hr-image-preview">
-                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                                <FaFileImage style={{ color: '#6b73ff', flexShrink: 0 }} />
-                                                                <span className="hr-image-name" title={item.imageUrl}>
-                                                                    Existing Image
-                                                                </span>
-                                                            </div>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    const updatedItems = [...formData.items];
-                                                                    updatedItems[index].imageUrl = undefined;
-                                                                    setFormData({ ...formData, items: updatedItems });
-                                                                    removeExistingItemImage(index);
-                                                                }}
-                                                                className="hr-btn-remove-image"
-                                                                aria-label="Remove image"
-                                                            >
-                                                                <FaTimes />
-                                                            </button>
-                                                        </div>
-                                                        <p className="hr-image-note">Upload new image below to replace</p>
-                                                    </div>
-                                                ) : null}
-                                                <div className="hr-file-upload-container">
-                                                    <label className="hr-file-upload-label">
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            onChange={(e) => {
-                                                                if (e.target.files && e.target.files[0]) {
-                                                                    handleItemImageUpload(index, e.target.files[0]);
-                                                                }
-                                                            }}
-                                                            className="hr-file-input"
-                                                        />
-                                                        <span className="hr-file-upload-text">
-                                                            {item.image
-                                                                ? item.image.name
-                                                                : 'No file selected'}
+                                    {/* Item Image Upload */}
+                                    <div className="hr-form-group hr-full-width">
+                                        <label className="hr-label">
+                                            <FaImage className="hr-input-icon" />
+                                            Dish Image <span className="hr-required">*</span>
+                                        </label>
+                                        {item.imageUrl ? (
+                                            <div className="hr-existing-image-container">
+                                                <div className="hr-image-preview">
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <FaFileImage style={{ color: '#6b73ff', flexShrink: 0 }} />
+                                                        <span className="hr-image-name" title={item.imageUrl}>
+                                                            Existing Image
                                                         </span>
-                                                        <span className="hr-file-upload-button">
-                                                            <FaUpload style={{ marginRight: '8px' }} /> Browse
-                                                        </span>
-                                                    </label>
-                                                </div>
-                                                {item?.image && (
-                                                    <div className="hr-image-preview">
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                            <FaFileImage style={{ color: '#6b73ff', flexShrink: 0 }} />
-                                                            <span className="hr-image-name" title={item.image?.name || ''}>
-                                                                {item.image?.name && item.image.name.length > 20
-                                                                    ? `${item.image.name.substring(0, 15)}...${item.image.name.split('.').pop()}`
-                                                                    : item.image?.name || ''}
-                                                            </span>
-                                                        </div>
-                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                            {item.image?.size && (
-                                                                <span style={{ fontSize: '0.8rem', color: '#718096' }}>
-                                                                    {(item.image.size / 1024 / 1024).toFixed(2)}MB
-                                                                </span>
-                                                            )}
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    const updatedItems = [...(formData.items || [])];
-                                                                    if (updatedItems[index]) {
-                                                                        updatedItems[index].image = null;
-                                                                        setFormData({ ...formData, items: updatedItems });
-                                                                    }
-                                                                }}
-                                                                className="hr-btn-remove-image"
-                                                                aria-label="Remove image"
-                                                            >
-                                                                <FaTimes />
-                                                            </button>
-                                                        </div>
                                                     </div>
-                                                )}
-                                            </div>
-
-                                            <div className="hr-item-actions">
-                                                {index > 0 && (
                                                     <button
                                                         type="button"
-                                                        className="hr-btn hr-btn-remove"
-                                                        onClick={() => removeItem(index)}
+                                                        onClick={() => {
+                                                            const updatedItems = [...formData.items];
+                                                            updatedItems[index].imageUrl = undefined;
+                                                            setFormData({ ...formData, items: updatedItems });
+                                                            removeExistingItemImage(index);
+                                                        }}
+                                                        className="hr-btn-remove-image"
+                                                        aria-label="Remove image"
                                                     >
-                                                        <FaTrash /> Remove Item
+                                                        <FaTimes />
                                                     </button>
-                                                )}
+                                                </div>
+                                                <p className="hr-image-note">Upload new image below to replace</p>
                                             </div>
+                                        ) : null}
+                                        <div className="hr-file-upload-container">
+                                            <label className="hr-file-upload-label">
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        if (e.target.files && e.target.files[0]) {
+                                                            handleItemImageUpload(index, e.target.files[0]);
+                                                        }
+                                                    }}
+                                                    className="hr-file-input"
+                                                />
+                                                <span className="hr-file-upload-text">
+                                                    {item.image
+                                                        ? item.image.name
+                                                        : 'No file selected'}
+                                                </span>
+                                                <span className="hr-file-upload-button">
+                                                    <FaUpload style={{ marginRight: '8px' }} /> Browse
+                                                </span>
+                                            </label>
                                         </div>
-                                    ))}
+                                        {item?.image && (
+                                            <div className="hr-image-preview">
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <FaFileImage style={{ color: '#6b73ff', flexShrink: 0 }} />
+                                                    <span className="hr-image-name" title={item.image?.name || ''}>
+                                                        {item.image?.name && item.image.name.length > 20
+                                                            ? `${item.image.name.substring(0, 15)}...${item.image.name.split('.').pop()}`
+                                                            : item.image?.name || ''}
+                                                    </span>
+                                                </div>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    {item.image?.size && (
+                                                        <span style={{ fontSize: '0.8rem', color: '#718096' }}>
+                                                            {(item.image.size / 1024 / 1024).toFixed(2)}MB
+                                                        </span>
+                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const updatedItems = [...(formData.items || [])];
+                                                            if (updatedItems[index]) {
+                                                                updatedItems[index].image = null;
+                                                                setFormData({ ...formData, items: updatedItems });
+                                                            }
+                                                        }}
+                                                        className="hr-btn-remove-image"
+                                                        aria-label="Remove image"
+                                                    >
+                                                        <FaTimes />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
 
-                                    <button
-                                        type="button"
-                                        className="hr-btn hr-btn-add"
-                                        onClick={addItem}
-                                    >
-                                        <FaPlus /> Add Another Item
-                                    </button>
-                                </>
-                            )}
+                                    <div className="hr-item-actions">
+                                        {index > 0 && (
+                                            <button
+                                                type="button"
+                                                className="hr-btn hr-btn-remove"
+                                                onClick={() => removeItem(index)}
+                                            >
+                                                <FaTrash /> Remove Item
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+
+                            <button
+                                type="button"
+                                className="hr-btn hr-btn-add"
+                                onClick={addItem}
+                            >
+                                <FaPlus /> Add Menu Item
+                            </button>
 
                             <div className="hr-section-actions">
                                 <button
@@ -1003,9 +890,8 @@ const EditShopRegistration = () => {
                                     className="hr-btn hr-btn-next"
                                     onClick={() => setActiveSection('images')}
                                     disabled={
-                                        selectedCategory === 'hotel'
-                                            ? (formData.rooms || []).length === 0
-                                            : (formData.items || []).length === 0 || (formData.items || []).some(item => !item.image && !item.imageUrl)
+                                        (formData.items || []).length === 0 ||
+                                        (formData.items || []).some(item => !item.image && !item.imageUrl)
                                     }
                                 >
                                     Next: Images <FaImage />
@@ -1017,15 +903,15 @@ const EditShopRegistration = () => {
                         <div className={`hr-section ${activeSection !== 'images' ? 'hr-hidden' : ''}`}>
                             <h2 className="hr-section-title">
                                 <FaImage className="hr-section-icon" />
-                                Shop Images
+                                Restaurant Images
                             </h2>
 
                             <div className="hr-file-upload-group">
                                 <label className="hr-label">
                                     <FaImages className="hr-input-icon" />
-                                    Shop Images (up to 5)
+                                    Restaurant Images (up to 5)
                                 </label>
-                                <p className="hr-upload-hint">Upload high-quality images of your shop (JPG or PNG, max 5MB each)</p>
+                                <p className="hr-upload-hint">Upload high-quality images of your restaurant (JPG or PNG, max 5MB each)</p>
 
                                 {/* Existing Images */}
                                 {existingShopImages.length > 0 && (
@@ -1151,7 +1037,7 @@ const EditShopRegistration = () => {
                                     </h3>
                                     <div className="hr-review-grid">
                                         <div className="hr-review-item">
-                                            <span className="hr-review-label">Shop Name:</span>
+                                            <span className="hr-review-label">Restaurant Name:</span>
                                             <span className="hr-review-value">{formData.shopName}</span>
                                         </div>
                                         <div className="hr-review-item">
@@ -1172,28 +1058,12 @@ const EditShopRegistration = () => {
                                                 {formData.openingTime} - {formData.closingTime}
                                             </span>
                                         </div>
-                                        {selectedCategory === 'medical' && (
-                                            <div className="hr-review-item">
-                                                <span className="hr-review-label">Has Pharmacy:</span>
-                                                <span className="hr-review-value">{formData.hasPharmacy ? 'Yes' : 'No'}</span>
-                                            </div>
-                                        )}
-                                        {selectedCategory === 'hotel' && (
-                                            <>
-                                                <div className="hr-review-item">
-                                                    <span className="hr-review-label">Has Restaurant:</span>
-                                                    <span className="hr-review-value">{formData.hasRestaurant ? 'Yes' : 'No'}</span>
-                                                </div>
-                                                {formData.hasRestaurant && (
-                                                    <div className="hr-review-item hr-full-width">
-                                                        <span className="hr-review-label">Cuisine Types:</span>
-                                                        <span className="hr-review-value">
-                                                            {formData.cuisineTypes.join(', ') || 'None'}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </>
-                                        )}
+                                        <div className="hr-review-item hr-full-width">
+                                            <span className="hr-review-label">Cuisine Types:</span>
+                                            <span className="hr-review-value">
+                                                {formData.cuisineTypes.join(', ') || 'None'}
+                                            </span>
+                                        </div>
                                         <div className="hr-review-item hr-full-width">
                                             <span className="hr-review-label">Address:</span>
                                             <span className="hr-review-value">{formData.address.address}</span>
@@ -1203,54 +1073,26 @@ const EditShopRegistration = () => {
 
                                 <div className="hr-review-section">
                                     <h3 className="hr-review-subtitle">
-                                        {selectedCategory === 'hotel' ? (
-                                            <FaHotel className="hr-review-icon" />
-                                        ) : (
-                                            <FaBoxes className="hr-review-icon" />
-                                        )}
-                                        {selectedCategory === 'hotel'
-                                            ? `Rooms (${(formData.rooms || []).length})`
-                                            : `Items (${(formData.items || []).length})`}
+                                        <MdLocalDining className="hr-review-icon" />
+                                        Menu Items ({(formData.items || []).length})
                                     </h3>
                                     <div className="hr-review-items">
-                                        {selectedCategory === 'hotel' ? (
-                                            <>
-                                                {(formData.rooms || []).slice(0, 3).map((room, index) => (
-                                                    <div key={index} className="hr-review-item-detail">
-                                                        <span className="hr-item-name">{room.type} Room</span>
-                                                        <span className="hr-item-price">₹{room.pricePerNight}/night</span>
-                                                    </div>
-                                                ))}
-                                                {(formData.rooms || []).length > 3 && (
-                                                    <div className="hr-review-more-items">
-                                                        + {(formData.rooms || []).length - 3} more rooms
-                                                    </div>
+                                        {(formData.items || []).slice(0, 3).map((item, index) => (
+                                            <div key={index} className="hr-review-item-detail">
+                                                <span className="hr-item-name">{item.name}</span>
+                                                <span className="hr-item-price">₹{item.price}</span>
+                                                <span className={`hr-item-tag ${item.veg ? 'veg' : 'nonveg'}`}>
+                                                    {item.veg ? 'Veg' : 'Non-Veg'}
+                                                </span>
+                                                {item.category && (
+                                                    <span className="hr-item-category">({item.category})</span>
                                                 )}
-                                            </>
-                                        ) : (
-                                            <>
-                                                {(formData.items || []).slice(0, 3).map((item, index) => (
-                                                    <div key={index} className="hr-review-item-detail">
-                                                        <span className="hr-item-name">{item.name}</span>
-                                                        <span className="hr-item-price">₹{item.price}</span>
-                                                        {selectedCategory === 'vegetable' && item.organic && (
-                                                            <span className="hr-item-tag">
-                                                                <FaLeaf /> Organic
-                                                            </span>
-                                                        )}
-                                                        {selectedCategory === 'medical' && item.prescriptionRequired && (
-                                                            <span className="hr-item-tag">
-                                                                <FaPrescriptionBottleAlt /> Prescription
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                                {(formData.items || []).length > 3 && (
-                                                    <div className="hr-review-more-items">
-                                                        + {(formData.items || []).length - 3} more items
-                                                    </div>
-                                                )}
-                                            </>
+                                            </div>
+                                        ))}
+                                        {(formData.items || []).length > 3 && (
+                                            <div className="hr-review-more-items">
+                                                + {(formData.items || []).length - 3} more items
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -1301,7 +1143,7 @@ const EditShopRegistration = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <FaCheck /> Update Shop
+                                            <FaCheck /> Update Restaurant
                                         </>
                                     )}
                                 </button>

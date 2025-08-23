@@ -5,7 +5,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { FaApple } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
 import PhoneInput from 'react-phone-input-2';
-import { signInWithCustomToken, signInWithPopup} from 'firebase/auth';
+import { signInWithCustomToken, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 import 'react-phone-input-2/lib/style.css';
 import '../../styles/HeroSection.css';
@@ -24,7 +24,8 @@ const HeroSection = () => {
   const [otpResendTime, setOtpResendTime] = useState(0);
   const { user, message, setMessage } = useAuth();
   const [showWelcomeMessage, setShowWelcomeMessage] = useState(true);
-
+  const [referralCode, setReferralCode] = useState('');
+  const [showReferralField, setShowReferralField] = useState(false);
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
 
   const TEST_PHONE = "+911234567890";
@@ -97,12 +98,12 @@ const HeroSection = () => {
       return;
     }
 
-     if (phoneNumber === TEST_PHONE) {
-    setMessage({ text: `OTP sent to ${phoneNumber} (Test Mode)`, isError: false });
-    setShowOtpComponent(true);
-    startResendTimer();
-    return;
-  }
+    if (phoneNumber === TEST_PHONE) {
+      setMessage({ text: `OTP sent to ${phoneNumber} (Test Mode)`, isError: false });
+      setShowOtpComponent(true);
+      startResendTimer();
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -139,21 +140,23 @@ const HeroSection = () => {
       setMessage({ text: 'Please enter a 6-digit code', isError: true });
       return;
     }
-
+console.log('Verifying OTP:', otp, 'for phoneNumber:', phoneNumber, 'with referralCode:', referralCode);
     try {
       setIsLoading(true);
       const data = await handleApiRequest(`https://jio-yatri-user.onrender.com/api/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-        phoneNumber, 
-        otp: phoneNumber === TEST_PHONE ? TEST_OTP : otp 
-      }),
+        body: JSON.stringify({
+          phoneNumber,
+          otp: phoneNumber === TEST_PHONE ? TEST_OTP : otp,
+          referralCode: referralCode || undefined
+        }),
       });
 
       await signInWithCustomToken(auth, data.token);
       setMessage({ text: 'Verification successful!', isError: false });
       setShowOtpComponent(false);
+      setReferralCode('');
     } catch (error) {
       setMessage({
         text: error.message || 'OTP verification failed',
@@ -169,40 +172,68 @@ const HeroSection = () => {
     await sendCode();
   };
 
- const isWebView = () => {
-  const ua = navigator.userAgent || navigator.vendor || window.opera;
-  return /wv|WebView|iPhone|iPod|iPad|Android.*Version\/[\d.]+.*Chrome/.test(ua);
-};
+  const isWebView = () => {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    return /wv|WebView|iPhone|iPod|iPad|Android.*Version\/[\d.]+.*Chrome/.test(ua);
+  };
 
- const signInWithGoogle = async () => {
+  const signInWithGoogle = async () => {
     if (isWebView()) {
-    // Set flag for app context
-    sessionStorage.setItem('fromApp', 'true');
-    
-    // Android native bridge
-    if (window.AndroidApp?.openBrowser) {
-      window.AndroidApp.openBrowser(`${window.location.origin}/google-login?source=app`);
-    } else {
-      // Fallback for WebView without bridge
-      window.location.href = `${window.location.origin}/google-login?source=app`;
-    }
-    return;
-  }
+      // Set flag for app context
+      sessionStorage.setItem('fromApp', 'true');
 
-  try {
-    setIsLoading(true);
-    const result = await signInWithPopup(auth, googleProvider);
-    setMessage({ text: 'Google sign-in successful!', isError: false });
-  } catch (error) {
-    setMessage({
-      text: `Google sign-in failed: ${error.message}`,
-      isError: true
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
- 
+      // Android native bridge
+      if (window.AndroidApp?.openBrowser) {
+        window.AndroidApp.openBrowser(`${window.location.origin}/google-login?source=app`);
+      } else {
+        // Fallback for WebView without bridge
+        window.location.href = `${window.location.origin}/google-login?source=app`;
+      }
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const result = await signInWithPopup(auth, googleProvider);
+
+      if (referralCode) {
+        console.log('Applying referral code:', referralCode);
+        try {
+          const token = await result.user.getIdToken();
+          console.log('User token:', token);
+          
+          const referralResponse = await handleApiRequest(
+            `https://jio-yatri-user.onrender.com/api/users/apply-referral`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ referralCode }),
+            }
+          );
+          
+          console.log('Referral application response:', referralResponse);
+        } catch (referralError) {
+          console.error('Referral application failed:', referralError);
+          throw referralError;
+        }
+      } else {
+        console.log('No referral code provided');
+      }
+      setMessage({ text: 'Google sign-in successful!', isError: false });
+      setReferralCode('');
+    } catch (error) {
+      setMessage({
+        text: `Google sign-in failed: ${error.message}`,
+        isError: true
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <section className="hero-section" id="hero">
@@ -260,6 +291,46 @@ const HeroSection = () => {
               >
                 {isLoading ? 'Sending...' : 'Send Verification Code'}
               </button>
+
+              <div className="referral-toggle" onClick={() => setShowReferralField(!showReferralField)}>
+                {showReferralField ? 'Hide referral code' : 'Have a referral code?'}
+              </div>
+              {showReferralField && (
+                <div className="form-group">
+                  <input
+                    type="text"
+                    placeholder="Enter referral code (optional)"
+                    value={referralCode}
+                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                    className="referral-input"
+                    maxLength="10"
+                  />
+                </div>
+              )}
+
+
+
+              {/* <div className="divider">or</div> */}
+
+              {/* <div className="social-buttons">
+                <button
+                  type="button"
+                  className="google-btn"
+                  onClick={signInWithGoogle}
+                  disabled={isLoading}
+                >
+                  <FcGoogle className="social-icon" />
+                  <span>{isLoading ? 'Signing in...' : 'Continue with Google'}</span>
+                </button>
+                <button type="button" className="apple-btn" disabled={isLoading}>
+                  <FaApple className="social-icon" size={20} />
+                  <span>Continue with Apple</span>
+                </button>
+                <button type="button" className="email-btn" disabled={isLoading}>
+                  <MdEmail className="social-icon" size={20} />
+                  <span>Continue with Email</span>
+                </button>
+              </div> */}
             </form>
           ) : showWelcomeMessage ? (
             <div className="welcome-message">

@@ -734,3 +734,103 @@
 .hr-loading-container button:hover {
   background-color: #2980b9;
 }
+/* Veg/Non-Veg Toggle Styles */
+.hr-veg-toggle-container {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.hr-veg-toggle {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f5f5f5;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+  width: 100%;
+  text-align: center;
+}
+
+.hr-veg-toggle.active {
+  background: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}
+
+.hr-veg-toggle:not(.active) {
+  background: #F44336;
+  color: white;
+  border-color: #F44336;
+}
+
+/* Category Dropdown Styles */
+.hr-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  color: #333;
+  transition: border-color 0.3s;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+.hr-select:focus {
+  outline: none;
+  border-color: #6b73ff;
+  box-shadow: 0 0 0 2px rgba(107, 115, 255, 0.2);
+}
+
+/* Dropdown Options Styling */
+.hr-select option {
+  padding: 8px;
+  background: white;
+  color: #333;
+}
+
+/* Badge Styles for Review Section */
+.hr-veg-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.hr-veg-badge.veg {
+  background: #4CAF50;
+  color: white;
+}
+
+.hr-veg-badge.nonveg {
+  background: #F44336;
+  color: white;
+}
+
+.hr-item-category {
+  font-size: 0.8em;
+  color: #666;
+  margin-left: 8px;
+  font-style: italic;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hr-veg-toggle {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .hr-select {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}

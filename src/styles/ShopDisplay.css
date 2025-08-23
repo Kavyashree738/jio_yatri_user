@@ -229,3 +229,22 @@
 .sd-shop-card {
     position: relative; /* Needed for absolute positioning of edit button */
 }
+.sd-shop-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.sd-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #34495e;
+}
+
+.sd-icon {
+  color: #3498db;
+}

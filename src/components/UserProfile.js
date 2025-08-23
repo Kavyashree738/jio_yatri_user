@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { FaUser, FaPhone, FaEnvelope, FaSignOutAlt, FaEdit, FaCamera } from 'react-icons/fa';
+import { FaUser, FaPhone, FaEnvelope, FaSignOutAlt, FaEdit, FaCamera, FaShareAlt } from 'react-icons/fa';
 import '../styles/UserProfile.css';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
@@ -8,85 +8,240 @@ import Header from '../components/pages/Header';
 import Footer from '../components/pages/Footer';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = 'https://jio-yatri-user.onrender.com/api/users';
+const DEBUG = true;
+
 const UserProfile = () => {
   const { user, setMessage } = useAuth();
+  const navigate = useNavigate();
+
+  // State
+  const [dbUser, setDbUser] = useState(null);
   const [uploadedPhoto, setUploadedPhoto] = useState(null);
   const [manualName, setManualName] = useState('');
   const [manualEmail, setManualEmail] = useState('');
   const [manualPhone, setManualPhone] = useState('');
-  const [editingProfile, setEditingProfile] = useState(false);
-  const navigate = useNavigate();
+  const [showTicker, setShowTicker] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const loadedRef = useRef(false);
 
-  useEffect(() => {
-    setUploadedPhoto(localStorage.getItem('uploadedPhoto'));
-    setManualName(localStorage.getItem('manualName') || '');
-    setManualEmail(localStorage.getItem('manualEmail') || '');
-    setManualPhone(localStorage.getItem('manualPhone') || '');
-  }, []);
+  // Provider detection
+  const providerInfo = useMemo(() => {
+    if (!user) return { type: 'unknown', ids: [] };
+    const ids = user.providerData.map(p => p.providerId);
+    return {
+      type: ids.includes('phone') ? 'phone' :
+        ids.includes('google.com') ? 'google' :
+          (ids.includes('password') || ids.includes('apple.com')) ? 'email' :
+            'unknown',
+      ids,
+      isPhone: ids.includes('phone'),
+      isGoogle: ids.includes('google.com'),
+      isEmailPw: ids.includes('password') || ids.includes('apple.com'),
+    };
+  }, [user]);
 
+  // Resolved values
+  const resolvedName = manualName || dbUser?.name || user?.displayName || '';
+  const resolvedEmail = manualEmail || dbUser?.email || user?.email || '';
+  const resolvedPhone = manualPhone || dbUser?.phone || user?.phoneNumber || '';
+  const resolvedPhoto = (() => {
+    if (uploadedPhoto) return uploadedPhoto;
+    if (dbUser?.photo) return dbUser.photo;
+    if (user?.photoURL) return user.photoURL;
+    return null;
+  })();
+
+  // Get user initials for default avatar
+  const getUserInitials = () => {
+    if (!resolvedName) return '';
+    return resolvedName.split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  // API calls
+  const apiCreateOrUpdate = async (payload) => {
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      return await res.json();
+    } catch (err) {
+      console.error('API Error:', err);
+      return null;
+    }
+  };
+
+  const apiGetUser = async (uid) => {
+    try {
+      const res = await fetch(`${API_URL}/${uid}`);
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (err) {
+      console.error('API Error:', err);
+      return null;
+    }
+  };
+
+  // Handlers
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setUploadedPhoto(reader.result);
-      localStorage.setItem('uploadedPhoto', reader.result);
+    reader.onloadend = async () => {
+      const newPhoto = reader.result;
+      setUploadedPhoto(newPhoto);
+
+      if (user) {
+        const payload = {
+          uid: user.uid,
+          name: resolvedName,
+          email: resolvedEmail,
+          phone: resolvedPhone,
+          photo: newPhoto,
+        };
+        const result = await apiCreateOrUpdate(payload);
+        if (result?.user) setDbUser(result.user);
+        setMessage?.({ text: 'Profile photo updated!', isError: false });
+      }
     };
     reader.readAsDataURL(file);
   };
 
-  const handleProfileSubmit = (e) => {
+  const handleProfileSubmit = async (e) => {
     e.preventDefault();
-    localStorage.setItem('manualName', manualName);
-    localStorage.setItem('manualEmail', manualEmail);
-    localStorage.setItem('manualPhone', manualPhone);
-    setEditingProfile(false);
-    setMessage({ text: 'Profile updated successfully!', isError: false });
+    if (!user) return;
+    
+    const payload = {
+      uid: user.uid,
+      name: manualName || user.displayName || '',
+      email: manualEmail || user.email || '',
+      phone: manualPhone || user.phoneNumber || '',
+      photo: uploadedPhoto || user.photoURL || '',
+    };
+    
+    const result = await apiCreateOrUpdate(payload);
+    if (result?.user) setDbUser(result.user);
+    setShowForm(false);
+    setMessage?.({ text: 'Profile updated!', isError: false });
+  };
+
+  const beginEdit = () => {
+    setManualName(resolvedName);
+    setManualEmail(resolvedEmail);
+    setManualPhone(resolvedPhone);
+    setShowForm(true);
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    setManualName(dbUser?.name || user?.displayName || '');
+    setManualEmail(dbUser?.email || user?.email || '');
+    setManualPhone(dbUser?.phone || user?.phoneNumber || '');
+    setUploadedPhoto(dbUser?.photo || user?.photoURL || null);
   };
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
       navigate('/home');
-    } catch (error) {
-      setMessage({ text: 'Logout failed: ' + error.message, isError: true });
+    } catch (err) {
+      setMessage?.({ text: `Logout failed: ${err.message}`, isError: true });
     }
   };
 
-  if (!user) return <div className="user-profile-modern-container">Not logged in</div>;
+  // in component top or inside useEffect when user changes
+useEffect(() => {
+  console.log('AUTH user:', user);
+  console.log('user.photoURL:', user?.photoURL);
+  console.log('dbUser.photo:', dbUser?.photo);
+}, [user, dbUser]);
 
-  const isPhoneLogin = user.providerData.some(
-    (provider) => provider.providerId === 'phone'
-  );
-  const isEmailLogin = user.providerData.some(
-    (provider) =>
-      provider.providerId === 'password' ||
-      provider.providerId === 'google.com' ||
-      provider.providerId === 'apple.com'
-  );
 
-  const shouldAskManualProfile =
-    (isPhoneLogin && (!manualName || !manualEmail)) ||
-    (isEmailLogin && !user.phoneNumber && !manualPhone) ||
-    editingProfile;
+  // Effects
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowTicker(prev => !prev);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!user || loadedRef.current) return;
+    loadedRef.current = true;
+
+    const loadUserData = async () => {
+      setLoading(true);
+      const existing = await apiGetUser(user.uid);
+
+      if (existing) {
+        setDbUser(existing);
+        setManualName(existing.name || user.displayName || '');
+        setManualEmail(existing.email || user.email || '');
+        setManualPhone(existing.phone || user.phoneNumber || '');
+        setUploadedPhoto(existing.photo || user.photoURL || null);
+
+        const missingPhoneForGoogle = providerInfo.isGoogle && !(existing.phone || user.phoneNumber);
+        const missingNameOrEmailForPhone = providerInfo.isPhone && !(existing.name && existing.email);
+        setShowForm(missingPhoneForGoogle || missingNameOrEmailForPhone);
+      } else {
+        const payload = {
+          uid: user.uid,
+          name: user.displayName || '',
+          email: user.email || '',
+          phone: user.phoneNumber || '',
+          photo: user.photoURL || '',
+        };
+        const created = await apiCreateOrUpdate(payload);
+        setDbUser(created?.user || created || null);
+        setManualName(payload.name);
+        setManualEmail(payload.email);
+        setManualPhone(payload.phone);
+        setUploadedPhoto(payload.photo || null);
+        setShowForm(providerInfo.isGoogle ? !payload.phone : !(payload.name && payload.email));
+      }
+
+      setLoading(false);
+    };
+
+    loadUserData();
+  }, [user, providerInfo]);
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="user-profile-modern-container">Loading profile...</div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
       <Header />
       <div className="user-profile-modern-container">
         <div className="user-profile-modern-card">
-          <div className="user-profile-modern-bg"></div>
-          
           <div className="user-profile-modern-content">
+            {/* Avatar Section */}
             <div className="user-profile-modern-header">
               <div className="user-profile-modern-avatar-container">
-                {uploadedPhoto ? (
-                  <img src={uploadedPhoto} alt="Profile" className="user-profile-modern-avatar" />
-                ) : user.photoURL ? (
-                  <img src={user.photoURL} alt="Profile" className="user-profile-modern-avatar" />
+                {resolvedPhoto ? (
+                  <img
+                    src={resolvedPhoto}
+                    alt="Profile"
+                    className="user-profile-modern-avatar"
+                  />
                 ) : (
                   <div className="user-profile-modern-default-avatar">
-                    <FaUser />
+                    {getUserInitials() || <FaUser className="avatar-icon" />}
                   </div>
                 )}
                 <label htmlFor="upload-photo" className="user-profile-modern-avatar-upload">
@@ -102,23 +257,24 @@ const UserProfile = () => {
               </div>
 
               <h2 className="user-profile-modern-name">
-                {user.displayName || manualName || 'User'}
+                {resolvedName || 'User'}
               </h2>
-              
-              {!editingProfile && (manualName || manualPhone || manualEmail) && (
-                <button 
-                  className="user-profile-modern-edit-btn"
-                  onClick={() => setEditingProfile(true)}
-                >
+
+              {!showForm && (
+                <button className="user-profile-modern-edit-btn" onClick={beginEdit}>
                   <FaEdit /> Edit Profile
                 </button>
               )}
             </div>
 
-            {shouldAskManualProfile && (
+            {/* Edit Form */}
+            {showForm && (
               <form className="user-profile-modern-form" onSubmit={handleProfileSubmit}>
-                <h3 className="user-profile-modern-form-title">Complete Your Profile</h3>
-                {isPhoneLogin && (
+                <h3 className="user-profile-modern-form-title">
+                  {providerInfo.isPhone ? 'Complete Your Profile' : 'Update Your Profile'}
+                </h3>
+
+                {providerInfo.isPhone && (
                   <>
                     <div className="user-profile-modern-form-group">
                       <label htmlFor="name">Full Name</label>
@@ -128,7 +284,7 @@ const UserProfile = () => {
                         placeholder="Enter your name"
                         value={manualName}
                         onChange={(e) => setManualName(e.target.value)}
-                        required
+                        required={!resolvedName}
                       />
                     </div>
                     <div className="user-profile-modern-form-group">
@@ -139,12 +295,13 @@ const UserProfile = () => {
                         placeholder="Enter your email"
                         value={manualEmail}
                         onChange={(e) => setManualEmail(e.target.value)}
-                        required
+                        required={!resolvedEmail}
                       />
                     </div>
                   </>
                 )}
-                {isEmailLogin && !user.phoneNumber && (
+
+                {providerInfo.isGoogle && (
                   <div className="user-profile-modern-form-group">
                     <label htmlFor="phone">Phone Number</label>
                     <input
@@ -153,18 +310,21 @@ const UserProfile = () => {
                       placeholder="Enter your phone number"
                       value={manualPhone}
                       onChange={(e) => setManualPhone(e.target.value)}
-                      required
+                      required={!resolvedPhone}
+                      pattern="[0-9]{10}"
+                      title="10-digit phone number"
                     />
                   </div>
                 )}
+
                 <div className="user-profile-modern-form-actions">
                   <button type="submit" className="user-profile-modern-save-btn">
                     Save Changes
                   </button>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="user-profile-modern-cancel-btn"
-                    onClick={() => setEditingProfile(false)}
+                    onClick={handleCancel}
                   >
                     Cancel
                   </button>
@@ -172,73 +332,33 @@ const UserProfile = () => {
               </form>
             )}
 
+            {/* Contact Info */}
             <div className="user-profile-modern-details">
               <div className="user-profile-modern-section">
                 <h6 className="user-profile-modern-section-title">Contact Information</h6>
                 <div className="user-profile-modern-details-grid">
-                  {(user.phoneNumber || manualPhone) && (
+                  {resolvedPhone && (
                     <div className="user-profile-modern-detail-item">
                       <div className="user-profile-modern-detail-icon">
                         <FaPhone />
                       </div>
                       <div className="user-profile-modern-detail-content">
                         <span className="user-profile-modern-detail-label">Phone</span>
-                        <span className="user-profile-modern-detail-value">{user.phoneNumber || manualPhone}</span>
+                        <span className="user-profile-modern-detail-value">
+                          {resolvedPhone}
+                        </span>
                       </div>
                     </div>
                   )}
-                  {(user.email || manualEmail) && (
+                  {resolvedEmail && (
                     <div className="user-profile-modern-detail-item">
                       <div className="user-profile-modern-detail-icon">
                         <FaEnvelope />
                       </div>
                       <div className="user-profile-modern-detail-content">
                         <span className="user-profile-modern-detail-label">Email</span>
-                        <span className="user-profile-modern-detail-value">{user.email || manualEmail}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="user-profile-modern-section">
-                <h6 className="user-profile-modern-section-title">Account Information</h6>
-                <div className="user-profile-modern-details-grid">
-                  {user.metadata?.creationTime && (
-                    <div className="user-profile-modern-detail-item">
-                      <div className="user-profile-modern-detail-icon">
-                        <svg viewBox="0 0 24 24" width="24" height="24">
-                          <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,7V13H17V11H13V7H11Z" />
-                        </svg>
-                      </div>
-                      <div className="user-profile-modern-detail-content">
-                        <span className="user-profile-modern-detail-label">Member Since</span>
                         <span className="user-profile-modern-detail-value">
-                          {new Date(user.metadata.creationTime).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  {user.metadata?.lastSignInTime && (
-                    <div className="user-profile-modern-detail-item">
-                      <div className="user-profile-modern-detail-icon">
-                        <svg viewBox="0 0 24 24" width="24" height="24">
-                          <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,7V13H17V11H13V7H11Z" />
-                        </svg>
-                      </div>
-                      <div className="user-profile-modern-detail-content">
-                        <span className="user-profile-modern-detail-label">Last Login</span>
-                        <span className="user-profile-modern-detail-value">
-                          {new Date(user.metadata.lastSignInTime).toLocaleString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          {resolvedEmail}
                         </span>
                       </div>
                     </div>
@@ -246,6 +366,21 @@ const UserProfile = () => {
                 </div>
               </div>
             </div>
+
+            {/* Action Buttons */}
+            <button
+              className="user-profile-modern-share-btn"
+              onClick={() => navigate('/refferal')}
+            >
+              <FaShareAlt />
+              {showTicker ? (
+                <div className="ticker-container">
+                  <div className="ticker-text">Share & Get ₹30 Cashback</div>
+                </div>
+              ) : (
+                <span>Share</span>
+              )}
+            </button>
 
             <button className="user-profile-modern-logout-btn" onClick={handleLogout}>
               <FaSignOutAlt /> Sign Out

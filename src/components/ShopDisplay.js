@@ -40,25 +40,23 @@ const ShopDisplay = () => {
         return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
     };
 
-    // In your ShopDisplay component, add these debugging logs:
-
-useEffect(() => {
-    const fetchShops = async () => {
-        try {
-            const res = await axios.get(
-                `https://jio-yatri-user.onrender.com/api/shops/category/${category}`
-            );
-           
-            setShops(res.data.data);
-            setLoading(false);
-        } catch (err) {
-          
-            setError(err.response?.data?.error || err.message || 'Failed to fetch shops');
-            setLoading(false);
-        }
-    };
-    fetchShops();
-}, [category]);
+    useEffect(() => {
+        const fetchShops = async () => {
+            try {
+                const res = await axios.get(
+                    `https://jio-yatri-user.onrender.com/api/shops/category/${category}`
+                );
+                console.log('Fetched shops data:', res.data.data); // Debug log
+                setShops(res.data.data);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error fetching shops:', err); // Debug log
+                setError(err.response?.data?.error || err.message || 'Failed to fetch shops');
+                setLoading(false);
+            }
+        };
+        fetchShops();
+    }, [category]);
 
     const NextArrow = ({ onClick }) => (
         <div className="sd-arrow sd-next-arrow" onClick={onClick}>
@@ -97,26 +95,19 @@ useEffect(() => {
         ]
     };
 
-const openWhatsApp = (phone, shopName) => {
-  if (!phone) {
-    alert("Phone number is missing");
-    return;
-  }
+    const openWhatsApp = (phone, shopName) => {
+        if (!phone) {
+            alert("Phone number is missing");
+            return;
+        }
 
-  const rawPhone = phone.replace(/\D/g, '');
-  const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
-  const message = encodeURIComponent(
-    `Hi, I found your business "${shopName}" on JioYatri.`
-  );
-
-  const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-
-  const url = isMobile
-    ? `https://wa.me/${phoneNumber}?text=${message}` // opens WhatsApp app on mobile
-    : `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`; // opens WhatsApp Web on desktop
-
-  window.open(url, '_blank');
-};
+        const rawPhone = phone.replace(/\D/g, '');
+        const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
+        const message = encodeURIComponent(
+            `Hi, I found your business "${shopName}" on JioYatri and would like to inquire.`
+        );
+        window.open(`https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`, '_blank');
+    };
 
     const handleOrder = (shop, e) => {
         e.stopPropagation();
@@ -132,8 +123,10 @@ const openWhatsApp = (phone, shopName) => {
     const handleEditShop = (shopId, e) => {
         e.stopPropagation();
 
-
-        
+        // Debugging logs
+        // console.log("Current User UID:", user?.uid);
+        // console.log("Shop UserID:", shops.find(s => s._id === shopId)?.userId);
+        // console.log("Is owner?", user?.uid === shops.find(s => s._id === shopId)?.userId);
 
         // Verify ownership before navigating
         const shopToEdit = shops.find(s => s._id === shopId);
@@ -143,7 +136,7 @@ const openWhatsApp = (phone, shopName) => {
         }
 
         if (user?.uid !== shopToEdit.userId) {
-    
+            console.error("User doesn't own this shop");
             alert("You don't have permission to edit this shop");
             return;
         }
@@ -170,7 +163,7 @@ const openWhatsApp = (phone, shopName) => {
         <>
             <Header />
             <div className="sd-container">
-                <div className="sd-promo-banner">
+                {/* <div className="sd-promo-banner">
                     <div className="sd-promo-content">
                         <div className="sd-promo-icon">
                             {categoryInfo[category]?.icon}
@@ -186,7 +179,7 @@ const openWhatsApp = (phone, shopName) => {
                             <FaPlus /> Add Your Business
                         </button>
                     </div>
-                </div>
+                </div> */}
 
                 <div className="sd-header">
                     <h1 className="sd-title">{categoryInfo[category]?.name || 'Shops'}</h1>
@@ -203,7 +196,7 @@ const openWhatsApp = (phone, shopName) => {
                             onClick={() => handleShopClick(shop._id)}
                         >
                             {/* Add edit button for shop owner */}
-                            {user && user.uid === shop.userId && (
+                            {/* {user && user.uid === shop.userId && (
                                 <button
                                     className="sd-edit-button"
                                     onClick={(e) => handleEditShop(shop._id, e)}
@@ -211,7 +204,7 @@ const openWhatsApp = (phone, shopName) => {
                                 >
                                     <FaEdit />
                                 </button>
-                            )}
+                            )} */}
 
                             <div className="sd-shop-images-scrollable">
                                 <div className="sd-image-scroll-container">
@@ -229,11 +222,11 @@ const openWhatsApp = (phone, shopName) => {
                             <div className="sd-shop-info">
                                 <div className="sd-shop-header">
                                     <h2 className="sd-shop-name">{shop.shopName}</h2>
-                                    <div className="sd-rating">
+                                    {/* <div className="sd-rating">
                                         <FaStar className="sd-star-icon" />
                                         <span>{shop.averageRating || '4.0'}</span>
                                         <span className="sd-ratings-count">({shop.ratingCount || '100'} Ratings)</span>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 <div className="sd-shop-address">
@@ -247,6 +240,17 @@ const openWhatsApp = (phone, shopName) => {
                                         {shop.openingTime ? `Opens at ${formatTime(shop.openingTime)}` : 'Opening time not available'}
                                         {shop.closingTime && ` | Closes at ${formatTime(shop.closingTime)}`}
                                     </span>
+                                </div>
+
+                                <div className="sd-shop-stats">
+                                    <div className="sd-stat-item">
+                                        <FaStar className="sd-icon" />
+                                        <span>{shop.averageRating || 'New'}</span>
+                                    </div>
+                                    <div className="sd-stat-item">
+                                        <FaShoppingBag className="sd-icon" />
+                                        <span>{shop.items?.length || 0} items</span>
+                                    </div>
                                 </div>
 
                                 <div className="sd-shop-actions">
@@ -280,12 +284,12 @@ const openWhatsApp = (phone, shopName) => {
                                         <FaWhatsapp className="sd-icon" /> WhatsApp
                                     </button>
 
-                                    <button
+                                    {/* <button
                                         className="sd-action-btn sd-order"
                                         onClick={(e) => handleOrder(shop, e)}
                                     >
                                         <FaShoppingBag className="sd-icon" /> Order Now
-                                    </button>
+                                    </button> */}
                                 </div>
                             </div>
                         </div>

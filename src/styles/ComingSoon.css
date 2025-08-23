@@ -1,0 +1,22 @@
+.coming-soon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  text-align: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.coming-soon-title {
+  font-size: 48px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.coming-soon-message {
+  font-size: 20px;
+  color: #555;
+}

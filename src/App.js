@@ -24,37 +24,54 @@ import CategoryRegistration from './components/CategoryRegistration';
 import ShopDisplay from './components/ShopDisplay';
 import ShopDetails from './components/ShopDetails'
 import ShopOrder from './components/ShopOrder';
-import EditShopRegistration from './components/EditShopRegistration'
+import EditShopRegistration from './components/EditShopRegistration';
+// import CallOwner from './components/CallOwner';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import ReferralShare from './components/pages/ReferralShare';
+import CartProvider from './context/CartContext';
+import CartPage from './components/Cart';
+import OrderConfirmation from './components/OrderConfirmation';
+import ComingSoon from './components/pages/ComingSoon'
 function AppWrapper() {
-
   return (
-    <Routes>
-      <Route path="/" element={<SplashScreen />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/vehicle/:type" element={<VehicleDetails />} />
-      <Route path="/help-details" element={<HelpDetail />} />
-      <Route path="/enterprise" element={<Enterprise />} />
-      <Route path="/partners" element={<Delivery />} />
-      <Route path="/faq" element={<FrequentQuestions />} />
-      <Route path="/shipment" element={<ShipmentPage />} />
-      <Route path="/orders" element={<UserShipments />} />
-      <Route path="/select-address" element={<SelectAddressPage />} />
-      <Route path="/profile" element={<UserProfile />} />
-      <Route path="/google-login" element={<GoogleRedirectLogin />} />
-      <Route path="/hotel" element={<HotelRegistration />} />
-      <Route path="/hotel-display" element={<HotelsDisplay />} />
-      <Route path="/hotel/:id" element={<HotelDetails />} />
-      <Route path="/hotels/:id/edit" element={<EditHotel />} />
-      <Route path="/hotel-shipment" element={<HotelShipment />} />
-      <Route path="/register" element={<CategoryRegistration />} />
-      <Route path="/shops/:category" element={<ShopDisplay />} />
-      <Route path="/shop/:id" element={<ShopDetails />} />
-      <Route path="/shop-order/:shopId" element={<ShopOrder />} />
-     <Route path="/edit-shop/:shopId" element={<EditShopRegistration />} />
-    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-  
-    </Routes>
+    <>
+      <CartProvider>
+        <Routes>
+          <Route path="/" element={<SplashScreen />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/vehicle/:type" element={<VehicleDetails />} />
+          <Route path="/help-details" element={<HelpDetail />} />
+          <Route path="/enterprise" element={<Enterprise />} />
+          <Route path="/partners" element={<Delivery />} />
+          <Route path="/faq" element={<FrequentQuestions />} />
+          <Route path="/shipment" element={<ShipmentPage />} />
+          <Route path="/orders" element={<UserShipments />} />
+          <Route path="/select-address" element={<SelectAddressPage />} />
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/google-login" element={<GoogleRedirectLogin />} />
+          <Route path="/hotel" element={<HotelRegistration />} />
+          <Route path="/hotel-display" element={<HotelsDisplay />} />
+          <Route path="/hotel/:id" element={<HotelDetails />} />
+          <Route path="/hotels/:id/edit" element={<EditHotel />} />
+          <Route path="/hotel-shipment" element={<HotelShipment />} />
+          <Route path="/register" element={<CategoryRegistration />} />
+          <Route path="/shops/:category" element={<ShopDisplay />} />
+          <Route path="/shop/:id" element={<ShopDetails />} />
+          <Route path="/shop-order/:shopId" element={<ShopOrder />} />
+          <Route path="/edit-shop/:shopId" element={<EditShopRegistration />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/shops/hotel-book" element={<ComingSoon />} />
+          <Route path="/refferal" element={<ReferralShare />} />
+          <Route path="/cart/:shopId" element={<CartPage />} />
+           <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+        </Routes>
+      </CartProvider>
+      {/* Add CallOwner here to appear on all routes */}
+      {/* <CallOwner 
+        ownerNumber="+91 98765 43210" 
+        ownerName="Support Team"
+      /> */}
+    </>
   );
 }
 
@@ -72,3 +89,4 @@ function App() {
 }
 
 export default App;
+

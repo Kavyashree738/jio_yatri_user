@@ -199,7 +199,7 @@ const admin = require('firebase-admin');
 const crypto = require('crypto');
 const sendSms = require('../services/otpService');
 const { applyReferral } = require('./userController');
-const User = require('../models/User'); // adjust path to where your User.js model is
+const User = require('../models/User'); 
 const mongoose = require('mongoose');
 const sendOtp = async (req, res) => {
   try {

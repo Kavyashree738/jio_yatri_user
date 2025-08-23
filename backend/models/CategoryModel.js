@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 mongoose.model('shop_files.files', new mongoose.Schema({}, { strict: false }));
 mongoose.model('shop_files.chunks', new mongoose.Schema({}, { strict: false }));
 
-// 2. Base shop schema
+// 2. Base shop schema 
 const baseShopSchema = new mongoose.Schema({
   userId: { type: String, required: true },
   shopName: { type: String, required: true, trim: true },

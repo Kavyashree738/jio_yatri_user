@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSearch, FaMicrophone } from 'react-icons/fa';
+import { FaSearch, FaMicrophone, FaYoutube, FaShareAlt } from 'react-icons/fa';
 import '../../styles/SearchBar.css';
 
 const secondaryNavItems = [
@@ -16,11 +16,26 @@ const normalizeText = (text) => text.trim().toLowerCase();
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [marqueeText, setMarqueeText] = useState('Share');
+  const [marqueeActive, setMarqueeActive] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMarqueeActive(true);
+      setMarqueeText('Earn ₹30 Cashback');
+      
+      setTimeout(() => {
+        setMarqueeActive(false);
+        setMarqueeText('Share');
+      }, 3000);
+    }, 6000); // Full cycle every 6 seconds (3s each text)
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSearchNavigation = (query) => {
     const normalizedQuery = normalizeText(query);
-
     const matchedItem = secondaryNavItems.find(item =>
       item.keywords?.some(keyword => normalizeText(keyword).includes(normalizedQuery)) ||
       normalizeText(item.name).includes(normalizedQuery)
@@ -64,6 +79,14 @@ const SearchBar = () => {
     }
   };
 
+  const handleYoutubeClick = () => {
+    window.open('https://youtube.com/@ambaninewstv?si=PBGWaPOKXdjV-Oa4', '_blank');
+  };
+
+  const handleShareClick = () => {
+    navigate('/refferal');
+  };
+
   return (
     <div className="search-bar-container">
       <div className="search-input-wrapper">
@@ -83,6 +106,14 @@ const SearchBar = () => {
           <FaMicrophone />
         </button>
       </div>
+      <button className="youtube-btn" onClick={handleYoutubeClick}>
+        <FaYoutube className='youtube-icon' />
+      </button>
+      <button className="share-btn" onClick={handleShareClick}>
+        <div className={`marquee-text ${marqueeActive ? 'active' : ''}`}>
+              {marqueeText}
+            </div>
+      </button>
     </div>
   );
 };

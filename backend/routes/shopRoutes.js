@@ -45,4 +45,29 @@ router.put(
 // Delete shop
 router.delete('/:id', shopController.deleteShop);
 
+router.post('/:shopId/fcm-token', async (req, res) => {
+  try {
+    const { shopId } = req.params;
+    const { token } = req.body;
+    
+    if (!token) return res.status(400).json({ success: false, error: 'token required' });
+
+    // Only use the array approach
+    const shop = await Shop.findByIdAndUpdate(
+      shopId,
+      { $addToSet: { fcmTokens: token } },
+      { new: true }
+    ).select('_id userId shopName');
+
+    if (!shop) return res.status(404).json({ success: false, error: 'Shop not found' });
+
+    console.log(`[shop fcm] saved token for shop ${shopId}`);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('[shop fcm] error:', e);
+    res.status(500).json({ success: false, error: 'failed to save token' });
+  }
+});
+
+
 module.exports = router;

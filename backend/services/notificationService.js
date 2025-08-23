@@ -1,17 +1,18 @@
 const admin = require('firebase-admin');
 const Driver = require('../models/Driver');
-const Shop=require('../models/CategoryModel')
+const Shop = require('../models/CategoryModel')
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
   console.log('[INIT] Initializing Firebase Admin SDK...');
   admin.initializeApp({
-   credential: admin.credential.cert(serviceAccount),
+    credential: admin.credential.cert(serviceAccount),
   });
   console.log('[INIT] Firebase Admin initialized');
 } else {
   console.log('[INIT] Firebase Admin already initialized');
 }
+
 const sendToToken = async (token, { title, body, data = {} }) => {
   const message = {
     token,
@@ -53,8 +54,8 @@ const sendToManyTokens = async (tokens, payload, shopId) => {
   results.forEach((result, index) => {
     if (!result.ok) {
       const errorCode = result.err?.errorInfo?.code;
-      if (errorCode === 'messaging/invalid-registration-token' || 
-          errorCode === 'messaging/registration-token-not-registered') {
+      if (errorCode === 'messaging/invalid-registration-token' ||
+        errorCode === 'messaging/registration-token-not-registered') {
         badTokens.push(tokens[index]);
       }
     }
@@ -62,7 +63,7 @@ const sendToManyTokens = async (tokens, payload, shopId) => {
 
   if (badTokens.length > 0) {
     await Shop.updateOne(
-      { _id: shopId }, 
+      { _id: shopId },
       { $pull: { fcmTokens: { $in: badTokens } } }
     );
     console.log(`[FCM] Removed ${badTokens.length} invalid tokens`);
@@ -75,25 +76,22 @@ const sendToManyTokens = async (tokens, payload, shopId) => {
  * @param {string} body - Notification message
  * @param {object} data - Additional data (e.g., shipment details)
  */
+
+
 const sendNotificationToDriver = async (driverId, title, body, data = {}) => {
   try {
     console.log('[SEND] Looking up driver in DB:', driverId);
-
     // Fetch driver's FCM token from DB
     const driver = await Driver.findOne({ userId: driverId });
-
     if (!driver) {
       console.log('[SEND] Driver not found:', driverId);
       return;
     }
-
     if (!driver.fcmToken) {
       console.log('[SEND] No FCM token for driver:', driverId);
       return;
     }
-
     console.log('[SEND] FCM token found:', driver.fcmToken);
-
     const message = {
       notification: { title, body },
       data: {
@@ -102,11 +100,8 @@ const sendNotificationToDriver = async (driverId, title, body, data = {}) => {
       },
       token: driver.fcmToken,
     };
-
     console.log('[SEND] Sending message via FCM:', JSON.stringify(message, null, 2));
-
     const response = await admin.messaging().send(message);
-
     console.log('[SEND] Notification sent successfully. FCM Response:', response);
     return response;
   } catch (error) {
@@ -117,7 +112,6 @@ const sendNotificationToDriver = async (driverId, title, body, data = {}) => {
     throw error;
   }
 };
-
 /**
  * Notify driver when a new shipment is available
  */
@@ -128,17 +122,14 @@ const notifyNewShipment = async (driverId, shipment) => {
     id: shipment._id,
     vehicleType: shipment.vehicleType
   });
-
   const title = '🚚 New Shipment Available!';
   const body = `A ${shipment.vehicleType} shipment available. Accept it now!`;
-
   try {
     const result = await sendNotificationToDriver(driverId, title, body, {
       shipmentId: shipment._id.toString(),
       type: 'NEW_SHIPMENT',
-       icon: '/logo.jpg', // Add this line
+      icon: '/logo.jpg', // Add this line
     });
-
     console.log('[NOTIFY] Notification result:', result);
     return result;
   } catch (err) {
@@ -146,19 +137,18 @@ const notifyNewShipment = async (driverId, shipment) => {
     throw err;
   }
 };
+
 const notifyShopNewOrder = async (shopId, orderDoc) => {
   const shop = await Shop.findById(shopId).lean();
   if (!shop) return;
-
   const title = '🧾 New Order Received';
-  const body  = `${orderDoc.customer?.name || 'Customer'} placed order ${orderDoc.orderCode}`;
+  const body = `${orderDoc.customer?.name || 'Customer'} placed order ${orderDoc.orderCode}`;
   const data = {
     type: 'NEW_ORDER',
     orderId: String(orderDoc._id),
     orderCode: orderDoc.orderCode || '',
     shopId: String(shopId),
   };
-
   const tokens = Array.isArray(shop.fcmTokens) ? shop.fcmTokens.filter(Boolean) : [];
   if (tokens.length) {
     await sendToManyTokens(tokens, { title, body, data }, shopId);
@@ -172,5 +162,5 @@ const notifyShopNewOrder = async (shopId, orderDoc) => {
 module.exports = {
   sendNotificationToDriver,
   notifyNewShipment,
-  notifyShopNewOrder, 
+  notifyShopNewOrder,
 };

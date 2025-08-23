@@ -4,6 +4,7 @@
   background-color: #f9fafb;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
+  margin-top:100px;
 }
 
 /* Back Button */
@@ -47,7 +48,7 @@
 }
 .sd-current-image {
   width: 100%;
-  height: 350px;
+  height: 200px;
   object-fit: cover;
   border-radius: 0.5rem;
 }
@@ -319,3 +320,304 @@
     transform: rotate(360deg);
   }
 }
+/* ===== Food Item Specific Styles ===== */
+.sd-veg-badge {
+  position: absolute;
+  top: 0px;
+  right: 8px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: white;
+  z-index: 1;
+}
+
+.sd-veg-badge.veg {
+  background-color: #4CAF50;
+}
+
+.sd-veg-badge.nonveg {
+  background-color: #F44336;
+}
+
+.sd-food-category {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+/* Filters */
+.sd-filters-container {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.sd-filter-group {
+  margin-bottom: 10px;
+}
+
+.sd-filter-group h4 {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.sd-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sd-filter-buttons button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.sd-filter-buttons button.active {
+  background: #6b73ff;
+  color: white;
+  border-color: #6b73ff;
+}
+
+/* Product Tags */
+.sd-product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.sd-product-tag {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sd-product-tag.organic {
+  background-color: #8BC34A;
+  color: white;
+}
+
+.sd-product-tag.prescription {
+  background-color: #607D8B;
+  color: white;
+}
+
+.sd-product-tag.spice-mild {
+  background-color: #FFC107;
+  color: #333;
+}
+
+.sd-product-tag.spice-medium {
+  background-color: #FF9800;
+  color: white;
+}
+
+.sd-product-tag.spice-spicy {
+  background-color: #FF5722;
+  color: white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .sd-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .sd-details-container{
+    margin-top: 0px;
+  }
+  
+  .sd-filter-buttons {
+    gap: 6px;
+  }
+  
+  .sd-filter-buttons button {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sd-products-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .sd-filters-container {
+    padding: 10px;
+  }
+}
+/* Base tag style */
+.sd-product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.sd-product-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  line-height: 1;
+}
+
+/* Organic tag */
+.sd-product-tag.organic {
+  background: #e7f7ee;
+  color: #156f3d;
+  border-color: #bfe7cf;
+}
+
+/* Prescription required */
+.sd-product-tag.rx-yes {
+  background: #ffecee;
+  color: #9f1130;
+  border-color: #ffc9d0;
+}
+
+/* No prescription */
+.sd-product-tag.rx-no {
+  background: #eef7ff;
+  color: #0a518e;
+  border-color: #cfe6ff;
+}
+
+.sd-product-tag svg {
+  font-size: 0.95em;
+}
+/* Cart Floating Action Button */
+.sd-cart-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.sd-cart-fab:hover {
+  background-color: #ff5252;
+  transform: scale(1.1);
+}
+
+.sd-cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff0000;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Add to Cart Button */
+.sd-add-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.sd-add-btn:hover {
+  background-color: #45a049;
+}
+
+/* Card Actions Container */
+.sd-card-actions {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+/* Product Card Hover Effect */
+.sd-product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sd-cart-fab {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    top: 60px;
+    right: 20px;
+  }
+
+  .sd-cart-badge {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+
+  .sd-add-btn {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}
+.sd-product-tag { display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:12px; font-size:.8rem; }
+.sd-product-tag svg { width:14px; height:14px; }
+
+.sd-product-tag.spice-mild   { background:#e8f5e9; color:#2e7d32; }
+.sd-product-tag.spice-medium { background:#fff3e0; color:#ef6c00; }
+.sd-product-tag.spice-spicy  { background:#ffebee; color:#c62828; }
+
+
+.sd-provision-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.sd-provision-chip {
+  font-size: 12px;
+  line-height: 1;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  background: #f3f4f6; /* light gray */
+  color: #111827;      /* near-black */
+}
+
+.sd-provision-brand { font-weight: 600; }
+.sd-provision-weight { opacity: 0.85; }

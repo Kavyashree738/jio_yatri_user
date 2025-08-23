@@ -39,7 +39,7 @@
   padding-top: 10vh;
   flex-wrap: wrap;
   padding: 30px;
-  margin-top:85px;
+  /* margin-top:140px; */
 }
 
 .hero-text {
@@ -365,8 +365,7 @@
   .hero-content-wrapper {
     flex-direction: column;
     align-items: center;
-/*     padding-top: 10vh; */
-    margin-top: -10px;
+    padding-top: 5vh;
   }
 
   .hero-text {
@@ -390,7 +389,7 @@
 
   .hero-form {
     flex: 1 1 100%;
-    max-width: 90%;
+    max-width: 100%;
     padding: 20px;
     min-width: auto;
   }
@@ -492,19 +491,18 @@
 /* Responsive OTP Input Boxes */
 .otp-container {
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
+  flex-wrap: nowrap; /* Prevent wrapping */
   margin-bottom: 2rem;
 }
 
 .otp-input {
-  flex: 1;
-  min-width: 45px;
-  max-width: 60px;
-  height: 55px;
+  flex: 0 0 40px;
+  width: 30px;
+  height: 40px;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1rem;
   border: 2px solid #ddd;
   border-radius: 8px;
   outline: none;
@@ -525,9 +523,9 @@
   background-color: #4a90e2;
   color: white;
   border: none;
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   width: 100%;
@@ -589,14 +587,7 @@
   min-height: 1.2rem;
 }
 
-@media (max-width: 400px) {
-  .otp-input {
-    font-size: 1.2rem;
-    height: 48px;
-    min-width: 40px;
-  }
-}
-
+/* Welcome Message */
 .welcome-message {
   text-align: center;
   padding: 2rem;
@@ -619,6 +610,18 @@
   margin-top: 1rem;
 }
 
+/* Responsive Tweaks */
+@media (max-width: 400px) {
+  .otp-input {
+    width: 35px;
+    height: 45px;
+    font-size: 1rem;
+  }
+
+  .otp-container {
+    gap: 6px;
+  }
+}
 .post-login-image {
   width: 100%;
   max-width: 400px;
@@ -636,4 +639,176 @@
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Add these to your HeroSection.css */
+
+.auth-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 15px 0;
+  font-size: 14px;
+}
+
+.auth-message.error {
+  background: #ffeeee;
+  color: #ff4444;
+}
+
+.auth-message.success {
+  background: #eeffee;
+  color: #00aa00;
+}
+
+.message-icon {
+  font-size: 16px;
+}
+
+.try-again-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #0066cc;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+}
+
+.try-again-btn:hover {
+  color: #004499;
+}
+
+.google-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+/* Add to your HeroSection.css */
+.referral-input-group {
+  margin: 15px 0;
+  width: 100%;
+}
+
+.referral-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.referral-input:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+.referral-input::placeholder {
+  color: #999;
+}
+/* Referral Input Styles */
+.referral-input-group {
+  margin: 15px 0;
+  width: 100%;
+}
+
+.referral-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.referral-input:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+.referral-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+  text-align: right;
+}
+
+/* Referral Status Styles */
+.referral-status {
+  margin: 15px 0;
+  padding: 12px 15px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  text-align: center;
+  font-size: 14px;
+}
+
+.referral-status.success {
+  background: #e6f7ee;
+  border-color: #b7ebd0;
+  color: #1d7044;
+}
+
+.referral-bonus {
+  margin-top: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Social Buttons Disabled State */
+.social-buttons button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+/* Add to your HeroSection.css */
+.referral-input-group {
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.referral-input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.referral-input:focus {
+  border-color: #4a90e2;
+  outline: none;
+}
+
+/* Add to your HeroSection.css */
+.referral-toggle {
+  color: #4a90e2;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin: 10px 0;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.referral-toggle:hover {
+  color: #3a7bc8;
+}
+
+.referral-input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.referral-input:focus {
+  border-color: #4a90e2;
+  outline: none;
 }

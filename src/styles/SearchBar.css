@@ -131,3 +131,256 @@
     height: 2rem;
   }
 }
+/* Search Bar Container */
+.search-bar-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Search Input Wrapper */
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  flex-grow: 1;
+}
+
+.search-input-wrapper:focus-within {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #4299e1;
+}
+
+/* Search Icon */
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  color: #718096;
+  font-size: 1.1rem;
+}
+
+/* Search Input */
+.search-input-wrapper input {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 2.5rem;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  color: #2d3748;
+  outline: none;
+  background: transparent;
+}
+
+.search-input-wrapper input::placeholder {
+  color: #a0aec0;
+  opacity: 1;
+}
+
+/* Voice Search Button */
+.voice-search-btn {
+  position: absolute;
+  right: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #f7fafc;
+  border: none;
+  border-radius: 50%;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.voice-search-btn:hover {
+  background: #edf2f7;
+  color: #2d3748;
+}
+
+.voice-search-btn.listening {
+  color: #ffffff;
+  background: #e53e3e;
+  animation: pulse 1.5s infinite;
+}
+
+/* YouTube Button */
+.youtube-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background: #ff0000;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  border-radius: 10px;
+}
+.youtube-icon{
+  font-size: 2.5rem;
+  cursor: pointer;
+}
+
+.youtube-btn:hover {
+  background: #df0505;
+  transform: scale(1.05);
+}
+
+/* Pulse animation for listening state */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(229, 62, 62, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-bar-container {
+    padding: 0.8rem;
+  }
+  
+  .search-input-wrapper input {
+    padding: 0.7rem 1rem 0.7rem 2.3rem;
+    font-size: 0.9rem;
+  }
+  
+  .search-icon {
+    font-size: 1rem;
+    left: 0.8rem;
+  }
+  
+  .voice-search-btn {
+    width: 2.2rem;
+    height: 2.2rem;
+    right: 0.6rem;
+  }
+
+  .youtube-btn {
+    width: 2.7rem;
+    height: 2.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-input-wrapper input {
+    padding: 0.6rem 1rem 0.6rem 2rem;
+  }
+  
+  .search-icon {
+    font-size: 0.9rem;
+    left: 0.7rem;
+  }
+  
+  .voice-search-btn {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .youtube-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+.share-btn {
+  background: transparent;
+  /* border: none; */
+  cursor: pointer;
+  padding: 8px;
+  margin-left: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-icon {
+  color: #333;
+  font-size: 18px;
+  transition: color 0.2s;
+}
+
+.share-btn:hover .share-icon {
+  color: #ff6b6b;
+}
+/* Add to your SearchBar.css */
+
+.share-btn {
+   background: linear-gradient(135deg, #0a07ce 0%, #3620ff 100%);
+  border: none;
+  border-radius: 20px;
+  padding: 8px 12px;
+  margin-left: 5px;
+  color:white;
+  cursor: pointer;
+  width: 100px; /* Fixed width */
+  height: 36px; /* Fixed height */
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+
+
+.share-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+
+.share-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.marquee-container {
+  width: calc(100% - 24px); /* Account for icon + gap */
+  overflow: hidden;
+  position: relative;
+  height: 20px;
+}
+
+.marquee-text {
+  position: absolute;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+  transition: transform 1s ease-in-out;
+  transform: translateX(0);
+}
+
+.marquee-text.active {
+  animation: marquee 5s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
