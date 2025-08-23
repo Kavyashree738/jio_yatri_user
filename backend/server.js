@@ -99,7 +99,9 @@ mongoose.connect(process.env.MONGO_URI, {
 
 
 
-
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.json());
 // Use it in your routes
 
 app.use('/api', partnerRoutes);
