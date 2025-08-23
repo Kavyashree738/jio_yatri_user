@@ -381,18 +381,18 @@ exports.getShopsByCategory = async (req, res) => {
     const shopsWithUrls = shops.map(shop => ({
       ...shop,
       shopImageUrls: shop.shopImages?.map(imgId =>
-        `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${imgId}`
+        `https://jio-yatri-user.onrender.com/api/shops/images/${imgId}`
       ) || [],
       items: shop.items?.map(item => ({
         ...item,
         imageUrl: item.image ?
-          `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${item.image}` :
+          `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` :
           null
       })) || [],
       rooms: shop.rooms?.map(room => ({
         ...room,
         imageUrls: room.images?.map(imgId =>
-          `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${imgId}`
+          `https://jio-yatri-user.onrender.com/api/shops/images/${imgId}`
         ) || []
       })) || []
     }));
@@ -414,12 +414,12 @@ exports.getShopById = async (req, res) => {
     const response = {
       ...shop,
       shopImageUrls: shop.shopImages?.map(imgId =>
-        `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${imgId}`
+        `https://jio-yatri-user.onrender.com/api/shops/images/${imgId}`
       ) || [],
       items: shop.items?.map(item => ({
         ...item,
         imageUrl: item.image ?
-          `${process.env.API_BASE_URL || 'http://localhost:5000'}/api/shops/images/${item.image}` :
+          `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` :
           null
       })) || []
     };
@@ -600,7 +600,7 @@ exports.updateShop = async (req, res) => {
         console.log('[DEBUG] Shop document saved successfully');
 
         // Generate proper image URLs
-        const baseUrl = process.env.API_BASE_URL || 'http://localhost:5000';
+        const baseUrl = 'https://jio-yatri-user.onrender.com';
         
         const responseData = {
             ...updatedShop.toObject(),
