@@ -81,17 +81,22 @@ const sendToManyTokens = async (tokens, payload, shopId) => {
 const sendNotificationToDriver = async (driverId, title, body, data = {}) => {
   try {
     console.log('[SEND] Looking up driver in DB:', driverId);
+
     // Fetch driver's FCM token from DB
     const driver = await Driver.findOne({ userId: driverId });
+
     if (!driver) {
       console.log('[SEND] Driver not found:', driverId);
       return;
     }
+
     if (!driver.fcmToken) {
       console.log('[SEND] No FCM token for driver:', driverId);
       return;
     }
+
     console.log('[SEND] FCM token found:', driver.fcmToken);
+
     const message = {
       notification: { title, body },
       data: {
@@ -100,18 +105,31 @@ const sendNotificationToDriver = async (driverId, title, body, data = {}) => {
       },
       token: driver.fcmToken,
     };
+
     console.log('[SEND] Sending message via FCM:', JSON.stringify(message, null, 2));
+
     const response = await admin.messaging().send(message);
+
     console.log('[SEND] Notification sent successfully. FCM Response:', response);
     return response;
   } catch (error) {
     console.error('[SEND] Error sending FCM:', error.message);
-    if (error.errorInfo) {
-      console.error('[SEND] Firebase error info:', error.errorInfo);
+
+    const errorCode = error?.errorInfo?.code;
+    if (errorCode === 'messaging/invalid-registration-token' ||
+        errorCode === 'messaging/registration-token-not-registered') {
+      console.log(`[SEND] Removing invalid FCM token for driver ${driverId}`);
+      await Driver.updateOne(
+        { userId: driverId },
+        { $unset: { fcmToken: "" } }
+      );
     }
-    throw error;
+
+    // Don’t throw, just return error so it won’t break shipment creation
+    return { ok: false, error: error.message };
   }
 };
+
 /**
  * Notify driver when a new shipment is available
  */
