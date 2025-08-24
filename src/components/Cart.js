@@ -13,22 +13,27 @@ import { useAuth } from '../context/AuthContext';
 
 const apiBase = 'https://jio-yatri-user.onrender.com';
 
-/* -------------------- UPI / PhonePe helpers -------------------- */
+/* -------------------- Helpers -------------------- */
+const isAndroid = () => /Android/i.test(navigator.userAgent);
+const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+const isValidVpa = (v) => /^[a-z0-9.\-_]{2,}@[a-z]{2,}$/i.test(String(v || '').trim());
+
 function cleanMsisdn(n) {
   if (!n) return null;
   const s = String(n).replace(/\D/g, '');
   return s.length >= 10 ? s.slice(-10) : null;
 }
 
-// Prefer storing a real UPI ID (e.g., shop.upiId). If missing, try PhonePe default handle '@ybl'
-function deriveVpaFromPhonePeNumber(phonePeNumber, fallbackSuffix = 'ybl') {
+// Build candidate VPAs from a PhonePe-linked mobile number.
+// We try common PhonePe handles; this is a best-effort guess.
+function buildPhonePeCandidates(phonePeNumber) {
   const msisdn = cleanMsisdn(phonePeNumber);
-  return msisdn ? `${msisdn}@${fallbackSuffix}` : null;
+  if (!msisdn) return [];
+  const handles = ['ybl', 'ibl', 'axl']; // common PhonePe handles
+  return handles.map(h => `${msisdn}@${h}`);
 }
-
-const isAndroid = () => /Android/i.test(navigator.userAgent);
-const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
-const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 function toUpiParamString({ pa, pn, am, tn }) {
   const p = new URLSearchParams();
@@ -39,20 +44,18 @@ function toUpiParamString({ pa, pn, am, tn }) {
   if (tn) p.set('tn', tn);
   return p.toString();
 }
-
 function makeUpiUri(paramStr) {
   return `upi://pay?${paramStr}`;
 }
 
-// Android Chrome’s recommended way: Intent URI. With package -> opens that app; without -> UPI chooser.
-// You can add S.browser_fallback_url to take user to Play Store if app missing.
+// Android Intent URI (Chrome recommendation)
 function makeAndroidIntentUri(paramStr, { packageName, playStoreUrl, fallbackWebUrl } = {}) {
   const parts = [
     `intent://pay?${paramStr}#Intent`,
     'scheme=upi',
     packageName ? `package=${packageName}` : null,
-    playStoreUrl ? `S.browser_fallback_url=${encodeURIComponent(playStoreUrl)}` : null,
-    fallbackWebUrl ? `S.browser_fallback_url=${encodeURIComponent(fallbackWebUrl)}` : null,
+    playStoreUrl ? `S.browser_fallback_url=${encodeURIComponent(playStoreUrl)}` :
+    (fallbackWebUrl ? `S.browser_fallback_url=${encodeURIComponent(fallbackWebUrl)}` : null),
     'end'
   ].filter(Boolean);
   return parts.join(';');
@@ -101,10 +104,8 @@ export default function CartPage() {
         const lat = s?.address?.coordinates?.lat ?? s?.location?.coordinates?.[1];
         const lng = s?.address?.coordinates?.lng ?? s?.location?.coordinates?.[0];
         if (lat != null && lng != null) setShopCoords({ lat, lng });
-
-        // (optional) reflect latest shop data into cart bucket in memory
         if (bucket && !bucket.shop && s) {
-          bucket.shop = s;
+          bucket.shop = s; // reflect latest in memory
         }
       } catch (e) {
         console.warn('Could not fetch shop coords:', e?.response?.data || e.message);
@@ -170,29 +171,42 @@ export default function CartPage() {
     }));
   }, [distanceKm]);
 
-  // ---- PhonePe / UPI links ----
+  // ---- UPI links ----
+  const [selectedHandleIdx, setSelectedHandleIdx] = useState(0);
+
   const upiUi = useMemo(() => {
     const shop = bucket?.shop || {};
     const shopName = shop?.shopName || 'Shop';
-    const upiId = shop?.upiId || null; // strongly recommended to store real UPI ID in DB
-    const vpa = upiId || deriveVpaFromPhonePeNumber(shop?.phonePeNumber, 'ybl');
     const amount = Number(pricing.total || 0);
     const note = `Order at ${shopName}`;
 
+    // 1) Prefer explicit, correct VPA if present (future-proof)
+    const explicitVpa = isValidVpa(shop?.upiId) ? shop.upiId.trim() : null;
+
+    // 2) Otherwise build candidates from PhonePe number (best-effort)
+    const candidates = explicitVpa
+      ? [explicitVpa]
+      : buildPhonePeCandidates(shop?.phonePeNumber);
+
+    const vpa = candidates[selectedHandleIdx] || candidates[0] || null;
+
     if (!vpa || amount <= 0) {
-      return { ready: false };
+      return {
+        ready: false,
+        reason: !vpa ? 'MISSING_VPA_OR_PHONE' : 'ZERO_AMOUNT',
+        candidates,
+        shopName
+      };
     }
 
     const paramStr = toUpiParamString({ pa: vpa, pn: shopName, am: amount, tn: note });
     const upiUrl = makeUpiUri(paramStr);
 
-    // Android: directly open PhonePe
     const phonePeIntent = makeAndroidIntentUri(paramStr, {
       packageName: 'com.phonepe.app',
       playStoreUrl: 'https://play.google.com/store/apps/details?id=com.phonepe.app'
     });
 
-    // Android: system chooser for any UPI app
     const upiChooserIntent = makeAndroidIntentUri(paramStr);
 
     return {
@@ -203,9 +217,10 @@ export default function CartPage() {
       phonePeIntent,
       upiChooserIntent,
       shopName,
-      phonePeNumber: shop?.phonePeNumber
+      candidates,
+      usingGuessedHandle: !explicitVpa // true when we’re guessing from phone number
     };
-  }, [bucket, pricing.total]);
+  }, [bucket, pricing.total, selectedHandleIdx]);
 
   if (!bucket || bucket.items.length === 0) {
     return (
@@ -239,7 +254,7 @@ export default function CartPage() {
         },
         items: bucket.items.map(i => ({ itemId: i.itemId, quantity: i.quantity })),
         notes: form.notes,
-        paymentMethod: 'cod', // keep cod for delivery; items are paid to shop via UPI
+        paymentMethod: 'cod', // items paid to shop via UPI; driver gets delivery fee on delivery
         vehicleType,
       };
 
@@ -286,7 +301,7 @@ export default function CartPage() {
         ))}
       </div>
 
-      {/* === Delivery estimator === */}
+      {/* === Summary === */}
       <div className="cart-summary">
         <div className="row"><span>Subtotal</span><span>₹{pricing.subtotal.toFixed(2)}</span></div>
         {Number(pricing.tax) > 0 && (
@@ -296,7 +311,7 @@ export default function CartPage() {
         <div className="row total"><span>Total (shop items)</span><span>₹{pricing.total.toFixed(2)}</span></div>
       </div>
 
-      {/* ======= PAY FOR ITEMS (PhonePe / UPI) ======= */}
+      {/* ======= PAY FOR ITEMS (UPI) ======= */}
       <div className="checkout" style={{ marginTop: 16 }}>
         <h3>Pay for Items</h3>
 
@@ -309,15 +324,26 @@ export default function CartPage() {
         {!upiUi.ready ? (
           <div className="field">
             <small style={{ color: '#b91c1c' }}>
-              Payment unavailable — shop UPI not set or total is ₹0.
+              {upiUi.reason === 'MISSING_VPA_OR_PHONE'
+                ? 'Payment unavailable — shop UPI cannot be derived. (No UPI ID and no PhonePe number)'
+                : 'Payment unavailable — total is ₹0.'}
             </small>
           </div>
         ) : (
           <>
+            {/* Warn when we are guessing from phone number */}
+            {upiUi.usingGuessedHandle && (
+              <div className="field">
+                <small style={{ color: '#92400e', background: '#FEF3C7', padding: '6px 8px', borderRadius: 6 }}>
+                  Note: UPI handle is being guessed from the shop’s PhonePe number. If the first attempt fails,
+                  try another handle below or ask the shop to add an exact UPI ID for one-tap payments.
+                </small>
+              </div>
+            )}
+
             <div className="field" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
               {isAndroid() ? (
                 <>
-                  {/* Direct to PhonePe */}
                   <a
                     href={upiUi.phonePeIntent}
                     className="btn-primary"
@@ -326,7 +352,6 @@ export default function CartPage() {
                     Pay in PhonePe (₹{upiUi.amount.toFixed(2)})
                   </a>
 
-                  {/* UPI chooser (GPay/Paytm/PhonePe/etc.) */}
                   <a
                     href={upiUi.upiChooserIntent}
                     className="btn-outline"
@@ -337,7 +362,6 @@ export default function CartPage() {
                 </>
               ) : (
                 <>
-                  {/* iOS/desktop: generic UPI link (works only if a UPI app registered upi://) */}
                   <a
                     href={upiUi.upiUrl}
                     className="btn-primary"
@@ -366,6 +390,29 @@ export default function CartPage() {
               )}
             </div>
 
+            {/* Alternate handles selector (only when we’re guessing) */}
+            {upiUi.usingGuessedHandle && upiUi.candidates?.length > 1 && (
+              <div className="field" style={{ marginTop: 8 }}>
+                <label>Try another UPI handle</label>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {upiUi.candidates.map((c, idx) => (
+                    <button
+                      key={c}
+                      type="button"
+                      className={`btn-chip ${idx === selectedHandleIdx ? 'active' : ''}`}
+                      onClick={() => setSelectedHandleIdx(idx)}
+                      title={c}
+                    >
+                      {c.split('@')[1]}
+                    </button>
+                  ))}
+                </div>
+                <small style={{ opacity: 0.8 }}>
+                  Current: <code>{upiUi.vpa}</code>
+                </small>
+              </div>
+            )}
+
             {!isMobile() && (
               <div className="field" style={{ marginTop: 6 }}>
                 <small style={{ opacity: 0.8 }}>
@@ -374,15 +421,11 @@ export default function CartPage() {
               </div>
             )}
 
-            {(bucket?.shop?.phonePeNumber || upiUi.vpa) && (
-              <div className="field" style={{ marginTop: 6 }}>
-                <small style={{ opacity: 0.8 }}>
-                  Payee: <b>{upiUi.shopName}</b>
-                  {upiUi.phonePeNumber && <> · PhonePe #: {upiUi.phonePeNumber}</>}
-                  {upiUi.vpa && <> · UPI: <code>{upiUi.vpa}</code></>}
-                </small>
-              </div>
-            )}
+            <div className="field" style={{ marginTop: 6 }}>
+              <small style={{ opacity: 0.8 }}>
+                Payee: <b>{upiUi.shopName}</b> · UPI: <code>{upiUi.vpa}</code>
+              </small>
+            </div>
           </>
         )}
       </div>
@@ -417,7 +460,6 @@ export default function CartPage() {
             <AddressAutocomplete initialValue={form.address} onSelect={onAddressSelect} />
           </div>
 
-          {/* Vehicle cards */}
           <div className="vehicle-options-containers">
             {vehicleCards.map((v) => {
               const isSelected = vehicleType === v.type;
