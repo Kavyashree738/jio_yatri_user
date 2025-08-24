@@ -15,25 +15,10 @@ const apiBase = 'https://jio-yatri-user.onrender.com';
 
 /* -------------------- Helpers -------------------- */
 const isAndroid = () => /Android/i.test(navigator.userAgent);
-const isIOS = () => /iPhone|iPad|iPod/i.test(navigator.userAgent);
-const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isMobile  = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+// Simple UPI VPA shape check
 const isValidVpa = (v) => /^[a-z0-9.\-_]{2,}@[a-z]{2,}$/i.test(String(v || '').trim());
-
-function cleanMsisdn(n) {
-  if (!n) return null;
-  const s = String(n).replace(/\D/g, '');
-  return s.length >= 10 ? s.slice(-10) : null;
-}
-
-// Build candidate VPAs from a PhonePe-linked mobile number.
-// We try common PhonePe handles; this is a best-effort guess.
-function buildPhonePeCandidates(phonePeNumber) {
-  const msisdn = cleanMsisdn(phonePeNumber);
-  if (!msisdn) return [];
-  const handles = ['ybl', 'ibl', 'axl']; // common PhonePe handles
-  return handles.map(h => `${msisdn}@${h}`);
-}
 
 function toUpiParamString({ pa, pn, am, tn }) {
   const p = new URLSearchParams();
@@ -47,8 +32,7 @@ function toUpiParamString({ pa, pn, am, tn }) {
 function makeUpiUri(paramStr) {
   return `upi://pay?${paramStr}`;
 }
-
-// Android Intent URI (Chrome recommendation)
+// Android Intent URI (preferred on Chrome/Android)
 function makeAndroidIntentUri(paramStr, { packageName, playStoreUrl, fallbackWebUrl } = {}) {
   const parts = [
     `intent://pay?${paramStr}#Intent`,
@@ -104,8 +88,10 @@ export default function CartPage() {
         const lat = s?.address?.coordinates?.lat ?? s?.location?.coordinates?.[1];
         const lng = s?.address?.coordinates?.lng ?? s?.location?.coordinates?.[0];
         if (lat != null && lng != null) setShopCoords({ lat, lng });
+
+        // reflect latest shop data into cart bucket in memory (optional)
         if (bucket && !bucket.shop && s) {
-          bucket.shop = s; // reflect latest in memory
+          bucket.shop = s;
         }
       } catch (e) {
         console.warn('Could not fetch shop coords:', e?.response?.data || e.message);
@@ -171,42 +157,31 @@ export default function CartPage() {
     }));
   }, [distanceKm]);
 
-  // ---- UPI links ----
-  const [selectedHandleIdx, setSelectedHandleIdx] = useState(0);
-
+  // ---- UPI links (uses exact shop.upiId) ----
   const upiUi = useMemo(() => {
     const shop = bucket?.shop || {};
     const shopName = shop?.shopName || 'Shop';
+
+    // Use only the explicit, verified VPA from DB
+    const vpa = isValidVpa(shop?.upiId) ? shop.upiId.trim() : null;
+
     const amount = Number(pricing.total || 0);
     const note = `Order at ${shopName}`;
 
-    // 1) Prefer explicit, correct VPA if present (future-proof)
-    const explicitVpa = isValidVpa(shop?.upiId) ? shop.upiId.trim() : null;
-
-    // 2) Otherwise build candidates from PhonePe number (best-effort)
-    const candidates = explicitVpa
-      ? [explicitVpa]
-      : buildPhonePeCandidates(shop?.phonePeNumber);
-
-    const vpa = candidates[selectedHandleIdx] || candidates[0] || null;
-
     if (!vpa || amount <= 0) {
-      return {
-        ready: false,
-        reason: !vpa ? 'MISSING_VPA_OR_PHONE' : 'ZERO_AMOUNT',
-        candidates,
-        shopName
-      };
+      return { ready: false, reason: !vpa ? 'MISSING_VPA' : 'ZERO_AMOUNT' };
     }
 
     const paramStr = toUpiParamString({ pa: vpa, pn: shopName, am: amount, tn: note });
     const upiUrl = makeUpiUri(paramStr);
 
+    // Android: directly open PhonePe
     const phonePeIntent = makeAndroidIntentUri(paramStr, {
       packageName: 'com.phonepe.app',
       playStoreUrl: 'https://play.google.com/store/apps/details?id=com.phonepe.app'
     });
 
+    // Android: system chooser for any UPI app
     const upiChooserIntent = makeAndroidIntentUri(paramStr);
 
     return {
@@ -216,11 +191,9 @@ export default function CartPage() {
       upiUrl,
       phonePeIntent,
       upiChooserIntent,
-      shopName,
-      candidates,
-      usingGuessedHandle: !explicitVpa // true when we’re guessing from phone number
+      shopName
     };
-  }, [bucket, pricing.total, selectedHandleIdx]);
+  }, [bucket, pricing.total]);
 
   if (!bucket || bucket.items.length === 0) {
     return (
@@ -311,7 +284,7 @@ export default function CartPage() {
         <div className="row total"><span>Total (shop items)</span><span>₹{pricing.total.toFixed(2)}</span></div>
       </div>
 
-      {/* ======= PAY FOR ITEMS (UPI) ======= */}
+      {/* ======= PAY FOR ITEMS (UPI via collected upiId) ======= */}
       <div className="checkout" style={{ marginTop: 16 }}>
         <h3>Pay for Items</h3>
 
@@ -324,23 +297,13 @@ export default function CartPage() {
         {!upiUi.ready ? (
           <div className="field">
             <small style={{ color: '#b91c1c' }}>
-              {upiUi.reason === 'MISSING_VPA_OR_PHONE'
-                ? 'Payment unavailable — shop UPI cannot be derived. (No UPI ID and no PhonePe number)'
+              {upiUi.reason === 'MISSING_VPA'
+                ? 'Payment unavailable — this shop has not set a UPI ID yet.'
                 : 'Payment unavailable — total is ₹0.'}
             </small>
           </div>
         ) : (
           <>
-            {/* Warn when we are guessing from phone number */}
-            {upiUi.usingGuessedHandle && (
-              <div className="field">
-                <small style={{ color: '#92400e', background: '#FEF3C7', padding: '6px 8px', borderRadius: 6 }}>
-                  Note: UPI handle is being guessed from the shop’s PhonePe number. If the first attempt fails,
-                  try another handle below or ask the shop to add an exact UPI ID for one-tap payments.
-                </small>
-              </div>
-            )}
-
             <div className="field" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
               {isAndroid() ? (
                 <>
@@ -362,6 +325,7 @@ export default function CartPage() {
                 </>
               ) : (
                 <>
+                  {/* iOS/desktop: generic UPI link (works if a UPI app registered upi://) */}
                   <a
                     href={upiUi.upiUrl}
                     className="btn-primary"
@@ -390,29 +354,6 @@ export default function CartPage() {
               )}
             </div>
 
-            {/* Alternate handles selector (only when we’re guessing) */}
-            {upiUi.usingGuessedHandle && upiUi.candidates?.length > 1 && (
-              <div className="field" style={{ marginTop: 8 }}>
-                <label>Try another UPI handle</label>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {upiUi.candidates.map((c, idx) => (
-                    <button
-                      key={c}
-                      type="button"
-                      className={`btn-chip ${idx === selectedHandleIdx ? 'active' : ''}`}
-                      onClick={() => setSelectedHandleIdx(idx)}
-                      title={c}
-                    >
-                      {c.split('@')[1]}
-                    </button>
-                  ))}
-                </div>
-                <small style={{ opacity: 0.8 }}>
-                  Current: <code>{upiUi.vpa}</code>
-                </small>
-              </div>
-            )}
-
             {!isMobile() && (
               <div className="field" style={{ marginTop: 6 }}>
                 <small style={{ opacity: 0.8 }}>
@@ -421,11 +362,13 @@ export default function CartPage() {
               </div>
             )}
 
-            <div className="field" style={{ marginTop: 6 }}>
-              <small style={{ opacity: 0.8 }}>
-                Payee: <b>{upiUi.shopName}</b> · UPI: <code>{upiUi.vpa}</code>
-              </small>
-            </div>
+            {upiUi.vpa && (
+              <div className="field" style={{ marginTop: 6 }}>
+                <small style={{ opacity: 0.8 }}>
+                  Payee: <b>{upiUi.shopName}</b> · UPI: <code>{upiUi.vpa}</code>
+                </small>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -460,6 +403,7 @@ export default function CartPage() {
             <AddressAutocomplete initialValue={form.address} onSelect={onAddressSelect} />
           </div>
 
+          {/* Vehicle cards */}
           <div className="vehicle-options-containers">
             {vehicleCards.map((v) => {
               const isSelected = vehicleType === v.type;
