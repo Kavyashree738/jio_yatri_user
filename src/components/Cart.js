@@ -71,35 +71,54 @@ export default function CartPage() {
     notes: ''
   });
 
-  // ---- load shop coords (and optionally shop) ----
-  useEffect(() => {
-    const shopLat = bucket?.shop?.address?.coordinates?.lat;
-    const shopLng = bucket?.shop?.address?.coordinates?.lng;
+useEffect(() => {
+  let isMounted = true;
 
-    if (shopLat != null && shopLng != null) {
-      setShopCoords({ lat: shopLat, lng: shopLng });
-      return;
-    }
+  const hasCoords =
+    bucket?.shop?.address?.coordinates?.lat != null &&
+    bucket?.shop?.address?.coordinates?.lng != null;
 
-    async function fetchShop() {
-      try {
-        const res = await axios.get(`${apiBase}/api/shops/${shopId}`);
-        const s = res.data?.data || res.data;
-        const lat = s?.address?.coordinates?.lat ?? s?.location?.coordinates?.[1];
-        const lng = s?.address?.coordinates?.lng ?? s?.location?.coordinates?.[0];
-        if (lat != null && lng != null) setShopCoords({ lat, lng });
+  const hasVpa = !!bucket?.shop?.upiId;
 
-        // reflect latest shop data into cart bucket in memory (optional)
-        if (bucket && !bucket.shop && s) {
-          bucket.shop = s;
-        }
-      } catch (e) {
-        console.warn('Could not fetch shop coords:', e?.response?.data || e.message);
+  // If we already have both coords and upiId, set coords and stop
+  if (hasCoords && hasVpa) {
+    const { lat, lng } = bucket.shop.address.coordinates;
+    setShopCoords({ lat, lng });
+    return () => { isMounted = false; };
+  }
+
+  async function fetchShop() {
+    try {
+      const res = await axios.get(`${apiBase}/api/shops/${shopId}`);
+      const s = res.data?.data || res.data;
+
+      // Merge fresh shop data (this brings in upiId too)
+      if (bucket && s) {
+        bucket.shop = { ...(bucket.shop || {}), ...s };
       }
-    }
 
-    if (shopId && !shopCoords) fetchShop();
-  }, [shopId, bucket, shopCoords]);
+      // Derive coordinates (support legacy location array)
+      const lat = s?.address?.coordinates?.lat ?? s?.location?.coordinates?.[1];
+      const lng = s?.address?.coordinates?.lng ?? s?.location?.coordinates?.[0];
+      if (isMounted && lat != null && lng != null) {
+        setShopCoords({ lat, lng });
+      }
+    } catch (e) {
+      console.warn('Could not fetch shop:', e?.response?.data || e.message);
+    }
+  }
+
+  // Fetch if either coords or UPI is missing
+  if (shopId && (!hasCoords || !hasVpa)) {
+    fetchShop();
+  } else if (hasCoords) {
+    // we had coords but missed calling setShopCoords before
+    const { lat, lng } = bucket.shop.address.coordinates;
+    setShopCoords({ lat, lng });
+  }
+
+  return () => { isMounted = false; };
+}, [shopId, bucket]); // keep deps simple
 
   // ---- compute distance & prices ----
   useEffect(() => {
