@@ -80,7 +80,7 @@ const ReferralShare = () => {
 
   const shareViaWhatsApp = () => {
     if (referralData) {
-      const message = `Join our platform using my referral code ${referralData.referralCode} and get ₹30 cashback! ${referralData.shareLink}`;
+      const message = `Join our platform using my referral code ${referralData.referralCode} and get ₹10 cashback! ${referralData.shareLink}`;
       const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
       window.open(url, '_blank');
     }
@@ -93,7 +93,7 @@ const ReferralShare = () => {
       if (navigator.share) {
         await navigator.share({
           title: 'Join and get ₹30 cashback!',
-          text: `Use my referral code ${referralData.referralCode} to get ₹30 cashback!`,
+          text: `Use my referral code ${referralData.referralCode} to get ₹10 cashback!`,
           url: referralData.shareLink,
         });
       } else {
