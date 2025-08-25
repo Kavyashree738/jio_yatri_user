@@ -570,7 +570,6 @@ const UserShipments = () => {
         ) : filteredUserOrders.length === 0 ? (
           <div className="no-orders">
             {searchTerm ? <p>No orders match your search.</p> : <p>You haven’t placed any orders yet.</p>}
-            <a href="/shop-categories">Browse shops</a>
           </div>
         ) : (
           <div className="orders-list">
