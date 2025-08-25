@@ -23,7 +23,7 @@ const SearchBar = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setMarqueeActive(true);
-      setMarqueeText('Earn ₹30 Cashback');
+      setMarqueeText('Earn ₹10 Cashback');
       
       setTimeout(() => {
         setMarqueeActive(false);
@@ -117,5 +117,6 @@ const SearchBar = () => {
     </div>
   );
 };
+
 
 export default SearchBar;
