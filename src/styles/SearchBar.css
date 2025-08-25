@@ -229,7 +229,7 @@
   border-radius: 10px;
 }
 .youtube-icon{
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   cursor: pointer;
 }
 
@@ -327,12 +327,12 @@
 .share-btn {
    background: linear-gradient(135deg, #0a07ce 0%, #3620ff 100%);
   border: none;
-  border-radius: 20px;
+  border-radius: 10px;
   padding: 8px 12px;
   margin-left: 5px;
   color:white;
   cursor: pointer;
-  width: 100px; /* Fixed width */
+  width: 45px; /* Fixed width */
   height: 36px; /* Fixed height */
   overflow: hidden;
   position: relative;
@@ -383,4 +383,5 @@
   100% {
     transform: translateX(-100%);
   }
+
 }
