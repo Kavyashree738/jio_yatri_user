@@ -375,7 +375,7 @@ useEffect(() => {
               <FaShareAlt />
               {showTicker ? (
                 <div className="ticker-container">
-                  <div className="ticker-text">Share & Get ₹30 Cashback</div>
+                  <div className="ticker-text">Share & Get ₹10 Cashback</div>
                 </div>
               ) : (
                 <span>Share</span>
@@ -392,5 +392,6 @@ useEffect(() => {
     </>
   );
 };
+
 
 export default UserProfile;
