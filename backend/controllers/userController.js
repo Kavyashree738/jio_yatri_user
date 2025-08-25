@@ -109,7 +109,7 @@ exports.createOrUpdateUser = async (req, res) => {
         if (referralCodeEntered && referrer) {
           console.log('Adding referral reward to referrer');
           referrer.referralRewards.push({
-            amount: 30,
+            amount: 10,
             description: `New user referral: ${name || email || phone}`,
             referredUserId: uid
           });
@@ -371,7 +371,7 @@ exports.applyReferral = async (req, res) => {
 
       // Add reward to referrer
       const reward = {
-        amount: 30,
+        amount: 10,
         description: `Referral from ${uid}`,
         referredUserId: uid,
         createdAt: new Date()
