@@ -92,7 +92,7 @@ const ReferralShare = () => {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'Join and get ₹30 cashback!',
+          title: 'Join and get ₹10 cashback!',
           text: `Use my referral code ${referralData.referralCode} to get ₹10 cashback!`,
           url: referralData.shareLink,
         });
@@ -166,7 +166,7 @@ const ReferralShare = () => {
           </div>
           <h3>Invite Friends & Earn Together!</h3>
           <p className="subtext">
-            Share your referral code and get <span className="highlight">₹30 cashback</span> when they sign up
+            Share your referral code and get <span className="highlight">₹10 cashback</span> when they sign up
           </p>
         </div>
 
