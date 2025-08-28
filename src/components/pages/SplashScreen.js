@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import '../../styles/SplashScreen.css';
-import logo from '../../assets/images/logo.jpg';
-import ownerImage from '../../assets/images/owner-image.jpeg'
+import '../styles/SplashScreen.css';
+import logo from '../assets/images/logo.jpg';
+import ownerImage from '../assets/images/splash-image.jpg';
 
 const SplashScreen = () => {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ const SplashScreen = () => {
         >
           <img
             src={logo}
-            alt="Jio Yatri Logo"
+            alt="JioYatri Logo"
             className="logo-image"
           />
         </motion.div>
@@ -57,41 +57,37 @@ const SplashScreen = () => {
           />
         </motion.div>
 
-        <motion.h1
+        {/* Welcome text and company name - FIXED STRUCTURE */}
+        <motion.div
+          className="welcome-containers"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{
-            delay: 0.6,
-            type: 'spring',
-            stiffness: 100
-          }}
-          className="welcome-text"
+          transition={{ delay: 0.6 }}
         >
-          <motion.span
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1.1, opacity: 1 }}
+          <motion.h1
+            className="welcome-texts"
             transition={{
-              delay: 0.7,
               type: 'spring',
-              stiffness: 120,
-              damping: 8,
-              repeat: 1,
-              repeatType: 'reverse'
+              stiffness: 100
             }}
-            className="highlight-word"
           >
-            Welcome
-          </motion.span>
-          &nbsp;to jioyatri
-        </motion.h1>
-        <motion.p
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="tagline"
-        >
-          Your trusted delivery partner
-        </motion.p>
+            <motion.span
+              className="highlight-words"
+            >
+              Welcome
+            </motion.span>
+            &nbsp;to JioYatri
+          </motion.h1>
+
+          <motion.h3
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="company-name"
+          >
+            MokshAmbani Tech Service PVT LTD
+          </motion.h3>
+        </motion.div>
 
         {/* Loading indicator */}
         <motion.div
@@ -106,6 +102,3 @@ const SplashScreen = () => {
 };
 
 export default SplashScreen;
-
-
-
