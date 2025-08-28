@@ -140,7 +140,7 @@ const notifyNewShipment = async (driverId, shipment) => {
     id: shipment._id,
     vehicleType: shipment.vehicleType
   });
-  const title = '🚚 New Shipment Available!';
+  const title = 'JioYatri Driver — New shipment';
   const body = `A ${shipment.vehicleType} shipment available. Accept it now!`;
   try {
     const result = await sendNotificationToDriver(driverId, title, body, {
@@ -159,7 +159,7 @@ const notifyNewShipment = async (driverId, shipment) => {
 const notifyShopNewOrder = async (shopId, orderDoc) => {
   const shop = await Shop.findById(shopId).lean();
   if (!shop) return;
-  const title = '🧾 New Order Received';
+  const title = ' New Order Received';
   const body = `${orderDoc.customer?.name || 'Customer'} placed order ${orderDoc.orderCode}`;
   const data = {
     type: 'NEW_ORDER',
