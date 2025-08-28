@@ -9,7 +9,7 @@
   scrollbar-width: none;
   scroll-behavior: smooth;
   scroll-padding-left: 10px;
-  margin-top:40px;
+  padding-top:80px;
 }
 
 .custom-mobile-nav::-webkit-scrollbar {
@@ -58,5 +58,6 @@
   .custom-mobile-nav {
     justify-content: center;
     overflow-x: hidden; /* disable scroll for larger screens */
+    margin-top: 40px;
   }
 }
