@@ -252,7 +252,7 @@
   }
 }
 
-@media (min-width: 650px) and (max-width: 1440px) {
+@media (min-width: 650px){
   .splash-container::before {
     background-size: contain;   /* show full image */
     background-repeat: no-repeat;
@@ -260,3 +260,4 @@
     background-color: #078cda;  /* fallback color */
   }
 }
+
