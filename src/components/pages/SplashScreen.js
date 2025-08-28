@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import '../styles/SplashScreen.css';
+import '../../styles/SplashScreen.css';
 import logo from '../assets/images/logo.jpg';
 import ownerImage from '../assets/images/splash-image.jpg';
 
@@ -102,3 +102,4 @@ const SplashScreen = () => {
 };
 
 export default SplashScreen;
+
