@@ -621,3 +621,8 @@
 
 .sd-provision-brand { font-weight: 600; }
 .sd-provision-weight { opacity: 0.85; }
+
+
+.sd-details-container{
+  margin-top:50px;
+}
