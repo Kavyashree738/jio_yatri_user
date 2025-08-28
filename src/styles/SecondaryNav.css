@@ -9,6 +9,7 @@
   scrollbar-width: none;
   scroll-behavior: smooth;
   scroll-padding-left: 10px;
+  margin-top:40px;
 }
 
 .custom-mobile-nav::-webkit-scrollbar {
