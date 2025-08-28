@@ -403,7 +403,7 @@ console.log('Verifying OTP:', otp, 'for phoneNumber:', phoneNumber, 'with referr
                   setOtp('');
                   setMessage({ text: '', isError: false });
                 }}
-                className="cancel-button"
+                className="cancell-button"
               >
                 Cancel
               </button>
