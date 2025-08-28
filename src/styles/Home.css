@@ -278,12 +278,6 @@ body {
   .mobile-bottom-nav {
     display: none !important;
   }
-
-  body {
-    padding-top: 84px;
-    /* top-strip + header + secondary nav */
-    padding-bottom: 0;
-  }
 }
 
 @media (max-width: 768px) {
@@ -301,11 +295,6 @@ body {
 
 
     /* border-bottom: 1px solid #e0e6ed; */
-  }
-
-  body {
-    padding-top: 90px;
-    padding-bottom: 60px;
   }
 }
 
@@ -521,11 +510,6 @@ body {
     font-size: 18px;
     white-space: normal;
     line-height: 1.2;
-  }
-
-  body {
-    padding-top: 50px;
-    padding-bottom: 60px;
   }
 }
 
@@ -853,11 +837,6 @@ body {
 
   .mobile-bottom-nav {
     display: flex;
-  }
-
-  body {
-    padding-top: 40px;
-    padding-bottom: 55px;
   }
 }
 
