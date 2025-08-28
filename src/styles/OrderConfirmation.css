@@ -343,3 +343,119 @@ h3 {
     font-size: 1.8rem;
   }
 }
+
+/* Responsive - Mobile Adjustments */
+@media (max-width: 600px) {
+  .oc-container {
+    padding: 0.8rem;
+  }
+
+  .oc-card {
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .oc-order-code,
+  .oc-shop-name {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .oc-items li {
+    font-size: 0.9rem;
+    padding: 0.4rem 0;
+  }
+
+  .oc-amount-row {
+    font-size: 0.9rem;
+    padding: 0.4rem 0;
+  }
+
+  .oc-amount-row.total {
+    font-size: 1rem;
+  }
+
+  .oc-home-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
+    margin-top: 0.8rem;
+  }
+
+  .oc-tick {
+    width: 60px;
+    height: 60px;
+  }
+
+  .oc-tick svg {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* Extra Small Devices (≤400px) */
+@media (max-width: 400px) {
+  .oc-container {
+    padding: 0.5rem;
+  }
+
+  .oc-card {
+    padding: 1rem 0.8rem;
+    border-radius: 10px;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .oc-order-code,
+  .oc-shop-name {
+    font-size: 0.8rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .oc-items li {
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+  }
+
+  .oc-amount-row {
+    font-size: 0.8rem;
+    padding: 0.3rem 0;
+  }
+
+  .oc-amount-row.total {
+    font-size: 0.9rem;
+  }
+
+  .oc-home-btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 1.2rem;
+    margin-top: 0.6rem;
+  }
+
+  .oc-tick {
+    width: 50px;
+    height: 50px;
+  }
+
+  .oc-tick svg {
+    width: 24px;
+    height: 24px;
+  }
+}

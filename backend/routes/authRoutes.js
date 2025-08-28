@@ -37,6 +37,7 @@ router.use((req, res, next) => {
 });
 
 router.post('/send-otp', authController.sendOtp);
-router.post('/verify-otp', verifyLimiter, authController.verifyOtp);
+router.post('/verify-otp', authController.verifyOtp);
+
 
 module.exports = router;
