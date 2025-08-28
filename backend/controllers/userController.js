@@ -238,7 +238,7 @@ exports.getReferralCode = async (req, res) => {
       console.log(`Generated code: ${user.referralCode}`);
     }
 
-    const shareLink = `https://yourapp.com?ref=${user.referralCode}`;
+    const shareLink = `https://play.google.com/store/apps/details?id=com.matspl.jioyatriuser?ref=${user.referralCode}`;
     console.log(`Returning code: ${user.referralCode} and link: ${shareLink}`);
 
     return res.json({
