@@ -812,3 +812,14 @@
   border-color: #4a90e2;
   outline: none;
 }
+
+.cancell-button {
+  display: block;
+  margin: 1rem auto 0;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
