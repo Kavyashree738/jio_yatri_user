@@ -27,7 +27,7 @@ function SelectAddressPage() {
         return (
             <div className="address-page-container">
                 <div className="address-header">
-                    <button className="back-button" onClick={() => navigate(-1)}>
+                    <button className="back-buttonss" onClick={() => navigate(-1)}>
                         <FaArrowLeft /> Back
                     </button>
                 </div>
@@ -39,7 +39,7 @@ function SelectAddressPage() {
     return (
         <div className="address-page-container">
             <div className="address-header">
-                <button className="back-button" onClick={() => navigate(-1)}>
+                <button className="back-buttonss" onClick={() => navigate(-1)}>
                     <FaArrowLeft />
                 </button>
                 <AddressAutocomplete 
