@@ -193,6 +193,11 @@ const ShopDisplay = () => {
                     </p>
                 </div>
 
+                <button
+                    className="sd-back-btn"
+                    onClick={() => navigate('/home')}
+                >back</button>
+
                 <div className="sd-shops-list">
                     {shops.map((shop) => (
                         <div
