@@ -67,7 +67,7 @@ const SplashScreen = () => {
             transition={{ delay: 0.8 }}
             className="company-name"
           >
-            MokshAmbani Tech Service PVT LMT
+            MokshAmbani Tech Service PVT LTD
           </motion.h3>
         </motion.div>
 
@@ -93,4 +93,5 @@ const SplashScreen = () => {
 };
 
 export default SplashScreen;
+
 
