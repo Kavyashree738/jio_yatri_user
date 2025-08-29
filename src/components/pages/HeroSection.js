@@ -29,7 +29,7 @@ const HeroSection = () => {
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
 
   const TEST_PHONE = "+911234567890";
-  const TEST_OTP = "123456";
+  const TEST_OTP = "1234";
 
   useEffect(() => {
     if (isInView) {
@@ -68,7 +68,7 @@ const HeroSection = () => {
   };
 
   const startResendTimer = () => {
-    setOtpResendTime(30);
+    setOtpResendTime(300);
     const timer = setInterval(() => {
       setOtpResendTime((prev) => {
         if (prev <= 1) {
@@ -136,7 +136,7 @@ const HeroSection = () => {
   };
 
   const verifyOtp = async () => {
-    if (!otp || otp.length !== 6) {
+    if (!otp || otp.length !== 4) {
       setMessage({ text: 'Please enter a 6-digit code', isError: true });
       return;
     }
@@ -357,7 +357,7 @@ console.log('Verifying OTP:', otp, 'for phoneNumber:', phoneNumber, 'with referr
               <p className="otp-subtitle">Sent to {phoneNumber}</p>
 
               <div className="otp-container">
-                {[...Array(6)].map((_, index) => (
+                {[...Array(4)].map((_, index) => (
                   <input
                     key={index}
                     type="text"
@@ -366,8 +366,8 @@ console.log('Verifying OTP:', otp, 'for phoneNumber:', phoneNumber, 'with referr
                     onChange={(e) => {
                       const newOtp = otp.split('');
                       newOtp[index] = e.target.value.replace(/\D/g, '');
-                      setOtp(newOtp.join('').slice(0, 6));
-                      if (e.target.value && index < 5) {
+                      setOtp(newOtp.join('').slice(0, 4));
+                      if (e.target.value && index < 3) {
                         document.getElementById(`otp-input-${index + 1}`).focus();
                       }
                     }}
@@ -387,8 +387,8 @@ console.log('Verifying OTP:', otp, 'for phoneNumber:', phoneNumber, 'with referr
 
               <button
                 onClick={verifyOtp}
-                disabled={isLoading || otp.length !== 6}
-                className={`otp-button ${isLoading || otp.length !== 6 ? 'disabled' : ''}`}
+                disabled={isLoading || otp.length !== 4}
+                className={`otp-button ${isLoading || otp.length !== 4 ? 'disabled' : ''}`}
               >
                 {isLoading ? <><span className="spinner"></span> Verifying...</> : 'Verify Code'}
               </button>
