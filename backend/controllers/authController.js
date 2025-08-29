@@ -225,8 +225,9 @@ const sendOtp = async (req, res) => {
     }
 
     // Check for recent OTP
-    const recentOtp = await admin.firestore().collection('otps').doc(phoneNumber).get();
-    if (recentOtp.exists && recentOtp.data().expiresAt.toMillis() > Date.now() - 30000) {
+     const recentOtp = await admin.firestore().collection('otps').doc(phoneNumber).get();
+     const lastSentAt = recentOtp.exists ? recentOtp.data().lastSentAt?.toMillis?.() : 0;
+   if (lastSentAt && lastSentAt > Date.now() - 300_000) {
       return res.status(429).json({
         success: false,
         error: 'otp_already_sent',
@@ -235,7 +236,7 @@ const sendOtp = async (req, res) => {
     }
 
     // Generate and store OTP
-    const otp = crypto.randomInt(100000, 999999);
+     const otp = crypto.randomInt(1000, 10000); // 1000 ≤ otp < 10000 → 4 digits
     const ttl = 5 * 60 * 1000; // 5 minutes
 
     await admin.firestore().collection('otps').doc(phoneNumber).set({
@@ -243,6 +244,7 @@ const sendOtp = async (req, res) => {
       expiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + ttl),
       attempts: 0,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastSentAt: admin.firestore.FieldValue.serverTimestamp(), 
     });
 
     // Custom SMS message format
@@ -277,7 +279,7 @@ const verifyOtp = async (req, res) => {
     });
 
     const TEST_PHONE = "+911234567890";
-    const TEST_OTP = "123456";
+    const TEST_OTP = "1234";
 
     // Input validation
     if (!phoneNumber || !otp) {
@@ -596,6 +598,7 @@ const verifyOtp = async (req, res) => {
     });
   }
 };
+
 
 
 module.exports = { sendOtp, verifyOtp };
