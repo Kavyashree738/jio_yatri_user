@@ -14,32 +14,32 @@ const vehicleTypes = [
   {
     type: 'TwoWheeler',
     name: 'Bike',
-    rate: 10,
-    rateFor2Km: 20,
+    rate: 30,
+    rateFor2Km: 60,
     emoji: '🛵',
     capacity: 'Up to 8kg',
     available: true,
-    displayRate: "₹20 per 2 km"
+    displayRate: "₹60 per 2 km"
   },
   {
     type: 'ThreeWheeler',
     name: 'Auto',
-    rate: 20,
-    rateFor2Km: 40,
+    rate: 40,
+    rateFor2Km: 80,
     emoji: '🛺',
     capacity: 'Up to 500kg',
     available: true,
-    displayRate: "₹40 per 2 km"
+    displayRate: "₹80 per 2 km"
   },
   {
     type: 'Truck',
     name: 'Truck',
-    rate: 40,
-    rateFor2Km: 80,
+    rate: 60,
+    rateFor2Km: 120,
     emoji: '🚚',
     capacity: 'Up to 1200kg',
     available: true,
-    displayRate: "₹80 per 2 km"
+    displayRate: "₹120 per 2 km"
   },
   {
     type: 'Pickup9ft',
