@@ -17,7 +17,7 @@ const vehicleTypes = [
     rate: 30,
     rateFor2Km: 60,
     emoji: '🛵',
-    capacity: 'Up to 8kg',
+    capacity: 'Up to 20kg',
     available: true,
     displayRate: "₹60 per 2 km"
   },
@@ -27,7 +27,7 @@ const vehicleTypes = [
     rate: 40,
     rateFor2Km: 80,
     emoji: '🛺',
-    capacity: 'Up to 500kg',
+    capacity: 'Up to 200kg',
     available: true,
     displayRate: "₹80 per 2 km"
   },
