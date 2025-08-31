@@ -20,7 +20,7 @@ const ContactSection = () => {
         <div className="contact-card">
           <FaMapMarkerAlt className="contact-icon" />
           <h4>Address</h4>
-          <p>Ward No 10, Nr Extention,chikabalapur, Chintamani, Kolar, Chintamani, Karnataka, India, 563125</p>
+          <p>Ward No 10, Nr Extention, Chintamani taluk, Chickballapura District Karnataka, India, 563125</p>
         </div>
       </div>
     </div>
