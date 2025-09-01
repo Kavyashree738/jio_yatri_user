@@ -35,7 +35,7 @@ const SplashScreen = () => {
           </h1>
 
           <h3 className="company-name">
-            MokshaAmbani Tech Service PVT LMT
+            MokshAmbani Tech Service PVT LTD
           </h3>
         </div>
 
@@ -52,6 +52,7 @@ const SplashScreen = () => {
 };
 
 export default SplashScreen;
+
 
 
 
