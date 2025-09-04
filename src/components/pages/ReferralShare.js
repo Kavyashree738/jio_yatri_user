@@ -91,9 +91,10 @@ const shareViaOther = () => {
 
   const message = `${referralData.shareLink}|${referralData.referralCode}`;
 
-  if (window.Android && window.Android.share) {
-    window.Android.share(referralData.shareLink, referralData.referralCode);
-  } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iOS) {
+  if (window.Android && window.Android.postMessage) {
+  window.Android.postMessage(`${referralData.shareLink}|${referralData.referralCode}`);
+}
+ else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iOS) {
     window.webkit.messageHandlers.NativeShare.postMessage(message);
   } else if (navigator.share) {
     navigator.share({
