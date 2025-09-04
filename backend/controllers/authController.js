@@ -248,7 +248,7 @@ const sendOtp = async (req, res) => {
     });
 
     // Custom SMS message format
-    const smsMessage = `Hello ${phoneNumber}, Please find your OTP ${otp} for aqua sms. Thanks, AmbaniYatri`;
+    const smsMessage = `Hello ${phoneNumber}, Please find your OTP ${otp} for Jioyatri. Thanks, AmbaniYatri`;
 
     // Send SMS
     await sendSms(phoneNumber, smsMessage);
@@ -602,3 +602,4 @@ const verifyOtp = async (req, res) => {
 
 
 module.exports = { sendOtp, verifyOtp };
+
