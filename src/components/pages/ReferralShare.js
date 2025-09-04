@@ -90,19 +90,26 @@ const shareViaOther = () => {
   if (!referralData) return;
 
   const message = `${referralData.shareLink}|${referralData.referralCode}`;
-
-  if (window.Android && window.Android.postMessage) {
-  window.Android.postMessage(`${referralData.shareLink}|${referralData.referralCode}`);
-}
- else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iOS) {
+  
+  // Try to communicate with Flutter WebView
+  if (window.NativeShare) {
+    // For Flutter WebView
+    window.NativeShare.postMessage(message);
+  } else if (window.Android && window.Android.share) {
+    // For native Android WebView (if needed)
+    window.Android.share(referralData.shareLink, referralData.referralCode);
+  } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.NativeShare) {
+    // For iOS WebView (if needed)
     window.webkit.messageHandlers.NativeShare.postMessage(message);
   } else if (navigator.share) {
+    // For browsers that support the Web Share API
     navigator.share({
       title: 'Join and get ₹10 cashback!',
       text: `Use my referral code ${referralData.referralCode} to get ₹10 cashback!`,
       url: referralData.shareLink,
     });
   } else {
+    // Fallback: copy to clipboard
     navigator.clipboard.writeText(referralData.shareLink);
     alert('Link copied!');
   }
