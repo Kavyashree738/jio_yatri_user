@@ -86,23 +86,27 @@ const ReferralShare = () => {
     }
   };
 
-  const shareViaOther = async () => {
-    if (!referralData) return;
+const shareViaOther = () => {
+  if (!referralData) return;
 
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'Join and get ₹10 cashback!',
-          text: `Use my referral code ${referralData.referralCode} to get ₹10 cashback!`,
-          url: referralData.shareLink,
-        });
-      } else {
-        copyToClipboard();
-      }
-    } catch (err) {
-      console.log('Error sharing:', err);
-    }
-  };
+  const message = `${referralData.shareLink}|${referralData.referralCode}`;
+
+  if (window.Android && window.Android.share) {
+    window.Android.share(referralData.shareLink, referralData.referralCode);
+  } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iOS) {
+    window.webkit.messageHandlers.NativeShare.postMessage(message);
+  } else if (navigator.share) {
+    navigator.share({
+      title: 'Join and get ₹10 cashback!',
+      text: `Use my referral code ${referralData.referralCode} to get ₹10 cashback!`,
+      url: referralData.shareLink,
+    });
+  } else {
+    navigator.clipboard.writeText(referralData.shareLink);
+    alert('Link copied!');
+  }
+};
+
 
   if (loading) {
     return (
