@@ -258,6 +258,7 @@
     padding: 1.5rem;
     border-radius: 1rem;
      margin-top:0px;
+    margin-bottom: 45px;
   }
   .user-profile-modern-name {
     font-size: 1.4rem;
@@ -540,4 +541,5 @@
 .user-profile-modern-container{
   margin-top:60px;
 }
+
 
