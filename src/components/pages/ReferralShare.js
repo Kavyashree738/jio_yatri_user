@@ -90,31 +90,37 @@ const shareViaOther = () => {
   if (!referralData) return;
 
   const message = `${referralData.shareLink}|${referralData.referralCode}`;
-  
-  // Try to communicate with Flutter WebView
-  if (window.NativeShare) {
-    // For Flutter WebView
-    window.NativeShare.postMessage(message);
-  } else if (window.Android && window.Android.share) {
-    // For native Android WebView (if needed)
-    window.Android.share(referralData.shareLink, referralData.referralCode);
-  } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.NativeShare) {
-    // For iOS WebView (if needed)
-    window.webkit.messageHandlers.NativeShare.postMessage(message);
-  } else if (navigator.share) {
-    // For browsers that support the Web Share API
+
+  // First try the Web Share API (works in many browsers and WebViews)
+  if (navigator.share) {
     navigator.share({
-      title: 'Join and get ₹10 cashback!',
+      title: 'Join JioYatri and get ₹10 cashback!',
       text: `Use my referral code ${referralData.referralCode} to get ₹10 cashback!`,
       url: referralData.shareLink,
+    }).catch(err => {
+      console.log('Web Share API failed, using fallback:', err);
+      fallbackShare();
     });
   } else {
-    // Fallback: copy to clipboard
-    navigator.clipboard.writeText(referralData.shareLink);
-    alert('Link copied!');
+    fallbackShare();
+  }
+
+  function fallbackShare() {
+    // For Flutter WebView and other environments
+    if (window.Android && window.Android.share) {
+      window.Android.share(referralData.shareLink, referralData.referralCode);
+    } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.NativeShare) {
+      window.webkit.messageHandlers.NativeShare.postMessage(message);
+    } else if (window.NativeShare) {
+      // Direct channel communication with Flutter
+      window.NativeShare.postMessage(message);
+    } else {
+      // Final fallback: copy to clipboard
+      navigator.clipboard.writeText(referralData.shareLink);
+      alert('Link copied to clipboard!');
+    }
   }
 };
-
 
   if (loading) {
     return (
