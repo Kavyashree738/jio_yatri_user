@@ -684,14 +684,40 @@ const User = require('../models/User');
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 const { notifyNewShipment } = require('../services/notificationService');
 const mongoose = require('mongoose');  // Add this line at the top
+
+
+function toGeoPoint(input) {
+  // { lat, lng } object
+  if (input && typeof input === 'object') {
+    if (Number.isFinite(input.lat) && Number.isFinite(input.lng)) {
+      return { type: 'Point', coordinates: [input.lng, input.lat] }; // GeoJSON is [lng, lat]
+    }
+    // Already GeoJSON Point?
+    if (input.type === 'Point' && Array.isArray(input.coordinates)) {
+      const [lng, lat] = input.coordinates;
+      if (Number.isFinite(lng) && Number.isFinite(lat)) {
+        return { type: 'Point', coordinates: [lng, lat] };
+      }
+    }
+  }
+  // Raw [lng, lat] array
+  if (Array.isArray(input) && input.length === 2) {
+    const [lng, lat] = input;
+    if (Number.isFinite(lng) && Number.isFinite(lat)) {
+      return { type: 'Point', coordinates: [lng, lat] };
+    }
+  }
+  return null;
+}
+
 exports.calculateDistance = async (req, res) => {
   try {
     const { origin, destination } = req.body;
 
-    if (!origin || !destination || 
-        typeof origin.lat !== 'number' || typeof origin.lng !== 'number' ||
-        typeof destination.lat !== 'number' || typeof destination.lng !== 'number') {
-      return res.status(400).json({ 
+    if (!origin || !destination ||
+      typeof origin.lat !== 'number' || typeof origin.lng !== 'number' ||
+      typeof destination.lat !== 'number' || typeof destination.lng !== 'number') {
+      return res.status(400).json({
         error: 'Invalid coordinates format',
         details: 'Expected { lat: number, lng: number } for both origin and destination'
       });
@@ -701,7 +727,7 @@ exports.calculateDistance = async (req, res) => {
       'https://maps.googleapis.com/maps/api/directions/json',
       {
         params: {
-          origin:` ${origin.lat},${origin.lng}`,
+          origin: ` ${origin.lat},${origin.lng}`,
           destination: `${destination.lat},${destination.lng}`,
           key: GOOGLE_MAPS_API_KEY,
           units: 'metric'
@@ -710,7 +736,7 @@ exports.calculateDistance = async (req, res) => {
     );
 
     if (response.data.status !== 'OK') {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Could not calculate route',
         status: response.data.status,
         message: response.data.error_message || 'No route could be found between the specified locations'
@@ -723,7 +749,7 @@ exports.calculateDistance = async (req, res) => {
     const distanceInKm = leg.distance.value / 1000;
     const duration = leg.duration.text;
 
-    res.json({ 
+    res.json({
       distance: distanceInKm,
       duration: duration,
       polyline: route.overview_polyline.points
@@ -731,7 +757,7 @@ exports.calculateDistance = async (req, res) => {
 
   } catch (error) {
     console.error('Route calculation error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to calculate distance',
       details: error.message
     });
@@ -743,56 +769,72 @@ const { v4: uuidv4 } = require('uuid');
 
 exports.createShipment = async (req, res) => {
   try {
-    const { 
-      sender, 
-      receiver, 
-      vehicleType, 
-      distance, 
+    const {
+      sender,
+      receiver,
+      parcel,
+      vehicleType,
+      distance,
       cost,
-       parcel,
-      shopId,          // Will be undefined for regular shipments
-      isShopOrder      // Will be false if not provided
+      shopId,          // optional (shop order)
+      isShopOrder      // optional (boolean)
     } = req.body;
-    
+
     const userId = req.user.uid;
 
-    // Validate only for shop orders
+    // Basic validation
+    if (!sender?.name || !sender?.phone || !sender?.address?.addressLine1) {
+      return res.status(400).json({ error: 'Sender name, phone, and addressLine1 are required' });
+    }
+    if (!receiver?.name || !receiver?.phone || !receiver?.address?.addressLine1) {
+      return res.status(400).json({ error: 'Receiver name, phone, and addressLine1 are required' });
+    }
+    if (!parcel?.description) {
+      return res.status(400).json({ error: 'Parcel description is required' });
+    }
+    if (!vehicleType || !Number.isFinite(distance) || !Number.isFinite(cost)) {
+      return res.status(400).json({ error: 'vehicleType, distance, and cost are required' });
+    }
     if (isShopOrder && !shopId) {
-      return res.status(400).json({ 
-        error: 'Shop ID is required for shop orders' 
-      });
+      return res.status(400).json({ error: 'Shop ID is required for shop orders' });
     }
 
-     if (!parcel || !parcel.description) {
-      return res.status(400).json({ 
-        error: 'Parcel description is required' 
-      });
+    // Normalize coordinates to GeoJSON Points (sender & receiver)
+    const senderPoint   = toGeoPoint(sender.address?.coordinates);
+    const receiverPoint = toGeoPoint(receiver.address?.coordinates);
+
+    if (!senderPoint) {
+      return res.status(400).json({ error: 'Sender coordinates must be GeoJSON Point or [lng,lat]' });
+    }
+    if (!receiverPoint) {
+      return res.status(400).json({ error: 'Receiver coordinates must be GeoJSON Point or [lng,lat]' });
     }
 
     const trackingNumber = uuidv4().split('-')[0].toUpperCase();
 
-    // Base shipment data
+    // Build doc
     const shipmentData = {
       sender: {
         name: sender.name,
         phone: sender.phone,
+        email: sender.email || '',
         address: {
           addressLine1: sender.address.addressLine1,
-          coordinates: sender.address.coordinates
+          coordinates: senderPoint,         // GeoJSON Point
         }
       },
       receiver: {
         name: receiver.name,
         phone: receiver.phone,
+        email: receiver.email || '',
         address: {
           addressLine1: receiver.address.addressLine1,
-          coordinates: receiver.address.coordinates
+          coordinates: receiverPoint,       // GeoJSON Point
         }
       },
-
-       parcel: {
+      parcel: {
         description: parcel.description,
-        images: [] // Will be populated later with image uploads
+        images: [] // fill later
       },
       vehicleType,
       distance,
@@ -802,35 +844,40 @@ exports.createShipment = async (req, res) => {
       status: 'pending'
     };
 
-    // Only add shop fields if it's a shop order
     if (isShopOrder) {
       shipmentData.shopId = shopId;
       shipmentData.isShopOrder = true;
     }
 
-    const newShipment = new Shipment(shipmentData);
-    const savedShipment = await newShipment.save();
+    // Save
+    const savedShipment = await new Shipment(shipmentData).save();
 
-    // Update user's shipment count
-    // await User.findOneAndUpdate(
-    //   { uid: userId },
-    //   {
-    //     $inc: { totalShipments: 1, totalAmountPaid: cost },
-    //     $push: { shipments: savedShipment._id }
-    //   }
-    // );
+    // ---------------- 10km proximity fan-out (using Driver.lastKnownLocation) ----------------
+    const MAX_DISTANCE_METERS = 10_000;
 
-     const matchingDrivers = await Driver.find({
-      vehicleType: vehicleType,
+    const nearbyDrivers = await Driver.find({
+      vehicleType,
       status: 'active',
-      fcmToken: { $ne: null }
-    });
-     console.log(`Found ${matchingDrivers.length} drivers for notifications`);
+      isAvailable: true,               // optional but recommended
+      fcmToken: { $ne: null },
+      lastKnownLocation: {
+        $near: {
+          $geometry: senderPoint,      // sender GeoJSON point
+          $maxDistance: MAX_DISTANCE_METERS
+        }
+      }
+    })
+    .select('userId fcmToken')
+    .lean();
 
-      for (const driver of matchingDrivers) {
-      await notifyNewShipment(driver.userId, savedShipment);
-    }
-    res.status(201).json({
+    console.log(`[createShipment] Found ${nearbyDrivers.length} drivers within 10km of sender`);
+
+    await Promise.all(
+      nearbyDrivers.map(d => notifyNewShipment(d.userId, savedShipment))
+    );
+    // ----------------------------------------------------------------------------------------
+
+    return res.status(201).json({
       message: 'Shipment created successfully',
       trackingNumber: savedShipment.trackingNumber,
       shipment: savedShipment
@@ -838,23 +885,21 @@ exports.createShipment = async (req, res) => {
 
   } catch (error) {
     console.error('Error creating shipment:', error);
-    
-    // Handle duplicate tracking number
-    if (error.code === 11000 && error.keyPattern.trackingNumber) {
+
+    // Duplicate tracking number (rare, but keep your previous handling)
+    if (error.code === 11000 && error.keyPattern?.trackingNumber) {
       return res.status(409).json({
         message: 'Please try again',
         error: 'Duplicate tracking number'
       });
     }
 
-    res.status(500).json({ 
+    return res.status(500).json({
       message: 'Failed to create shipment',
-      error: error.message,
-      details: error.errors
+      error: error.message
     });
   }
 };
-
 exports.getUserShipments = async (req, res) => {
   try {
     const userId = req.user.uid;
