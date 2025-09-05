@@ -108,9 +108,9 @@ const shareViaOther = () => {
   function fallbackShare() {
   const message = `${referralData.shareLink}|${referralData.referralCode}`;
 
-  if (window.NativeShare && window.NativeShare.postMessage) {
+  if (typeof NativeShare !== "undefined" && NativeShare.postMessage) {
     // Flutter WebView bridge
-    window.NativeShare.postMessage(message);
+    NativeShare.postMessage(message);
   } else if (window.Android && window.Android.share) {
     // Old Android bridge
     window.Android.share(referralData.shareLink, referralData.referralCode);
@@ -123,6 +123,7 @@ const shareViaOther = () => {
     alert('Link copied to clipboard!');
   }
 }
+
 };
 
   if (loading) {
