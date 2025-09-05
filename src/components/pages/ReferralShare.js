@@ -106,20 +106,23 @@ const shareViaOther = () => {
   }
 
   function fallbackShare() {
-    // For Flutter WebView and other environments
-    if (window.Android && window.Android.share) {
-      window.Android.share(referralData.shareLink, referralData.referralCode);
-    } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.NativeShare) {
-      window.webkit.messageHandlers.NativeShare.postMessage(message);
-    } else if (window.NativeShare) {
-      // Direct channel communication with Flutter
-      window.NativeShare.postMessage(message);
-    } else {
-      // Final fallback: copy to clipboard
-      navigator.clipboard.writeText(referralData.shareLink);
-      alert('Link copied to clipboard!');
-    }
+  const message = `${referralData.shareLink}|${referralData.referralCode}`;
+
+  if (window.NativeShare && window.NativeShare.postMessage) {
+    // Flutter WebView bridge
+    window.NativeShare.postMessage(message);
+  } else if (window.Android && window.Android.share) {
+    // Old Android bridge
+    window.Android.share(referralData.shareLink, referralData.referralCode);
+  } else if (window.webkit && window.webkit.messageHandlers.NativeShare) {
+    // iOS WebKit bridge
+    window.webkit.messageHandlers.NativeShare.postMessage(message);
+  } else {
+    // Last fallback
+    navigator.clipboard.writeText(referralData.shareLink);
+    alert('Link copied to clipboard!');
   }
+}
 };
 
   if (loading) {
