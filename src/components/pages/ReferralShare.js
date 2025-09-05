@@ -91,40 +91,39 @@ const shareViaOther = () => {
 
   const message = `${referralData.shareLink}|${referralData.referralCode}`;
 
-  // First try the Web Share API (works in many browsers and WebViews)
-  if (navigator.share) {
+  // Try Flutter WebView bridge first
+  if (window.NativeShare && typeof window.NativeShare.postMessage === 'function') {
+    console.log("📤 Sending to Flutter:", message);
+    window.NativeShare.postMessage(message);
+  } 
+  // For Android (older method)
+  else if (window.Android && typeof window.Android.share === 'function') {
+    window.Android.share(referralData.shareLink, referralData.referralCode);
+  }
+  // For iOS
+  else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.NativeShare) {
+    window.webkit.messageHandlers.NativeShare.postMessage(message);
+  }
+  // Web Share API (for browsers)
+  else if (navigator.share) {
     navigator.share({
       title: 'Join JioYatri and get ₹10 cashback!',
       text: `Use my referral code ${referralData.referralCode} to get ₹10 cashback!`,
       url: referralData.shareLink,
     }).catch(err => {
-      console.log('Web Share API failed, using fallback:', err);
-      fallbackShare();
+      console.log('Web Share API failed:', err);
+      fallbackToClipboard();
     });
-  } else {
-    fallbackShare();
+  }
+  // Final fallback
+  else {
+    fallbackToClipboard();
   }
 
-  function fallbackShare() {
-  const message = `${referralData.shareLink}|${referralData.referralCode}`;
-
-  if (window.NativeShare && window.NativeShare.postMessage) {
-    // Flutter WebView bridge
-    window.NativeShare.postMessage(message);
-  } else if (window.Android && window.Android.share) {
-    // Old Android bridge
-    window.Android.share(referralData.shareLink, referralData.referralCode);
-  } else if (window.webkit && window.webkit.messageHandlers.NativeShare) {
-    // iOS WebKit bridge
-    window.webkit.messageHandlers.NativeShare.postMessage(message);
-  } else {
-    // Last fallback
-    navigator.clipboard.writeText(referralData.shareLink);
+  function fallbackToClipboard() {
+    navigator.clipboard.writeText(`${referralData.shareLink} (Code: ${referralData.referralCode})`);
     alert('Link copied to clipboard!');
   }
-}
-
-
 };
 
   if (loading) {
