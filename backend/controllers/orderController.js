@@ -81,7 +81,8 @@ function toPointFromLatLng(lat, lng) {
  */
 async function findNearbyDrivers({ vehicleType, centerPoint, radiusMeters = 10_000 }) {
   if (!centerPoint?.type || !Array.isArray(centerPoint.coordinates)) return [];
-  return Driver.find({
+
+  const drivers = await Driver.find({
     vehicleType,
     status: 'active',
     isAvailable: true,
@@ -92,8 +93,18 @@ async function findNearbyDrivers({ vehicleType, centerPoint, radiusMeters = 10_0
         $maxDistance: radiusMeters
       }
     }
-  }).select('userId fcmToken').lean();
+  }).select('userId fcmToken lastKnownLocation').lean();
+
+  console.log(`[findNearbyDrivers] Found ${drivers.length} drivers within ${(radiusMeters/1000)} km`, 
+    drivers.map(d => ({
+      userId: d.userId,
+      coords: d.lastKnownLocation.coordinates
+    }))
+  );
+
+  return drivers;
 }
+
 
 /**
  * Notify nearby drivers about a shipment.
@@ -102,12 +113,17 @@ async function findNearbyDrivers({ vehicleType, centerPoint, radiusMeters = 10_0
 async function fanOutShipmentToNearbyDrivers({ shipment, vehicleType, pickupPoint, radiusMeters = 10_000 }) {
   try {
     const drivers = await findNearbyDrivers({ vehicleType, centerPoint: pickupPoint, radiusMeters });
-    console.log(`[fanOut] Found ${drivers.length} drivers within ${radiusMeters}m for ${vehicleType}`);
-    await Promise.all(drivers.map(d => notifyNewShipment?.(d.userId, shipment)));
+    console.log(`[fanOut] Preparing to notify ${drivers.length} drivers`);
+
+    await Promise.all(drivers.map(d => {
+      console.log(`[fanOut] Notifying driver ${d.userId} with shipment ${shipment._id}`);
+      return notifyNewShipment?.(d.userId, shipment);
+    }));
   } catch (e) {
     console.warn('[fanOut] notify failed:', e.message);
   }
 }
+
 
 // --------------------------- create order ---------------------------
 exports.createOrder = async (req, res) => {
