@@ -10,7 +10,8 @@ import '../styles/Cart.css';
 import { auth } from '../firebase';
 import { signInAnonymously } from 'firebase/auth';
 import { useAuth } from '../context/AuthContext';
-
+import Header from './pages/Header';
+import Footer from './pages/Footer';
 const apiBase = 'https://jio-yatri-user.onrender.com';
 
 /* -------------------- Helpers -------------------- */
@@ -265,6 +266,8 @@ useEffect(() => {
   };
 
   return (
+    <>
+     <Header />
     <div className="cart-page">
       <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
 
@@ -480,5 +483,7 @@ useEffect(() => {
         </button>
       </div>
     </div>
+            <Footer />
+          </>
   );
 }
