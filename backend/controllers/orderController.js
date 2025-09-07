@@ -4,14 +4,14 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
 const Order = require('../models/Order');
-// ⚠️ Make sure this is the Shop model that actually contains the items array.
-const Shop = require('../models/CategoryModel'); // replace with '../models/Shop' if that's your real file
+// ⚠️ Ensure this is the Shop model that actually contains items and address
+const Shop = require('../models/CategoryModel');
 const Shipment = require('../models/Shipment');
 const Driver = require('../models/Driver');
 const { notifyNewShipment, notifyShopNewOrder } = require('../services/notificationService');
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || '';
 
-// ---------- helpers ----------
+// --------------------------- helpers: pricing / distance ---------------------------
 const computeTotals = ({ items, deliveryFee = 0, discount = 0 }) => {
   const subtotal = items.reduce((s, it) => s + (Number(it.price) || 0) * (Number(it.quantity) || 1), 0);
   const total = +(subtotal + Number(deliveryFee) - Number(discount)).toFixed(2);
@@ -68,7 +68,48 @@ function deliveryCost(km, vehicleType) {
   return +(km * rate).toFixed(2);
 }
 
-// ---------- create ----------
+// --------------------------- helpers: proximity fan-out ---------------------------
+// Convert {lat, lng} to GeoJSON Point
+function toPointFromLatLng(lat, lng) {
+  if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+  return { type: 'Point', coordinates: [lng, lat] }; // GeoJSON expects [lng, lat]
+}
+
+/**
+ * Find nearby drivers (by vehicle type) within radius (meters) of a GeoJSON Point.
+ * Requires 2dsphere index on Driver.lastKnownLocation (you have it in your schema).
+ */
+async function findNearbyDrivers({ vehicleType, centerPoint, radiusMeters = 10_000 }) {
+  if (!centerPoint?.type || !Array.isArray(centerPoint.coordinates)) return [];
+  return Driver.find({
+    vehicleType,
+    status: 'active',
+    isAvailable: true,
+    fcmToken: { $ne: null },
+    lastKnownLocation: {
+      $near: {
+        $geometry: centerPoint,
+        $maxDistance: radiusMeters
+      }
+    }
+  }).select('userId fcmToken').lean();
+}
+
+/**
+ * Notify nearby drivers about a shipment.
+ * Uses your notifyNewShipment(userId, shipment) service.
+ */
+async function fanOutShipmentToNearbyDrivers({ shipment, vehicleType, pickupPoint, radiusMeters = 10_000 }) {
+  try {
+    const drivers = await findNearbyDrivers({ vehicleType, centerPoint: pickupPoint, radiusMeters });
+    console.log(`[fanOut] Found ${drivers.length} drivers within ${radiusMeters}m for ${vehicleType}`);
+    await Promise.all(drivers.map(d => notifyNewShipment?.(d.userId, shipment)));
+  } catch (e) {
+    console.warn('[fanOut] notify failed:', e.message);
+  }
+}
+
+// --------------------------- create order ---------------------------
 exports.createOrder = async (req, res) => {
   try {
     console.log('[createOrder] body:', JSON.stringify(req.body, null, 2));
@@ -155,7 +196,7 @@ exports.createOrder = async (req, res) => {
 
     // ✅ THEN notify the shop owner (non-blocking)
     try {
-      await notifyShopNewOrder(shop._id, doc); // or use shopId, both are fine
+      await notifyShopNewOrder(shop._id, doc);
       console.log('[createOrder] notifyShopNewOrder sent');
     } catch (e) {
       console.warn('[createOrder] notifyShopNewOrder failed:', e.message);
@@ -168,7 +209,7 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-// ---------- read single ----------
+// --------------------------- read single ---------------------------
 exports.getOrder = async (req, res) => {
   try {
     console.log('[getOrder] id =', req.params.id);
@@ -181,16 +222,15 @@ exports.getOrder = async (req, res) => {
   }
 };
 
-// ---------- list by shop ----------
-// controllers/orderController.js
+// --------------------------- list by shop ---------------------------
 exports.getOrdersByShop = async (req, res) => {
   try {
     const { shopId } = req.params;
     console.log('[getOrdersByShop] shopId param =', shopId);
 
-    const or = [{ 'shop._id': shopId }]; // string form (just in case)
+    const or = [{ 'shop._id': shopId }]; // string form
     if (mongoose.isValidObjectId(shopId)) {
-      or.push({ 'shop._id': new mongoose.Types.ObjectId(shopId) }); // ObjectId form (actual)
+      or.push({ 'shop._id': new mongoose.Types.ObjectId(shopId) }); // ObjectId form
     }
     const orders = await Order.find({ $or: or })
       .sort({ createdAt: -1 })
@@ -205,17 +245,11 @@ exports.getOrdersByShop = async (req, res) => {
   }
 };
 
-// ---------- list by user ----------
+// --------------------------- list by user ---------------------------
 exports.getOrdersByUser = async (req, res) => {
   try {
-    const { phone } = req.query;
-    // Prefer verified uid from token; ignore/override query userId
-    const userId = phone ? null : (req.user?.uid || null);
-
-    if (!phone && !userId) {
-      return res.status(400).json({ success: false, error: 'phone or authenticated user required' });
-    }
-
+    const { phone, userId } = req.query;
+    console.log('[getOrdersByUser] query =', req.query);
     const q = phone ? { 'customer.phone': phone } : { 'customer.userId': userId };
     const orders = await Order.find(q).sort({ createdAt: -1 }).lean();
     return res.json({ success: true, data: orders });
@@ -225,66 +259,39 @@ exports.getOrdersByUser = async (req, res) => {
   }
 };
 
-
-// ---------- update status ----------
-// controllers/orderController.js
-
+// --------------------------- update status ---------------------------
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
     console.log('[updateOrderStatus] id =', req.params.id, 'status =', status);
 
     const allowed = [
-      'pending',
-      'accepted',
-      'confirmed',
-      'preparing',
-      'ready',
-      'out_for_delivery',
-      'completed',
-      'cancelled',
+      'pending', 'accepted', 'confirmed', 'preparing',
+      'ready', 'out_for_delivery', 'completed', 'cancelled'
     ];
     if (!allowed.includes(status)) {
       return res.status(400).json({ success: false, error: 'Invalid status' });
     }
 
-    const order = await Order.findById(req.params.id);
+    let order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status } },
+      { new: true }
+    );
+
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
 
-    // Only the customer who placed it can cancel from the app
-    if (status === 'cancelled') {
-      const uid = req.user?.uid;
-      if (!uid || order.customer?.userId !== uid) {
-        return res.status(403).json({ success: false, error: 'Not allowed to cancel this order' });
-      }
-
-      // Disallow cancelling terminal states
-      const terminal = new Set(['completed', 'cancelled']);
-      if (terminal.has(order.status)) {
-        return res
-          .status(400)
-          .json({ success: false, error: `Order already ${order.status}` });
-      }
-
-      // Optional: disallow cancelling once order is out for delivery
-      if (order.status === 'out_for_delivery') {
-        return res
-          .status(400)
-          .json({ success: false, error: 'Order cannot be cancelled at this stage' });
-      }
-    }
-
-    order.status = status;
-    await order.save();
-
-    // Optional: cascade cancel shipment if exists
-    if (status === 'cancelled' && order.shipmentId) {
+    // ✅ Create shipment when the order is accepted (first time only)
+    if (status === 'accepted' && !order.shipmentId) {
       try {
-        await Shipment.findByIdAndUpdate(order.shipmentId, { $set: { status: 'cancelled' } });
+        const shipment = await createShipmentForOrder(order);
+        // re-fetch to include the newly set shipmentId
+        order = await Order.findById(order._id).lean();
+        console.log('[updateOrderStatus] Shipment created:', shipment._id.toString());
       } catch (e) {
-        console.warn('[updateOrderStatus] failed to cancel shipment:', e.message);
+        console.error('[updateOrderStatus] Shipment creation failed:', e.message);
       }
     }
 
@@ -296,8 +303,7 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-
-// ---------- update payment ----------
+// --------------------------- update payment (no auto-shipment here) ---------------------------
 exports.updatePaymentStatus = async (req, res) => {
   try {
     const { status = 'paid', method, provider, txnId } = req.body;
@@ -309,11 +315,11 @@ exports.updatePaymentStatus = async (req, res) => {
     }
 
     const update = { 'payment.status': status };
-    if (method) update['payment.method'] = method;
+    if (method !== undefined)   update['payment.method'] = method;
     if (provider !== undefined) update['payment.provider'] = provider;
-    if (txnId !== undefined) update['payment.txnId'] = txnId;
+    if (txnId !== undefined)    update['payment.txnId'] = txnId;
 
-    let doc = await Order.findByIdAndUpdate(
+    const doc = await Order.findByIdAndUpdate(
       req.params.id,
       { $set: update },
       { new: true }
@@ -323,17 +329,7 @@ exports.updatePaymentStatus = async (req, res) => {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
 
-    // auto create shipment on first time "paid"
-    if (doc.payment?.status === 'paid' && !doc.shipmentId) {
-      try {
-        const shipment = await createShipmentForOrder(doc);
-        doc = await Order.findById(doc._id).lean(); // reflect shipmentId
-        console.log('[updatePaymentStatus] Shipment created:', shipment._id.toString());
-      } catch (e) {
-        console.error('[updatePaymentStatus] Shipment creation failed:', e.message);
-      }
-    }
-
+    // Intentionally NOT creating a shipment here anymore.
     return res.json({ success: true, data: doc });
   } catch (e) {
     console.error('[updatePaymentStatus] failed:', e);
@@ -341,11 +337,12 @@ exports.updatePaymentStatus = async (req, res) => {
   }
 };
 
-// --- core: create shipment from order ---
+// --------------------------- core: create shipment from order ---------------------------
 async function createShipmentForOrder(orderDoc) {
   const shop = await Shop.findById(orderDoc.shop._id || orderDoc.shop).lean();
   if (!shop) throw new Error('Shop not found for shipment creation');
 
+  // Shop coords are stored as {lat, lng}
   const origin = {
     lat: shop?.address?.coordinates?.lat,
     lng: shop?.address?.coordinates?.lng
@@ -358,6 +355,9 @@ async function createShipmentForOrder(orderDoc) {
   if (origin.lat == null || origin.lng == null || destination.lat == null || destination.lng == null) {
     throw new Error('Missing coordinates for shop or customer.');
   }
+
+  // Build GeoJSON pickup point for proximity search
+  const pickupPoint = toPointFromLatLng(origin.lat, origin.lng);
 
   const km = await distanceKm(origin, destination);
   const cost = deliveryCost(km, orderDoc.vehicleType);
@@ -374,6 +374,7 @@ async function createShipmentForOrder(orderDoc) {
       phone: shop.phone,
       address: {
         addressLine1: shop?.address?.address || '',
+        // keep {lat,lng} — your Shipment schema accepts this
         coordinates: origin
       }
     },
@@ -396,26 +397,19 @@ async function createShipmentForOrder(orderDoc) {
     payment: { status: 'pending', method: null }
   });
 
-  // Optional: notify drivers
-  try {
-    const drivers = await Driver.find({
-      vehicleType: shipment.vehicleType,
-      status: 'active',
-      fcmToken: { $ne: null }
-    }).select('userId');
-    for (const d of drivers) {
-      await notifyNewShipment?.(d.userId, shipment);
-    }
-  } catch (e) {
-    console.warn('[createShipmentForOrder] notify failed:', e.message);
-  }
+  // ✅ PROXIMITY FAN-OUT (10 km around the shop)
+  await fanOutShipmentToNearbyDrivers({
+    shipment,
+    vehicleType: shipment.vehicleType,
+    pickupPoint,            // GeoJSON Point at the shop
+    radiusMeters: 10_000    // 10 km
+  });
 
   await Order.findByIdAndUpdate(orderDoc._id, { $set: { shipmentId: shipment._id } });
   return shipment;
 }
 
-
-// ADD THIS
+// --------------------------- owner → all shops' orders ---------------------------
 exports.getOrdersByOwner = async (req, res) => {
   try {
     const { ownerId } = req.params;
@@ -443,4 +437,3 @@ exports.getOrdersByOwner = async (req, res) => {
     return res.status(500).json({ success: false, error: 'Failed to fetch owner orders' });
   }
 };
-
