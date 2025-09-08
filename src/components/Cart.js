@@ -87,28 +87,29 @@ export default function CartPage() {
 
   // ---- load shop coords (and optionally shop) ----
   useEffect(() => {
-  async function fetchShop() {
-    try {
-      const res = await axios.get(`${apiBase}/api/shops/${shopId}`);
-      const s = res.data?.data || res.data;
-      const lat = s?.address?.coordinates?.lat ?? s?.location?.coordinates?.[1];
-      const lng = s?.address?.coordinates?.lng ?? s?.location?.coordinates?.[0];
-      if (lat != null && lng != null) setShopCoords({ lat, lng });
-    } catch (e) {
-      console.warn('Could not fetch shop coords:', e?.response?.data || e.message);
+    async function fetchShop() {
+      try {
+        const res = await axios.get(`${apiBase}/api/shops/${shopId}`);
+        const s = res.data?.data || res.data;
+        const lat = s?.address?.coordinates?.lat ?? s?.location?.coordinates?.[1];
+        const lng = s?.address?.coordinates?.lng ?? s?.location?.coordinates?.[0];
+        if (lat != null && lng != null) setShopCoords({ lat, lng });
+      } catch (e) {
+        console.warn('Could not fetch shop coords:', e?.response?.data || e.message);
+      }
     }
-  }
 
-  // If bucket already has coordinates, use them
-  const shopLat = bucket?.shop?.address?.coordinates?.lat;
-  const shopLng = bucket?.shop?.address?.coordinates?.lng;
+    // If bucket already has coordinates, use them
+    const shopLat = bucket?.shop?.address?.coordinates?.lat;
+    const shopLng = bucket?.shop?.address?.coordinates?.lng;
 
-  if (shopLat != null && shopLng != null) {
-    setShopCoords({ lat: shopLat, lng: shopLng });
-  } else {
-    fetchShop();
-  }
-}, [shopId, bucket?.shop?.address?.coordinates]);
+    if (shopLat != null && shopLng != null) {
+      setShopCoords({ lat: shopLat, lng: shopLng });
+    } else {
+      fetchShop();
+    }
+  }, [shopId, bucket?.shop?.address?.coordinates]);
+
 
 
   // ---- compute distance & prices ----
@@ -168,44 +169,43 @@ export default function CartPage() {
   }, [distanceKm]);
 
   // ---- PhonePe / UPI links ----
-  // ---- PhonePe / UPI links ----
-const upiUi = useMemo(() => {
-  const shop = bucket?.shop || {};
-  const shopName = shop?.shopName || 'Shop';
+  const upiUi = useMemo(() => {
+    const shop = bucket?.shop || {};
+    const shopName = shop?.shopName || 'Shop';
 
-  // ✅ Always use UPI ID stored in DB
-  const vpa = shop?.upiId || null;
+    // ✅ Always use UPI ID stored in DB
+    const vpa = shop?.upiId || deriveVpaFromPhonePeNumber(shop?.phonePeNumber);
 
-  const amount = Number(pricing.total || 0);
-  const note = `Order at ${shopName}`;
+    const amount = Number(pricing.total || 0);
+    const note = `Order at ${shopName}`;
 
-  if (!vpa || amount <= 0) {
-    return { ready: false };
-  }
+    console.log('💰 Cart total amount:', amount);
+    console.log('🛒 Shop info:', shop);
+    console.log('🔗 Using VPA / UPI ID:', vpa);
 
-  const paramStr = toUpiParamString({ pa: vpa, pn: shopName, am: amount, tn: note });
-  const upiUrl = makeUpiUri(paramStr);
+    if (!vpa || amount <= 0) {
+      return { ready: false };
+    }
 
-  // Android: directly open PhonePe
-  const phonePeIntent = makeAndroidIntentUri(paramStr, {
-    packageName: 'com.phonepe.app',
-    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.phonepe.app'
-  });
+    const paramStr = toUpiParamString({ pa: vpa, pn: shopName, am: amount, tn: note });
+    const upiUrl = makeUpiUri(paramStr);
+    const phonePeIntent = makeAndroidIntentUri(paramStr, {
+      packageName: 'com.phonepe.app',
+      playStoreUrl: 'https://play.google.com/store/apps/details?id=com.phonepe.app'
+    });
+    const upiChooserIntent = makeAndroidIntentUri(paramStr);
 
-  // Android: system chooser for any UPI app
-  const upiChooserIntent = makeAndroidIntentUri(paramStr);
-
-  return {
-    ready: true,
-    vpa,
-    amount,
-    upiUrl,
-    phonePeIntent,
-    upiChooserIntent,
-    shopName,
-    phonePeNumber: shop?.phonePeNumber
-  };
-}, [bucket, pricing.total]);
+    return {
+      ready: true,
+      vpa,
+      amount,
+      upiUrl,
+      phonePeIntent,
+      upiChooserIntent,
+      shopName,
+      phonePeNumber: shop?.phonePeNumber
+    };
+  }, [bucket, pricing.total]);
 
 
   if (!bucket || bucket.items.length === 0) {
@@ -260,225 +260,225 @@ const upiUi = useMemo(() => {
 
   return (
     <>
-    <Header/>
-    <div className="cart-page">
-      <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
+      <Header />
+      <div className="cart-page">
+        <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
 
-      <div className="cart-topbar">
-        <h2>Cart · {bucket.shop?.shopName}</h2>
-      </div>
-
-      <div className="cart-items">
-        {bucket.items.map(it => (
-          <div className="cart-row" key={it.itemId}>
-            <img src={it.imageUrl || '/placeholder-food.jpg'} alt={it.name} />
-            <div className="name">{it.name}</div>
-            <div className="price">₹{it.price}</div>
-            {bucket.shop?.category === 'hotel' && it.veg != null && (
-              <div className={`veg-tag ${it.veg ? 'veg' : 'nonveg'}`}>
-                {it.veg ? 'Veg' : 'Non-Veg'}
-              </div>
-            )}
-            <div className="qty">
-              <button onClick={() => setQty(shopId, it.itemId, Math.max(1, it.quantity - 1))}>−</button>
-              <span>{it.quantity}</span>
-              <button onClick={() => setQty(shopId, it.itemId, it.quantity + 1)}>+</button>
-            </div>
-            <button className="remove" onClick={() => removeItem(shopId, it.itemId)}><MdDelete /></button>
-          </div>
-        ))}
-      </div>
-
-      {/* === Delivery estimator === */}
-      <div className="cart-summary">
-        <div className="row"><span>Subtotal</span><span>₹{pricing.subtotal.toFixed(2)}</span></div>
-        {Number(pricing.tax) > 0 && (
-          <div className="row"><span>Tax</span><span>₹{Number(pricing.tax).toFixed(2)}</span></div>
-        )}
-        <div className="row"><span>Delivery (to shop)</span><span>₹{pricing.deliveryFee.toFixed(2)}</span></div>
-        <div className="row total"><span>Total (shop items)</span><span>₹{pricing.total.toFixed(2)}</span></div>
-      </div>
-
-      {/* ======= PAY FOR ITEMS (PhonePe / UPI) ======= */}
-      <div className="checkout" style={{ marginTop: 16 }}>
-        <h3>Pay for Items</h3>
-
-        <div className="field" style={{ marginBottom: 8 }}>
-          <small style={{ opacity: 0.8 }}>
-            You’ll pay the <b>shop owner</b> for the items. Delivery fee is paid to the driver on delivery.
-          </small>
+        <div className="cart-topbar">
+          <h2>Cart · {bucket.shop?.shopName}</h2>
         </div>
 
-        {!upiUi.ready ? (
-          <div className="field">
-            <small style={{ color: '#b91c1c' }}>
-              Payment unavailable — shop UPI not set or total is ₹0.
+        <div className="cart-items">
+          {bucket.items.map(it => (
+            <div className="cart-row" key={it.itemId}>
+              <img src={it.imageUrl || '/placeholder-food.jpg'} alt={it.name} />
+              <div className="name">{it.name}</div>
+              <div className="price">₹{it.price}</div>
+              {bucket.shop?.category === 'hotel' && it.veg != null && (
+                <div className={`veg-tag ${it.veg ? 'veg' : 'nonveg'}`}>
+                  {it.veg ? 'Veg' : 'Non-Veg'}
+                </div>
+              )}
+              <div className="qty">
+                <button onClick={() => setQty(shopId, it.itemId, Math.max(1, it.quantity - 1))}>−</button>
+                <span>{it.quantity}</span>
+                <button onClick={() => setQty(shopId, it.itemId, it.quantity + 1)}>+</button>
+              </div>
+              <button className="remove" onClick={() => removeItem(shopId, it.itemId)}><MdDelete /></button>
+            </div>
+          ))}
+        </div>
+
+        {/* === Delivery estimator === */}
+        <div className="cart-summary">
+          <div className="row"><span>Subtotal</span><span>₹{pricing.subtotal.toFixed(2)}</span></div>
+          {Number(pricing.tax) > 0 && (
+            <div className="row"><span>Tax</span><span>₹{Number(pricing.tax).toFixed(2)}</span></div>
+          )}
+          <div className="row"><span>Delivery (to shop)</span><span>₹{pricing.deliveryFee.toFixed(2)}</span></div>
+          <div className="row total"><span>Total (shop items)</span><span>₹{pricing.total.toFixed(2)}</span></div>
+        </div>
+
+        {/* ======= PAY FOR ITEMS (PhonePe / UPI) ======= */}
+        <div className="checkout" style={{ marginTop: 16 }}>
+          <h3>Pay for Items</h3>
+
+          <div className="field" style={{ marginBottom: 8 }}>
+            <small style={{ opacity: 0.8 }}>
+              You’ll pay the <b>shop owner</b> for the items. Delivery fee is paid to the driver on delivery.
             </small>
           </div>
-        ) : (
-          <>
-            <div className="field" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              {isAndroid() ? (
-                <>
-                  {/* Direct to PhonePe */}
-                  <a
-                    href={upiUi.phonePeIntent}
-                    className="btn-primary"
-                    rel="noopener noreferrer"
-                  >
-                    Pay in PhonePe (₹{upiUi.amount.toFixed(2)})
-                  </a>
 
-                  {/* UPI chooser (GPay/Paytm/PhonePe/etc.) */}
-                  <a
-                    href={upiUi.upiChooserIntent}
-                    className="btn-outline"
-                    rel="noopener noreferrer"
-                  >
-                    Pay in any UPI app
-                  </a>
-                </>
-              ) : (
-                <>
-                  {/* iOS/desktop: generic UPI link (works only if a UPI app registered upi://) */}
-                  <a
-                    href={upiUi.upiUrl}
-                    className="btn-primary"
-                    rel="noopener noreferrer"
-                  >
-                    Open UPI app (₹{upiUi.amount.toFixed(2)})
-                  </a>
-
-                  <button
-                    type="button"
-                    className="btn-outline"
-                    onClick={async () => {
-                      try {
-                        await navigator.clipboard.writeText(
-                          `VPA: ${upiUi.vpa}\nAmount: ₹${upiUi.amount.toFixed(2)}\nNote: Order at ${upiUi.shopName}`
-                        );
-                        alert('UPI details copied. Open your UPI app and paste.');
-                      } catch {
-                        alert(`VPA: ${upiUi.vpa}\nAmount: ₹${upiUi.amount.toFixed(2)}\nNote: Order at ${upiUi.shopName}`);
-                      }
-                    }}
-                  >
-                    Copy UPI details
-                  </button>
-                </>
-              )}
+          {!upiUi.ready ? (
+            <div className="field">
+              <small style={{ color: '#b91c1c' }}>
+                Payment unavailable — shop UPI not set or total is ₹0.
+              </small>
             </div>
+          ) : (
+            <>
+              <div className="field" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                {isAndroid() ? (
+                  <>
+                    {/* Direct to PhonePe */}
+                    <a
+                      href={upiUi.phonePeIntent}
+                      className="btn-primary"
+                      rel="noopener noreferrer"
+                    >
+                      Pay in PhonePe (₹{upiUi.amount.toFixed(2)})
+                    </a>
 
-            {!isMobile() && (
-              <div className="field" style={{ marginTop: 6 }}>
-                <small style={{ opacity: 0.8 }}>
-                  Tip: open this page on your phone to pay via UPI. Desktop browsers can’t handle UPI links.
-                </small>
+                    {/* UPI chooser (GPay/Paytm/PhonePe/etc.) */}
+                    <a
+                      href={upiUi.upiChooserIntent}
+                      className="btn-outline"
+                      rel="noopener noreferrer"
+                    >
+                      Pay in any UPI app
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    {/* iOS/desktop: generic UPI link (works only if a UPI app registered upi://) */}
+                    <a
+                      href={upiUi.upiUrl}
+                      className="btn-primary"
+                      rel="noopener noreferrer"
+                    >
+                      Open UPI app (₹{upiUi.amount.toFixed(2)})
+                    </a>
+
+                    <button
+                      type="button"
+                      className="btn-outline"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(
+                            `VPA: ${upiUi.vpa}\nAmount: ₹${upiUi.amount.toFixed(2)}\nNote: Order at ${upiUi.shopName}`
+                          );
+                          alert('UPI details copied. Open your UPI app and paste.');
+                        } catch {
+                          alert(`VPA: ${upiUi.vpa}\nAmount: ₹${upiUi.amount.toFixed(2)}\nNote: Order at ${upiUi.shopName}`);
+                        }
+                      }}
+                    >
+                      Copy UPI details
+                    </button>
+                  </>
+                )}
               </div>
-            )}
 
-            {(bucket?.shop?.phonePeNumber || upiUi.vpa) && (
-              <div className="field" style={{ marginTop: 6 }}>
-                <small style={{ opacity: 0.8 }}>
-                  Payee: <b>{upiUi.shopName}</b>
-                  {upiUi.phonePeNumber && <> · PhonePe #: {upiUi.phonePeNumber}</>}
-                  {upiUi.vpa && <> · UPI: <code>{upiUi.vpa}</code></>}
-                </small>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+              {!isMobile() && (
+                <div className="field" style={{ marginTop: 6 }}>
+                  <small style={{ opacity: 0.8 }}>
+                    Tip: open this page on your phone to pay via UPI. Desktop browsers can’t handle UPI links.
+                  </small>
+                </div>
+              )}
 
-      {/* ======= ORDER (delivery) ======= */}
-      <div className="checkout">
-        <h3>Order Now</h3>
-
-        <div className="field">
-          <label>Name</label>
-          <input
-            value={form.name}
-            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            placeholder="Your full name"
-          />
+              {(bucket?.shop?.phonePeNumber || upiUi.vpa) && (
+                <div className="field" style={{ marginTop: 6 }}>
+                  <small style={{ opacity: 0.8 }}>
+                    Payee: <b>{upiUi.shopName}</b>
+                    {upiUi.phonePeNumber && <> · PhonePe #: {upiUi.phonePeNumber}</>}
+                    {upiUi.vpa && <> · UPI: <code>{upiUi.vpa}</code></>}
+                  </small>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
-        <div className="field">
-          <label>Phone</label>
-          <input
-            value={form.phone}
-            onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-            placeholder="10-digit mobile number"
-          />
-        </div>
-
-        <div className="delivery-estimator">
-          <h3>Delivery</h3>
+        {/* ======= ORDER (delivery) ======= */}
+        <div className="checkout">
+          <h3>Order Now</h3>
 
           <div className="field">
-            <label>Drop-off Address</label>
-            <AddressAutocomplete initialValue={form.address} onSelect={onAddressSelect} />
+            <label>Name</label>
+            <input
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              placeholder="Your full name"
+            />
           </div>
 
-          {/* Vehicle cards */}
-          <div className="vehicle-options-containers">
-            {vehicleCards.map((v) => {
-              const isSelected = vehicleType === v.type;
-              const isUnavailable = v.available === false;
-              const classes = [
-                'vehicle-options cart-vehicle-option',
-                isSelected ? 'selected' : '',
-                isUnavailable ? 'unavailable' : ''
-              ].join(' ').trim();
-
-              return (
-                <button
-                  type="button"
-                  key={v.type}
-                  className={classes}
-                  onClick={() => {
-                    if (!isUnavailable) {
-                      setVehicleType(v.type);
-                      if (distanceKm > 0) setEstimatedDelivery(+(distanceKm * v.rate).toFixed(2));
-                    }
-                  }}
-                  aria-pressed={isSelected}
-                >
-                  {v.comingSoon && <div className="coming-soon cart-coming-soon">Coming&nbsp;Soon</div>}
-                  <div className="vehicle-icons cart-vehicle-icons">{v.emoji}</div>
-
-                  <div className="vehicle-info cart-vehicle-info">
-                    <div className="vehicle-name cart-vehicle-name">{v.name}</div>
-                    <div className="vehicle-capacity cart-vehicle-capacity">{v.capacity}</div>
-                  </div>
-
-                  <div className="vehicle-meta cart-vehicle-meta">
-                    <div className="vehicle-rate cart-vehicle-rate">{v.displayRate}</div>
-                    {distanceKm > 0 && (
-                      <div className="vehicle-price cart-vehicle-price">₹{v.price?.toFixed(2)}</div>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+          <div className="field">
+            <label>Phone</label>
+            <input
+              value={form.phone}
+              onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+              placeholder="10-digit mobile number"
+            />
           </div>
 
-          <div className="est-lines">
-            <div>Distance: <b>{distanceKm ? distanceKm.toFixed(2) : '—'} km</b></div>
-            <div>
-              Estimated delivery charge:{' '}
-              <b>₹{estimatedDelivery ? estimatedDelivery.toFixed(2) : '—'}</b>{' '}
-              <small style={{ opacity: .7 }}>(paid to driver on delivery)</small>
+          <div className="delivery-estimator">
+            <h3>Delivery</h3>
+
+            <div className="field">
+              <label>Drop-off Address</label>
+              <AddressAutocomplete initialValue={form.address} onSelect={onAddressSelect} />
+            </div>
+
+            {/* Vehicle cards */}
+            <div className="vehicle-options-containers">
+              {vehicleCards.map((v) => {
+                const isSelected = vehicleType === v.type;
+                const isUnavailable = v.available === false;
+                const classes = [
+                  'vehicle-options cart-vehicle-option',
+                  isSelected ? 'selected' : '',
+                  isUnavailable ? 'unavailable' : ''
+                ].join(' ').trim();
+
+                return (
+                  <button
+                    type="button"
+                    key={v.type}
+                    className={classes}
+                    onClick={() => {
+                      if (!isUnavailable) {
+                        setVehicleType(v.type);
+                        if (distanceKm > 0) setEstimatedDelivery(+(distanceKm * v.rate).toFixed(2));
+                      }
+                    }}
+                    aria-pressed={isSelected}
+                  >
+                    {v.comingSoon && <div className="coming-soon cart-coming-soon">Coming&nbsp;Soon</div>}
+                    <div className="vehicle-icons cart-vehicle-icons">{v.emoji}</div>
+
+                    <div className="vehicle-info cart-vehicle-info">
+                      <div className="vehicle-name cart-vehicle-name">{v.name}</div>
+                      <div className="vehicle-capacity cart-vehicle-capacity">{v.capacity}</div>
+                    </div>
+
+                    <div className="vehicle-meta cart-vehicle-meta">
+                      <div className="vehicle-rate cart-vehicle-rate">{v.displayRate}</div>
+                      {distanceKm > 0 && (
+                        <div className="vehicle-price cart-vehicle-price">₹{v.price?.toFixed(2)}</div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="est-lines">
+              <div>Distance: <b>{distanceKm ? distanceKm.toFixed(2) : '—'} km</b></div>
+              <div>
+                Estimated delivery charge:{' '}
+                <b>₹{estimatedDelivery ? estimatedDelivery.toFixed(2) : '—'}</b>{' '}
+                <small style={{ opacity: .7 }}>(paid to driver on delivery)</small>
+              </div>
             </div>
           </div>
-        </div>
 
-        <button disabled={placing} onClick={placeOrder}>
-          {placing ? 'Placing...' : 'Confirm Order'}
-        </button>
+          <button disabled={placing} onClick={placeOrder}>
+            {placing ? 'Placing...' : 'Confirm Order'}
+          </button>
+        </div>
       </div>
-    </div>
-    <Footer/>
+      <Footer />
     </>
   );
 }
