@@ -172,41 +172,45 @@ export default function CartPage() {
   }, [distanceKm]);
 
   // ---- PhonePe / UPI links ----
-  const upiUi = useMemo(() => {
-    const shop = bucket?.shop || {};
-    const shopName = shop?.shopName || 'Shop';
-    const upiId = shop?.upiId || null; // strongly recommended to store real UPI ID in DB
-    const vpa = upiId || deriveVpaFromPhonePeNumber(shop?.phonePeNumber, 'ybl');
-    const amount = Number(pricing.total || 0);
-    const note = `Order at ${shopName}`;
+  // ---- PhonePe / UPI links ----
+const upiUi = useMemo(() => {
+  const shop = bucket?.shop || {};
+  const shopName = shop?.shopName || 'Shop';
 
-    if (!vpa || amount <= 0) {
-      return { ready: false };
-    }
+  // ✅ Always use UPI ID stored in DB
+  const vpa = shop?.upiId || null;
 
-    const paramStr = toUpiParamString({ pa: vpa, pn: shopName, am: amount, tn: note });
-    const upiUrl = makeUpiUri(paramStr);
+  const amount = Number(pricing.total || 0);
+  const note = `Order at ${shopName}`;
 
-    // Android: directly open PhonePe
-    const phonePeIntent = makeAndroidIntentUri(paramStr, {
-      packageName: 'com.phonepe.app',
-      playStoreUrl: 'https://play.google.com/store/apps/details?id=com.phonepe.app'
-    });
+  if (!vpa || amount <= 0) {
+    return { ready: false };
+  }
 
-    // Android: system chooser for any UPI app
-    const upiChooserIntent = makeAndroidIntentUri(paramStr);
+  const paramStr = toUpiParamString({ pa: vpa, pn: shopName, am: amount, tn: note });
+  const upiUrl = makeUpiUri(paramStr);
 
-    return {
-      ready: true,
-      vpa,
-      amount,
-      upiUrl,
-      phonePeIntent,
-      upiChooserIntent,
-      shopName,
-      phonePeNumber: shop?.phonePeNumber
-    };
-  }, [bucket, pricing.total]);
+  // Android: directly open PhonePe
+  const phonePeIntent = makeAndroidIntentUri(paramStr, {
+    packageName: 'com.phonepe.app',
+    playStoreUrl: 'https://play.google.com/store/apps/details?id=com.phonepe.app'
+  });
+
+  // Android: system chooser for any UPI app
+  const upiChooserIntent = makeAndroidIntentUri(paramStr);
+
+  return {
+    ready: true,
+    vpa,
+    amount,
+    upiUrl,
+    phonePeIntent,
+    upiChooserIntent,
+    shopName,
+    phonePeNumber: shop?.phonePeNumber
+  };
+}, [bucket, pricing.total]);
+
 
   if (!bucket || bucket.items.length === 0) {
     return (
