@@ -12,7 +12,7 @@ import { signInAnonymously } from 'firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/pages/Header';
 import Footer from '../components/pages/Footer';
-const apiBase = 'https://jio-yatri-user.onrender.com';
+const apiBase ='https://jio-yatri-user.onrender.com';
 
 /* -------------------- UPI / PhonePe helpers -------------------- */
 function cleanMsisdn(n) {
@@ -75,7 +75,7 @@ export default function CartPage() {
   const [vehicleType, setVehicleType] = useState('TwoWheeler');
   const [costsByVehicle, setCostsByVehicle] = useState({});
   const [estimatedDelivery, setEstimatedDelivery] = useState(0);
-
+  const [completeShopData, setCompleteShopData] = useState(null);
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -93,22 +93,33 @@ export default function CartPage() {
         const s = res.data?.data || res.data;
         const lat = s?.address?.coordinates?.lat ?? s?.location?.coordinates?.[1];
         const lng = s?.address?.coordinates?.lng ?? s?.location?.coordinates?.[0];
+
         if (lat != null && lng != null) setShopCoords({ lat, lng });
+
+        // Store complete shop data with UPI ID
+        setCompleteShopData(s);
       } catch (e) {
         console.warn('Could not fetch shop coords:', e?.response?.data || e.message);
       }
     }
 
-    // If bucket already has coordinates, use them
+    // If bucket already has coordinates and complete data, use them
     const shopLat = bucket?.shop?.address?.coordinates?.lat;
     const shopLng = bucket?.shop?.address?.coordinates?.lng;
 
     if (shopLat != null && shopLng != null) {
       setShopCoords({ lat: shopLat, lng: shopLng });
+
+      // If bucket has shop data but no UPI ID, fetch complete data
+      if (bucket.shop && !bucket.shop.upiId) {
+        fetchShop();
+      } else {
+        setCompleteShopData(bucket.shop);
+      }
     } else {
       fetchShop();
     }
-  }, [shopId, bucket?.shop?.address?.coordinates]);
+  }, [shopId, bucket?.shop?.address?.coordinates, bucket?.shop]);
 
 
 
@@ -170,11 +181,12 @@ export default function CartPage() {
 
   // ---- PhonePe / UPI links ----
   const upiUi = useMemo(() => {
-    const shop = bucket?.shop || {};
-    const shopName = shop?.shopName || 'Shop';
+    // Use completeShopData if available, otherwise fall back to bucket.shop
+    const shop = completeShopData || bucket?.shop;
+    if (!shop) return { ready: false }; // Wait until shop exists
 
-    // ✅ Always use UPI ID stored in DB
-    const vpa = shop?.upiId || deriveVpaFromPhonePeNumber(shop?.phonePeNumber);
+    const shopName = shop.shopName || 'Shop';
+    const vpa = shop.upiId; // Directly use stored UPI ID
 
     const amount = Number(pricing.total || 0);
     const note = `Order at ${shopName}`;
@@ -203,9 +215,10 @@ export default function CartPage() {
       phonePeIntent,
       upiChooserIntent,
       shopName,
-      phonePeNumber: shop?.phonePeNumber
+      phonePeNumber: shop.phonePeNumber
     };
-  }, [bucket, pricing.total]);
+  }, [completeShopData, bucket, pricing.total]); // Add completeShopData to dependencies
+
 
 
   if (!bucket || bucket.items.length === 0) {
@@ -265,7 +278,7 @@ export default function CartPage() {
         <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
 
         <div className="cart-topbar">
-          <h2>Cart · {bucket.shop?.shopName}</h2>
+       <h2>Cart · {(completeShopData || bucket.shop)?.shopName}</h2>
         </div>
 
         <div className="cart-items">
@@ -321,13 +334,13 @@ export default function CartPage() {
                 {isAndroid() ? (
                   <>
                     {/* Direct to PhonePe */}
-                    <a
+                    {/* <a
                       href={upiUi.phonePeIntent}
                       className="btn-primary"
                       rel="noopener noreferrer"
                     >
                       Pay in PhonePe (₹{upiUi.amount.toFixed(2)})
-                    </a>
+                    </a> */}
 
                     {/* UPI chooser (GPay/Paytm/PhonePe/etc.) */}
                     <a
