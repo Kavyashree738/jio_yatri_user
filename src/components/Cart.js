@@ -87,33 +87,29 @@ export default function CartPage() {
 
   // ---- load shop coords (and optionally shop) ----
   useEffect(() => {
-    const shopLat = bucket?.shop?.address?.coordinates?.lat;
-    const shopLng = bucket?.shop?.address?.coordinates?.lng;
-
-    if (shopLat != null && shopLng != null) {
-      setShopCoords({ lat: shopLat, lng: shopLng });
-      return;
+  async function fetchShop() {
+    try {
+      const res = await axios.get(`${apiBase}/api/shops/${shopId}`);
+      const s = res.data?.data || res.data;
+      const lat = s?.address?.coordinates?.lat ?? s?.location?.coordinates?.[1];
+      const lng = s?.address?.coordinates?.lng ?? s?.location?.coordinates?.[0];
+      if (lat != null && lng != null) setShopCoords({ lat, lng });
+    } catch (e) {
+      console.warn('Could not fetch shop coords:', e?.response?.data || e.message);
     }
+  }
 
-    async function fetchShop() {
-      try {
-        const res = await axios.get(`${apiBase}/api/shops/${shopId}`);
-        const s = res.data?.data || res.data;
-        const lat = s?.address?.coordinates?.lat ?? s?.location?.coordinates?.[1];
-        const lng = s?.address?.coordinates?.lng ?? s?.location?.coordinates?.[0];
-        if (lat != null && lng != null) setShopCoords({ lat, lng });
+  // If bucket already has coordinates, use them
+  const shopLat = bucket?.shop?.address?.coordinates?.lat;
+  const shopLng = bucket?.shop?.address?.coordinates?.lng;
 
-        // (optional) reflect latest shop data into cart bucket in memory
-        if (bucket && !bucket.shop && s) {
-          bucket.shop = s;
-        }
-      } catch (e) {
-        console.warn('Could not fetch shop coords:', e?.response?.data || e.message);
-      }
-    }
+  if (shopLat != null && shopLng != null) {
+    setShopCoords({ lat: shopLat, lng: shopLng });
+  } else {
+    fetchShop();
+  }
+}, [shopId, bucket?.shop?.address?.coordinates]);
 
-    if (shopId && !shopCoords) fetchShop();
-  }, [shopId, bucket, shopCoords]);
 
   // ---- compute distance & prices ----
   useEffect(() => {
