@@ -191,9 +191,7 @@ export default function CartPage() {
     const amount = Number(pricing.total || 0);
     const note = `Order at ${shopName}`;
 
-    console.log('💰 Cart total amount:', amount);
-    console.log('🛒 Shop info:', shop);
-    console.log('🔗 Using VPA / UPI ID:', vpa);
+    
 
     if (!vpa || amount <= 0) {
       return { ready: false };
