@@ -153,7 +153,9 @@ console.log('Verifying OTP:', otp, 'for phoneNumber:', phoneNumber, 'with referr
         }),
       });
 
-      await signInWithCustomToken(auth, data.token);
+      const userCred = await signInWithCustomToken(auth, data.token);
+      const freshToken = await userCred.user.getIdToken(true); // forces a new token
+
       setMessage({ text: 'Verification successful!', isError: false });
       setShowOtpComponent(false);
       setReferralCode('');
