@@ -80,29 +80,14 @@ const HeroSection = () => {
     }, 1000);
   };
 
-  const handleApiRequest = async (url, options = {}) => {
-  // 🔑 Always fetch the latest token from Firebase
-  const currentUser = auth.currentUser;
-  if (!currentUser) throw new Error("Not logged in");
-
-  const freshToken = await currentUser.getIdToken(true); // ✅ refresh if expired
-
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...(options.headers || {}),
-      "Authorization": `Bearer ${freshToken}`, // send fresh token
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || "Request failed");
-  }
-
-  return response.json();
-};
+  const handleApiRequest = async (url, options) => {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Request failed');
+    }
+    return response.json();
+  };
 
   const sendCode = async () => {
     if (!validatePhoneNumber(phoneNumber)) {
