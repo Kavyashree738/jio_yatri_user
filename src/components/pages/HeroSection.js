@@ -28,7 +28,7 @@ const HeroSection = () => {
   const [showReferralField, setShowReferralField] = useState(false);
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
 
-  const TEST_PHONE = "+911234567890";
+  const TEST_PHONE = "+911234567899";
   const TEST_OTP = "1234";
 
   useEffect(() => {
