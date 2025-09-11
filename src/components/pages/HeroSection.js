@@ -80,14 +80,28 @@ const HeroSection = () => {
     }, 1000);
   };
 
-  const handleApiRequest = async (url, options) => {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || 'Request failed');
-    }
-    return response.json();
-  };
+const handleApiRequest = async (url, options = {}) => {
+  // Always get a fresh Firebase ID token (auto refresh if expired)
+  const token = auth.currentUser 
+    ? await auth.currentUser.getIdToken() 
+    : null;
+
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}), // attach token if available
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Request failed');
+  }
+
+  return response.json();
+};
 
   const sendCode = async () => {
     if (!validatePhoneNumber(phoneNumber)) {
