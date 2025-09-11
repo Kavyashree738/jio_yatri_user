@@ -3,14 +3,15 @@ const mongoose = require('mongoose');
 const UserSchema = new mongoose.Schema({
   uid: { type: String, required: true, unique: true, index: true },
   name: { type: String, default: '' },
-  email: { 
-    type: String, 
-    default: null,  // Change from empty string to null
-    index: {
-      unique: true,
-      partialFilterExpression: { email: { $exists: true, $ne: null, $ne: "" } } } // Only index non-null emails
-    }
-  },
+ email: { 
+  type: String, 
+  default: null,  // Change from empty string to null
+  index: {
+    unique: true,
+    partialFilterExpression: { email: { $exists: true, $ne: null, $ne: "" } }
+  }
+},
+
   phone: { type: String, default: '' },
   photo: { type: String, default: '' },
   referralCode: { 
@@ -54,3 +55,4 @@ UserSchema.pre('save', async function() {
 
 
 module.exports = mongoose.model('User', UserSchema);
+
