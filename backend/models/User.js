@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
     default: null,  // Change from empty string to null
     index: {
       unique: true,
-      partialFilterExpression: { email: { $type: 'string' } } // Only index non-null emails
+      partialFilterExpression: { email: { $exists: true, $ne: null, $ne: "" } } } // Only index non-null emails
     }
   },
   phone: { type: String, default: '' },
@@ -50,6 +50,7 @@ UserSchema.pre('save', async function() {
     this.referralCode = code;
   }
 });
+
 
 
 module.exports = mongoose.model('User', UserSchema);
