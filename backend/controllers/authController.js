@@ -278,7 +278,7 @@ const verifyOtp = async (req, res) => {
       referralCode: referralCode || 'none provided'
     });
 
-    const TEST_PHONE = "+911234567890";
+    const TEST_PHONE = "+911234567899";
     const TEST_OTP = "1234";
 
     // Input validation
@@ -602,4 +602,5 @@ const verifyOtp = async (req, res) => {
 
 
 module.exports = { sendOtp, verifyOtp };
+
 
