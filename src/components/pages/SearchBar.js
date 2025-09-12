@@ -8,7 +8,9 @@ const secondaryNavItems = [
   { name: 'Groceries', path: '/shops/grocery', keywords: ['grocery', 'groceries'] },
   { name: 'Vegetables', path: '/shops/vegetable', keywords: ['vegetable', 'vegetables', 'veggies'] },
   { name: 'Provisions', path: '/shops/provision', keywords: ['provision', 'provisions'] },
-  { name: 'Medical', path: '/shops/medical', keywords: ['medical', 'medicals', 'medicine'] }
+  { name: 'Medical', path: '/shops/medical', keywords: ['medical', 'medicals', 'medicine'] },
+  { name: 'Bakery', path: '/shops/bakery', keywords: ['bakery', 'bakeries', 'cakes', 'pastry', 'bread'] },
+  { name: 'Cafe', path: '/shops/cafe', keywords: ['cafe', 'coffee', 'tea', 'snacks'] },
 ];
 
 const normalizeText = (text) => text.trim().toLowerCase();
