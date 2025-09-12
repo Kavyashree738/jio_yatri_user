@@ -905,7 +905,7 @@ const ShopDetails = () => {
     const fetchShop = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/shops/${id}`
+          `https://jio-yatri-user.onrender.com/api/shops/${id}`
         );
         setShop(res.data.data);
       } catch (err) {

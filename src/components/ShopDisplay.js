@@ -357,7 +357,7 @@ const ShopDisplay = () => {
     const fetchShops = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/shops/category/${category}`
+          `https://jio-yatri-user.onrender.com/api/shops/category/${category}`
         );
         setShops(res.data.data);
         setLoading(false);
