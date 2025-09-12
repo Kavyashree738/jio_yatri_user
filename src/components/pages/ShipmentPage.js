@@ -817,8 +817,8 @@ function ShipmentPage() {
               </div>
             </div>
 
-            <div className="parcel-section">  
-              <div className="input-group">
+            <div className="parcel-section">
+              <div className="input-groups">
                 <textarea
                   name="description"
                   value={shipmentData.parcel.description}
@@ -829,15 +829,15 @@ function ShipmentPage() {
                       description: e.target.value
                     }
                   }))}
-                  placeholder="Describe your parcel (contents, special handling instructions)"
+                  placeholder="Order Description"
                   className="form-textarea"
-                  rows={3}
+                  rows={1}
                 />
               </div>
 
               <div className="image-upload-section">
                 <label className="image-upload-label">
-                  Upload Parcel Images (Max 5)
+                  📷
                   <input
                     type="file"
                     accept="image/*"
@@ -846,16 +846,18 @@ function ShipmentPage() {
                     style={{ display: 'none' }}
                   />
                 </label>
-                
-                <div className="image-preview-container">
+              </div>
+              
+            </div>
+             <div className="image-preview-container">
                   {shipmentData.parcel.images.map((image, index) => (
                     <div key={index} className="image-preview-item">
-                      <img 
-                        src={typeof image === 'string' ? image : URL.createObjectURL(image)} 
-                        alt={`Parcel ${index + 1}`} 
+                      <img
+                        src={typeof image === 'string' ? image : URL.createObjectURL(image)}
+                        alt={`Parcel ${index + 1}`}
                       />
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => removeImage(index)}
                         className="remove-image-btn"
                       >
@@ -864,16 +866,6 @@ function ShipmentPage() {
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
-
-            <div className="map-preview">
-              <LocationMap
-                senderCoordinates={shipmentData.sender.address.coordinates}
-                receiverCoordinates={shipmentData.receiver.address.coordinates}
-                currentLocation={currentLocation}
-              />
-            </div>
 
             <div className="receiver-section">
               <div className="input-group">
@@ -911,6 +903,14 @@ function ShipmentPage() {
                   />
                 </div>
               </div>
+            </div>
+
+                                  <div className="map-preview">
+              <LocationMap
+                senderCoordinates={shipmentData.sender.address.coordinates}
+                receiverCoordinates={shipmentData.receiver.address.coordinates}
+                currentLocation={currentLocation}
+              />
             </div>
 
             <h6 className='services'>Services</h6>
