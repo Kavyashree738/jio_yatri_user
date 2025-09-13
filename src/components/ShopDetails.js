@@ -1210,22 +1210,23 @@ const ShopDetails = () => {
                         </p>
                       )}
 
-                      {/* Provision items meta */}
-                      {shop.category === "provision" &&
-                        (item.brand || item.weight) && (
-                          <div className="sd-provision-meta">
-                            {item.brand && (
-                              <span className="sd-provision-chip sd-provision-brand">
-                                {item.brand}
-                              </span>
-                            )}
-                            {item.weight && (
-                              <span className="sd-provision-chip sd-provision-weight">
-                                {item.weight}
-                              </span>
-                            )}
-                          </div>
-                        )}
+                  
+                      {/* Provision & Grocery items meta */}
+{["provision", "grocery"].includes(shop.category) &&
+  (item.brand || item.weight) && (
+    <div className="sd-provision-meta">
+      {item.brand && (
+        <span className="sd-provision-chip sd-provision-brand">
+          {item.brand}
+        </span>
+      )}
+      {item.weight && (
+        <span className="sd-provision-chip sd-provision-weight">
+          {item.weight}
+        </span>
+      )}
+    </div>
+)}
 
                       {item.description && (
                         <p className="sd-product-desc">{item.description}</p>
