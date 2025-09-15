@@ -1213,7 +1213,7 @@ const ShopDetails = () => {
                   
                       {/* Provision & Grocery items meta */}
 {["provision", "grocery"].includes(shop.category) &&
-  (item.brand || item.weight) && (
+  (item.brand || item.weight || item.quantity !== undefined) && (
     <div className="sd-provision-meta">
       {item.brand && (
         <span className="sd-provision-chip sd-provision-brand">
@@ -1225,8 +1225,14 @@ const ShopDetails = () => {
           {item.weight}
         </span>
       )}
+      {item.quantity !== undefined && (
+        <span className="sd-provision-chip sd-provision-qty">
+          Qty: {item.quantity}
+        </span>
+      )}
     </div>
 )}
+
 
                       {item.description && (
                         <p className="sd-product-desc">{item.description}</p>
