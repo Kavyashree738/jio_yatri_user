@@ -852,6 +852,15 @@ exports.createShipment = async (req, res) => {
     // Save
     const savedShipment = await new Shipment(shipmentData).save();
 
+      await User.findOneAndUpdate(
+  { userId },
+  {
+    $inc: { totalShipments: 1, totalAmountPaid: cost },
+    $push: { shipments: savedShipment._id }
+  }
+);
+
+
     // ---------------- 10km proximity fan-out (using Driver.lastKnownLocation) ----------------
     const MAX_DISTANCE_METERS = 10_000;
 
