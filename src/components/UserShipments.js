@@ -66,11 +66,6 @@ const UserShipments = () => {
           'Failed to fetch shipments. Please try again.'
         );
       }
-
-     if (err.response?.status === 401) {
-  setTimeout(() => navigate('/login'), 2000); // ✅ use React Router
-}
-
     } finally {
       setLoading(false);
     }
