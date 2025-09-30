@@ -142,33 +142,29 @@ const handleSearch = (term) => {
       setOrdersLoading(false);
     }
   };
-const startPolling = (intervalTime = 10000) => {
+
+ useEffect(() => {
+  if (!user) return;
+
+  // clear any old interval
   if (pollingRef.current) {
     clearInterval(pollingRef.current);
   }
 
+  // fetch immediately
   fetchShipments();
   fetchUserOrders();
 
+  // set interval (5s if tracking, else 10s)
   pollingRef.current = setInterval(() => {
     fetchShipments();
     fetchUserOrders();
-  }, intervalTime);
-};
+  }, trackingShipment ? 5000 : 10000);
 
-
-  useEffect(() => {
-  if (user) {
-    startPolling();
-
-    return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-      }
-    };
-  }
-}, [user]);
-
+  // cleanup
+  return () => clearInterval(pollingRef.current);
+}, [user, trackingShipment]);
+ 
   useEffect(() => {
     if (user) {
       handleSearch(searchTerm);
@@ -176,14 +172,13 @@ const startPolling = (intervalTime = 10000) => {
   }, [shipments, user, userOrders]);
 
   const handleTrackShipment = (shipment) => {
-    setTrackingShipment(shipment);
-    startPolling(5000);
-  };
+  setTrackingShipment(shipment);
+};
 
-  const handleStopTracking = () => {
-    setTrackingShipment(null);
-    startPolling(10000);
-  };
+const handleStopTracking = () => {
+  setTrackingShipment(null);
+};
+
 
   const openPaymentModal = (shipment) => {
     setSelectedShipment(shipment);
