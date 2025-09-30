@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef  } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Header from './pages/Header';
@@ -18,7 +18,7 @@ const UserShipments = () => {
   const [trackingShipment, setTrackingShipment] = useState(null);
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedShipment, setSelectedShipment] = useState(null);
-  const [pollingInterval, setPollingInterval] = useState(null);
+  const pollingRef = useRef(null);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
   // Rating related state
@@ -161,33 +161,32 @@ const UserShipments = () => {
       setOrdersLoading(false);
     }
   };
-  const startPolling = (intervalTime = 10000) => {
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-    }
+const startPolling = (intervalTime = 10000) => {
+  if (pollingRef.current) {
+    clearInterval(pollingRef.current);
+  }
 
+  fetchShipments();
+  fetchUserOrders();
+
+  pollingRef.current = setInterval(() => {
     fetchShipments();
     fetchUserOrders();
-    const interval = setInterval(() => {
-      fetchShipments();
-      fetchUserOrders();
-    }, intervalTime);
-    setPollingInterval(interval);
+  }, intervalTime);
+};
 
-    return interval;
-  };
 
   useEffect(() => {
-    if (user) {
-      startPolling();
+  if (user) {
+    startPolling();
 
-      return () => {
-        if (pollingInterval) {
-          clearInterval(pollingInterval);
-        }
-      };
-    }
-  }, [user, token]);
+    return () => {
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+      }
+    };
+  }
+}, [user, token]);
 
   useEffect(() => {
     if (user) {
