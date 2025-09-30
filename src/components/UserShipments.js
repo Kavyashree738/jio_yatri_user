@@ -67,9 +67,10 @@ const UserShipments = () => {
         );
       }
 
-      if (err.response?.status === 401) {
-        setTimeout(() => (window.location.href = '/login'), 2000);
-      }
+     if (err.response?.status === 401) {
+  setTimeout(() => navigate('/login'), 2000); // ✅ use React Router
+}
+
     } finally {
       setLoading(false);
     }
@@ -83,42 +84,27 @@ const UserShipments = () => {
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
-  const handleSearch = (term) => {
-    setSearchTerm(term);
-    if (!term) {
-      setFilteredShipments(shipments);
-    } else {
-      const searchLower = term.toLowerCase();
-      setFilteredShipments(
-        shipments.filter((s) => {
-          return (
-            s.trackingNumber?.toLowerCase().includes(searchLower) ||
-            s.status?.toLowerCase().includes(searchLower) ||
-            s.assignedDriver?.name?.toLowerCase().includes(searchLower) ||
-            s.sender?.name?.toLowerCase().includes(searchLower) ||
-            s.receiver?.name?.toLowerCase().includes(searchLower) ||
-            s.vehicleType?.toLowerCase().includes(searchLower) ||
-            s.payment?.method?.toLowerCase().includes(searchLower)
-          );
-        })
-      );
-    }
+const handleSearch = (term) => {
+  setSearchTerm(term);
+  if (!term) {
+    setFilteredShipments(shipments);
+    setFilteredUserOrders(userOrders);
+    return;
+  }
 
-    const filtered = shipments.filter((shipment) => {
-      const searchLower = term.toLowerCase();
-      return (
-        shipment.trackingNumber.toLowerCase().includes(searchLower) ||
-        shipment.status.toLowerCase().includes(searchLower) ||
-        (shipment.assignedDriver?.name?.toLowerCase().includes(searchLower)) ||
-        shipment.sender.name.toLowerCase().includes(searchLower) ||
-        shipment.receiver.name.toLowerCase().includes(searchLower) ||
-        shipment.vehicleType.toLowerCase().includes(searchLower) ||
-        (shipment.payment?.method?.toLowerCase().includes(searchLower))
-      );
-    });
-    setFilteredShipments(filtered);
-    setFilteredUserOrders(filterOrders(userOrders, term));
-  };
+  const searchLower = term.toLowerCase();
+
+  const filtered = shipments.filter((s) =>
+    [s.trackingNumber, s.status, s.assignedDriver?.name,
+     s.sender?.name, s.receiver?.name, s.vehicleType, s.payment?.method]
+      .some((f) => f?.toLowerCase().includes(searchLower))
+  );
+
+  setFilteredShipments(filtered);
+  setFilteredUserOrders(filterOrders(userOrders, term));
+};
+
+
 
   const filterOrders = (orders, term) => {
     if (!term) return orders;
@@ -186,7 +172,7 @@ const startPolling = (intervalTime = 10000) => {
       }
     };
   }
-}, [user, token]);
+}, [user]);
 
   useEffect(() => {
     if (user) {
