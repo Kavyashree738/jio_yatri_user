@@ -434,11 +434,12 @@ const handleStopTracking = () => {
                 </div>
 
                 <div className="shipment-actions">
-                  {(shipment.status === 'pending' || shipment.status === 'assigned') && (
-                    <button onClick={() => handleCancelShipment(shipment._id)} className="cancel-btn">
-                      Cancel Shipment
-                    </button>
-                  )}
+                  {shipment.status === 'pending' && (
+  <button onClick={() => handleCancelShipment(shipment._id)} className="cancel-btn">
+    Cancel Shipment
+  </button>
+)}
+
 
                   {shipment.status === 'assigned' && (
                     <button onClick={() => handleTrackShipment(shipment)} className="track-shipment-btn">
