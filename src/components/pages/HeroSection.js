@@ -372,32 +372,36 @@ console.log('Verifying OTP:', otp, 'for phoneNumber:', phoneNumber, 'with referr
               <h3 className="otp-title">Enter Verification Code</h3>
               <p className="otp-subtitle">Sent to {phoneNumber}</p>
 
-              <div className="otp-container">
-                {[...Array(4)].map((_, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    maxLength="1"
-                    value={otp[index] || ''}
-                    onChange={(e) => {
-                      const newOtp = otp.split('');
-                      newOtp[index] = e.target.value.replace(/\D/g, '');
-                      setOtp(newOtp.join('').slice(0, 4));
-                      if (e.target.value && index < 3) {
-                        document.getElementById(`otp-input-${index + 1}`).focus();
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Backspace' && !otp[index] && index > 0) {
-                        document.getElementById(`otp-input-${index - 1}`).focus();
-                      }
-                    }}
-                    className={`otp-input ${otp[index] ? 'filled' : ''}`}
-                    id={`otp-input-${index}`}
-                    inputMode="numeric"
-                  />
-                ))}
-              </div>
+             <div className="otp-container">
+  {[...Array(4)].map((_, index) => (
+    <input
+      key={index}
+      type="text"
+      maxLength="1"
+      value={otp[index] || ''}
+      onChange={(e) => {
+        const newOtp = otp.split('');
+        newOtp[index] = e.target.value.replace(/\D/g, '');
+        setOtp(newOtp.join('').slice(0, 4));
+        if (e.target.value && index < 3) {
+          document.getElementById(`otp-input-${index + 1}`).focus();
+        }
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Backspace' && !otp[index] && index > 0) {
+          document.getElementById(`otp-input-${index - 1}`).focus();
+        }
+      }}
+      className={`otp-input ${otp[index] ? 'filled' : ''}`}
+      id={`otp-input-${index}`}
+      inputMode="numeric"
+      pattern="\d*"                                 // ✅ Helps mobile know it’s numeric
+      name={index === 0 ? 'otp' : undefined}        // ✅ Only first box needs name
+      autoComplete={index === 0 ? 'one-time-code' : undefined} // ✅ Add only for first box
+    />
+  ))}
+</div>
+
 
               {message.isError && <div className="otp-error">{message.text}</div>}
 
