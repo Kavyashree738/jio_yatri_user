@@ -7,6 +7,8 @@ import { auth } from '../firebase';
 import Header from '../components/pages/Header';
 import Footer from '../components/pages/Footer';
 import { useNavigate } from 'react-router-dom';
+import ImageCropper from '../components/ImageCropper';
+
 
 const API_URL = 'https://jio-yatri-user.onrender.com/api/users';
 const DEBUG = true;
@@ -91,29 +93,53 @@ const UserProfile = () => {
 
   // Handlers
   const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const newPhoto = reader.result;
-      setUploadedPhoto(newPhoto);
+  if (!file.type.match('image.*')) {
+    setMessage?.({ text: 'Please select an image file', isError: true });
+    return;
+  }
 
-      if (user) {
-        const payload = {
-          uid: user.uid,
-          name: resolvedName,
-          email: resolvedEmail,
-          phone: resolvedPhone,
-          photo: newPhoto,
-        };
-        const result = await apiCreateOrUpdate(payload);
-        if (result?.user) setDbUser(result.user);
-        setMessage?.({ text: 'Profile photo updated!', isError: false });
-      }
+  if (file.size > 5 * 1024 * 1024) {
+    setMessage?.({ text: 'Image size should be less than 5MB', isError: true });
+    return;
+  }
+
+  const previewUrl = URL.createObjectURL(file);
+  setSelectedImage(previewUrl);
+  setCropMode(true); // ✅ open cropper
+};
+
+const handleCropComplete = async (croppedImageUrl) => {
+  setCropMode(false);
+  setUploadedPhoto(croppedImageUrl);
+
+  if (!user) return;
+  setIsUploading(true);
+
+  const blob = await fetch(croppedImageUrl).then((r) => r.blob());
+  const reader = new FileReader();
+
+  reader.onloadend = async () => {
+    const base64 = reader.result;
+    const payload = {
+      uid: user.uid,
+      name: manualName || user.displayName || '',
+      email: manualEmail || user.email || '',
+      phone: manualPhone || user.phoneNumber || '',
+      photo: base64,
     };
-    reader.readAsDataURL(file);
+
+    const result = await apiCreateOrUpdate(payload);
+    if (result?.user) setDbUser(result.user);
+    setMessage?.({ text: 'Profile photo updated!', isError: false });
+    setIsUploading(false);
   };
+
+  reader.readAsDataURL(blob);
+};
+
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -388,6 +414,13 @@ useEffect(() => {
           </div>
         </div>
       </div>
+      {cropMode && (
+  <ImageCropper
+    image={selectedImage}
+    onCropComplete={handleCropComplete}
+    onCancel={() => setCropMode(false)}
+  />
+)}
       <Footer />
     </>
   );
