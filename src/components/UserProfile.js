@@ -28,8 +28,11 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const loadedRef = useRef(false);
   const [selectedImage, setSelectedImage] = useState(null);
-const [cropMode, setCropMode] = useState(false);
-const [isUploading, setIsUploading] = useState(false);
+  const [cropMode, setCropMode] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const [showPreview, setShowPreview] = useState(false);
+  let pressTimer = useRef(null);
 
 
   // Provider detection
@@ -97,58 +100,73 @@ const [isUploading, setIsUploading] = useState(false);
 
   // Handlers
   const handlePhotoChange = (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-  if (!file.type.match('image.*')) {
-    setMessage?.({ text: 'Please select an image file', isError: true });
-    return;
-  }
+    if (!file.type.match('image.*')) {
+      setMessage?.({ text: 'Please select an image file', isError: true });
+      return;
+    }
 
-  if (file.size > 5 * 1024 * 1024) {
-    setMessage?.({ text: 'Image size should be less than 5MB', isError: true });
-    return;
-  }
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage?.({ text: 'Image size should be less than 5MB', isError: true });
+      return;
+    }
 
-  const previewUrl = URL.createObjectURL(file);
-  setSelectedImage(previewUrl);
-  setCropMode(true); // ✅ open cropper
-};
-
-const handleCropComplete = async (croppedImageUrl) => {
-  setCropMode(false);
-  setUploadedPhoto(croppedImageUrl);
-
-  if (!user) return;
-  setIsUploading(true);
-
-  const blob = await fetch(croppedImageUrl).then((r) => r.blob());
-  const reader = new FileReader();
-
-  reader.onloadend = async () => {
-    const base64 = reader.result;
-    const payload = {
-      uid: user.uid,
-      name: manualName || user.displayName || '',
-      email: manualEmail || user.email || '',
-      phone: manualPhone || user.phoneNumber || '',
-      photo: base64,
-    };
-
-    const result = await apiCreateOrUpdate(payload);
-    if (result?.user) setDbUser(result.user);
-    setMessage?.({ text: 'Profile photo updated!', isError: false });
-    setIsUploading(false);
+    const previewUrl = URL.createObjectURL(file);
+    setSelectedImage(previewUrl);
+    setCropMode(true); // ✅ open cropper
   };
 
-  reader.readAsDataURL(blob);
-};
+  // Detect long press (500ms)
+  const handleLongPressStart = () => {
+    pressTimer.current = setTimeout(() => {
+      setShowPreview(true);
+    }, 500); // 0.5s hold
+  };
+
+  const handleLongPressEnd = () => {
+    clearTimeout(pressTimer.current);
+  };
+
+  const handleClosePreview = () => {
+    setShowPreview(false);
+  };
+
+  const handleCropComplete = async (croppedImageUrl) => {
+    setCropMode(false);
+    setUploadedPhoto(croppedImageUrl);
+
+    if (!user) return;
+    setIsUploading(true);
+
+    const blob = await fetch(croppedImageUrl).then((r) => r.blob());
+    const reader = new FileReader();
+
+    reader.onloadend = async () => {
+      const base64 = reader.result;
+      const payload = {
+        uid: user.uid,
+        name: manualName || user.displayName || '',
+        email: manualEmail || user.email || '',
+        phone: manualPhone || user.phoneNumber || '',
+        photo: base64,
+      };
+
+      const result = await apiCreateOrUpdate(payload);
+      if (result?.user) setDbUser(result.user);
+      setMessage?.({ text: 'Profile photo updated!', isError: false });
+      setIsUploading(false);
+    };
+
+    reader.readAsDataURL(blob);
+  };
 
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
-    
+
     const payload = {
       uid: user.uid,
       name: manualName || user.displayName || '',
@@ -156,7 +174,7 @@ const handleCropComplete = async (croppedImageUrl) => {
       phone: manualPhone || user.phoneNumber || '',
       photo: uploadedPhoto || user.photoURL || '',
     };
-    
+
     const result = await apiCreateOrUpdate(payload);
     if (result?.user) setDbUser(result.user);
     setShowForm(false);
@@ -188,11 +206,11 @@ const handleCropComplete = async (croppedImageUrl) => {
   };
 
   // in component top or inside useEffect when user changes
-useEffect(() => {
-  console.log('AUTH user:', user);
-  console.log('user.photoURL:', user?.photoURL);
-  console.log('dbUser.photo:', dbUser?.photo);
-}, [user, dbUser]);
+  useEffect(() => {
+    console.log('AUTH user:', user);
+    console.log('user.photoURL:', user?.photoURL);
+    console.log('dbUser.photo:', dbUser?.photo);
+  }, [user, dbUser]);
 
 
   // Effects
@@ -268,7 +286,13 @@ useEffect(() => {
                     src={resolvedPhoto}
                     alt="Profile"
                     className="user-profile-modern-avatar"
+                    onMouseDown={handleLongPressStart}
+                    onMouseUp={handleLongPressEnd}
+                    onMouseLeave={handleLongPressEnd}
+                    onTouchStart={handleLongPressStart}
+                    onTouchEnd={handleLongPressEnd}
                   />
+
                 ) : (
                   <div className="user-profile-modern-default-avatar">
                     {getUserInitials() || <FaUser className="avatar-icon" />}
@@ -419,12 +443,20 @@ useEffect(() => {
         </div>
       </div>
       {cropMode && (
-  <ImageCropper
-    image={selectedImage}
-    onCropComplete={handleCropComplete}
-    onCancel={() => setCropMode(false)}
-  />
+        <ImageCropper
+          image={selectedImage}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setCropMode(false)}
+        />
+      )}
+      {showPreview && (
+  <div className="profile-preview-overlay" onClick={handleClosePreview}>
+    <div className="profile-preview-circle">
+      <img src={resolvedPhoto} alt="Profile Preview" className="profile-preview-img" />
+    </div>
+  </div>
 )}
+
       <Footer />
     </>
   );
