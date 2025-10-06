@@ -27,6 +27,10 @@ const UserProfile = () => {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const loadedRef = useRef(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+const [cropMode, setCropMode] = useState(false);
+const [isUploading, setIsUploading] = useState(false);
+
 
   // Provider detection
   const providerInfo = useMemo(() => {
