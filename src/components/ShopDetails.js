@@ -885,6 +885,9 @@ const ShopDetails = () => {
   const [filter, setFilter] = useState("all");
   const [vegFilter, setVegFilter] = useState("all");
 
+  const [searchTerm, setSearchTerm] = useState("");
+
+
   // Cart
   const { addItem, cart } = useCart();
   const shopCartItems = shop ? cart?.[shop._id]?.items || [] : [];
@@ -911,8 +914,8 @@ const ShopDetails = () => {
       } catch (err) {
         setError(
           err.response?.data?.error ||
-            err.message ||
-            "Failed to fetch shop details"
+          err.message ||
+          "Failed to fetch shop details"
         );
       } finally {
         setLoading(false);
@@ -958,20 +961,23 @@ const ShopDetails = () => {
   };
 
   const filteredItems = () => {
-    if (!shop?.itemsWithUrls?.length && !shop?.items?.length) return [];
-    const items = shop.itemsWithUrls || shop.items;
+  if (!shop?.itemsWithUrls?.length && !shop?.items?.length) return [];
+  const items = shop.itemsWithUrls || shop.items;
 
-    return items.filter((item) => {
-      const categoryMatch =
-        filter === "all" ||
-        (item.category && item.category.toLowerCase() === filter);
-      const vegMatch =
-        vegFilter === "all" ||
-        (vegFilter === "veg" && item.veg) ||
-        (vegFilter === "nonveg" && !item.veg);
-      return categoryMatch && vegMatch;
-    });
-  };
+  return items.filter((item) => {
+    const nameMatch = item.name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const categoryMatch =
+      filter === "all" ||
+      (item.category && item.category.toLowerCase() === filter);
+    const vegMatch =
+      vegFilter === "all" ||
+      (vegFilter === "veg" && item.veg) ||
+      (vegFilter === "nonveg" && !item.veg);
+
+    return nameMatch && categoryMatch && vegMatch;
+  });
+};
+
 
   if (loading) {
     return (
@@ -1048,9 +1054,8 @@ const ShopDetails = () => {
               <div className="sd-thumbnail-container">
                 {shop.shopImageUrls.map((img, index) => (
                   <div
-                    className={`sd-thumbnail ${
-                      index === currentImageIndex ? "sd-active" : ""
-                    }`}
+                    className={`sd-thumbnail ${index === currentImageIndex ? "sd-active" : ""
+                      }`}
                     key={index}
                     onClick={() => handleThumbnailClick(index)}
                   >
@@ -1117,6 +1122,17 @@ const ShopDetails = () => {
             <h2 className="sd-section-title">
               {isFoodCategory ? "Menu Items" : "Products"}
             </h2>
+
+            {/* Search Bar */}
+            <div className="sd-search-container">
+              <input
+                type="text"
+                placeholder="Search for an item..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="sd-search-input"
+              />
+            </div>
 
             {/* Filters for Hotel */}
             {shop.category === "hotel" && (
@@ -1187,9 +1203,8 @@ const ShopDetails = () => {
                       {/* Veg/Non-Veg Badge */}
                       {["hotel", "bakery"].includes(shop.category) && (
                         <div
-                          className={`sd-veg-badge ${
-                            item.veg ? "veg" : "nonveg"
-                          }`}
+                          className={`sd-veg-badge ${item.veg ? "veg" : "nonveg"
+                            }`}
                         >
                           {item.veg ? "Veg" : "Non-Veg"}
                         </div>
@@ -1210,28 +1225,28 @@ const ShopDetails = () => {
                         </p>
                       )}
 
-                  
+
                       {/* Provision & Grocery items meta */}
-{["provision", "grocery"].includes(shop.category) &&
-  (item.brand || item.weight || item.quantity !== undefined) && (
-    <div className="sd-provision-meta">
-      {item.brand && (
-        <span className="sd-provision-chip sd-provision-brand">
-          {item.brand}
-        </span>
-      )}
-      {item.weight && (
-        <span className="sd-provision-chip sd-provision-weight">
-          {item.weight}
-        </span>
-      )}
-      {item.quantity !== undefined && (
-        <span className="sd-provision-chip sd-provision-qty">
-          Qty: {item.quantity}
-        </span>
-      )}
-    </div>
-)}
+                      {["provision", "grocery"].includes(shop.category) &&
+                        (item.brand || item.weight || item.quantity !== undefined) && (
+                          <div className="sd-provision-meta">
+                            {item.brand && (
+                              <span className="sd-provision-chip sd-provision-brand">
+                                {item.brand}
+                              </span>
+                            )}
+                            {item.weight && (
+                              <span className="sd-provision-chip sd-provision-weight">
+                                {item.weight}
+                              </span>
+                            )}
+                            {item.quantity !== undefined && (
+                              <span className="sd-provision-chip sd-provision-qty">
+                                Qty: {item.quantity}
+                              </span>
+                            )}
+                          </div>
+                        )}
 
 
                       {item.description && (
@@ -1250,7 +1265,7 @@ const ShopDetails = () => {
                             Prescription Required
                           </span>
                         )}
-                    
+
                       </div>
 
                       {/* Add to Cart */}
