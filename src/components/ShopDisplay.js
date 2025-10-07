@@ -309,18 +309,14 @@
 // export default ShopDisplay;
 
 // src/pages/ShopDisplay.jsx
-// src/pages/ShopDisplay.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   FaStar,
   FaPhone,
   FaWhatsapp,
-  FaShoppingBag,
   FaClock,
   FaMapMarkerAlt,
-  FaChevronLeft,
-  FaChevronRight,
   FaUtensils,
   FaStore,
   FaCarrot,
@@ -362,58 +358,47 @@ const ShopDisplay = () => {
     return `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
   };
 
-useEffect(() => {
-  const fetchAllShops = async () => {
-    try {
-      // 1️⃣ Fetch all shops without waiting for location
-      const res = await axios.get(`https://jio-yatri-user.onrender.com/api/shops/category/${category}`);
-      setShops(res.data.data || []);
-      setLoading(false);
-
-      // 2️⃣ After showing all, try to get location in background
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          try {
-            // 3️⃣ Fetch again, now sorted by distance
-            const sortedRes = await axios.get(
+  // 🧭 Fetch shops — shows all if location is off, sorted if on
+  useEffect(() => {
+    const fetchShops = async () => {
+      try {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            // ✅ Location ON: Fetch nearby shops
+            const { latitude, longitude } = position.coords;
+            console.log("📍 Location detected, fetching nearby shops...");
+            const res = await axios.get(
               `https://jio-yatri-user.onrender.com/api/shops/category/${category}?lat=${latitude}&lng=${longitude}`
             );
-
-            // 4️⃣ Replace list with distance-based sorting
-            setShops(sortedRes.data.data || []);
-          } catch (geoErr) {
-            console.error("Error fetching distance-based shops:", geoErr);
+            setShops(res.data.data || []);
+            setLoading(false);
+          },
+          async (error) => {
+            // ⚠️ Location OFF: Fetch all shops
+            console.warn("📍 Location OFF — fetching all shops");
+            const res = await axios.get(
+              `https://jio-yatri-user.onrender.com/api/shops/category/all/${category}`
+            );
+            setShops(res.data.data || []);
+            setLoading(false);
           }
-        },
-        (error) => {
-          console.warn("Location not available:", error);
-          // no need to do anything — fallback already shown
-        }
-      );
-    } catch (err) {
-      console.error("Error fetching shops:", err);
-      setError(err.response?.data?.error || err.message || "Failed to fetch shops");
-      setLoading(false);
-    }
-  };
+        );
+      } catch (err) {
+        console.error("Error fetching shops:", err);
+        setError(err.response?.data?.error || err.message || "Failed to fetch shops");
+        setLoading(false);
+      }
+    };
 
-  fetchAllShops();
-}, [category]);
+    fetchShops();
+  }, [category]);
 
   const openWhatsApp = (phone, shopName) => {
     if (!phone) return alert("Phone number is missing");
     const rawPhone = phone.replace(/\D/g, "");
-    const phoneNumber = rawPhone.startsWith("91")
-      ? rawPhone
-      : "91" + rawPhone;
-    const message = encodeURIComponent(
-      `Hi, I found your business "${shopName}" on JioYatri.`
-    );
-    const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(
-      navigator.userAgent
-    );
+    const phoneNumber = rawPhone.startsWith("91") ? rawPhone : "91" + rawPhone;
+    const message = encodeURIComponent(`Hi, I found your business "${shopName}" on JioYatri.`);
+    const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
     const url = isMobile
       ? `https://wa.me/${phoneNumber}?text=${message}`
       : `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
@@ -440,15 +425,20 @@ useEffect(() => {
     );
   }
 
-  // 🧮 Group shops by distance
-  const nearby5 = shops.filter((s) => s.distanceInKm <= 5);
-  const nearby10 = shops.filter(
-    (s) => s.distanceInKm > 5 && s.distanceInKm <= 10
-  );
-  const nearby15 = shops.filter(
-    (s) => s.distanceInKm > 10 && s.distanceInKm <= 15
-  );
-  const beyond15 = shops.filter((s) => s.distanceInKm > 15);
+  // 🧮 Check if distance info is available
+  const hasDistance = shops.some((s) => s.distanceInKm !== undefined && s.distanceInKm !== null);
+
+  let nearby5 = [],
+    nearby10 = [],
+    nearby15 = [],
+    beyond15 = [];
+
+  if (hasDistance) {
+    nearby5 = shops.filter((s) => s.distanceInKm <= 5);
+    nearby10 = shops.filter((s) => s.distanceInKm > 5 && s.distanceInKm <= 10);
+    nearby15 = shops.filter((s) => s.distanceInKm > 10 && s.distanceInKm <= 15);
+    beyond15 = shops.filter((s) => s.distanceInKm > 15);
+  }
 
   const renderShopList = (list, title) =>
     list.length > 0 && (
@@ -478,9 +468,7 @@ useEffect(() => {
                 <div className="sd-shop-header">
                   <h2 className="sd-shop-name">{shop.shopName}</h2>
                   <span className="sd-distance">
-                    {shop.distanceInKm
-                      ? `${shop.distanceInKm} km away`
-                      : ""}
+                    {shop.distanceInKm ? `${shop.distanceInKm} km away` : ""}
                   </span>
                 </div>
 
@@ -495,8 +483,7 @@ useEffect(() => {
                     {shop.openingTime
                       ? `Opens at ${formatTime(shop.openingTime)}`
                       : "Opening time not available"}
-                    {shop.closingTime &&
-                      ` | Closes at ${formatTime(shop.closingTime)}`}
+                    {shop.closingTime && ` | Closes at ${formatTime(shop.closingTime)}`}
                   </span>
                 </div>
 
@@ -514,10 +501,7 @@ useEffect(() => {
                       className="sd-action-btn sd-call"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setVisiblePhoneNumbers([
-                          ...visiblePhoneNumbers,
-                          shop._id,
-                        ]);
+                        setVisiblePhoneNumbers([...visiblePhoneNumbers, shop._id]);
                       }}
                     >
                       <FaPhone className="sd-icon" /> Show Number
@@ -548,7 +532,8 @@ useEffect(() => {
         <div className="sd-header">
           <h1 className="sd-title">{categoryInfo[category]?.name || "Shops"}</h1>
           <p className="sd-subtitle">
-            Discover the best {categoryInfo[category]?.name?.toLowerCase() || "shops"} near you
+            Discover the best{" "}
+            {categoryInfo[category]?.name?.toLowerCase() || "shops"} near you
           </p>
         </div>
 
@@ -556,11 +541,17 @@ useEffect(() => {
           Back
         </button>
 
-        {/* 🧭 Grouped by distance */}
-        {renderShopList(nearby5, "🏠 Within 5 km")}
-        {renderShopList(nearby10, "🚗 Within 10 km")}
-        {renderShopList(nearby15, "🛣️ Within 15 km")}
-        {renderShopList(beyond15, "🌍 Beyond 15 km")}
+        {/* 🧭 Conditional rendering based on location availability */}
+        {hasDistance ? (
+          <>
+            {renderShopList(nearby5, "🏠 Within 5 km")}
+            {renderShopList(nearby10, "🚗 Within 10 km")}
+            {renderShopList(nearby15, "🛣️ Within 15 km")}
+            {renderShopList(beyond15, "🌍 Beyond 15 km")}
+          </>
+        ) : (
+          renderShopList(shops, "📍 All Shops")
+        )}
       </div>
       <Footer />
     </>
@@ -568,4 +559,3 @@ useEffect(() => {
 };
 
 export default ShopDisplay;
-
