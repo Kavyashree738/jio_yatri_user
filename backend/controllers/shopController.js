@@ -371,38 +371,74 @@ exports.registerShop = async (req, res) => {
 
 
 exports.getShopsByCategory = async (req, res) => {
+  
+
   try {
     const { category } = req.params;
+    const { lat, lng } = req.query;
+  
 
-    // Find shops without populating (since GridFS files can't be properly populated)
-    const shops = await Shop.find({ category }).sort({ createdAt: -1 }).lean();
+    if (lat && lng) {
+      const userLat = parseFloat(lat);
+      const userLng = parseFloat(lng);
+     
 
-    // Process shops to add image URLs
-    const shopsWithUrls = shops.map(shop => ({
-      ...shop,
-      shopImageUrls: shop.shopImages?.map(imgId =>
-        `https://jio-yatri-user.onrender.com/api/shops/images/${imgId}`
-      ) || [],
-      items: shop.items?.map(item => ({
-        ...item,
-        imageUrl: item.image ?
-          `https://jio-yatri-user.onrender.com/api/shops/images/${item.image}` :
-          null
-      })) || [],
-      rooms: shop.rooms?.map(room => ({
-        ...room,
-        imageUrls: room.images?.map(imgId =>
-          `https://jio-yatri-user.onrender.com/api/shops/images/${imgId}`
-        ) || []
-      })) || []
-    }));
+     
+      await Shop.aggregate([
+        {
+          $addFields: {
+            geoLocation: {
+              type: "Point",
+              coordinates: [
+                "$address.coordinates.lng", // keep this [lng, lat]
+                "$address.coordinates.lat",
+              ],
+            },
+          },
+        },
+      ]);
 
-    res.status(200).json({ success: true, data: shopsWithUrls });
+     
+
+      // 🚨 Here’s the key fix — use swapped user coordinates
+      const shops = await Shop.aggregate([
+        {
+          $geoNear: {
+            near: { type: "Point", coordinates: [userLat, userLng] }, // swapped order
+            distanceField: "distance",
+            spherical: true,
+            key: "address.coordinates",
+            query: { category },
+          },
+        },
+        { $sort: { distance: 1 } },
+      ]);
+
+     
+      
+
+      const shopsWithUrls = shops.map((shop) => ({
+        ...shop,
+        distanceInKm: (shop.distance / 1000).toFixed(2),
+        shopImageUrls:
+          shop.shopImages?.map(
+            (imgId) =>
+              `https://jio-yatri-user.onrender.com/api/shops/images/${imgId}`
+          ) || [],
+      }));
+
+      return res.json({ success: true, data: shopsWithUrls });
+    }
+
+
+    const fallback = await Shop.find({ category }).sort({ createdAt: -1 }).lean();
+    res.json({ success: true, data: fallback });
+
   } catch (err) {
-    console.error('Error in getShopsByCategory:', err);
-    res.status(500).json({ success: false, error: 'Failed to fetch shops' });
+    res.status(500).json({ success: false, error: err.message });
   }
 };
+
 exports.getShopById = async (req, res) => {
   try {
     const shop = await Shop.findById(req.params.id).lean();
@@ -705,4 +741,5 @@ exports.deleteShop = async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to delete shop" });
   }
 };
+
 
