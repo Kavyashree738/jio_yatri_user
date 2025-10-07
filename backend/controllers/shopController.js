@@ -371,24 +371,40 @@ exports.registerShop = async (req, res) => {
 
 
 exports.getShopsByCategory = async (req, res) => {
+  // console.log("🛰️ [getShopsByCategory] API called");
+
   try {
     const { category } = req.params;
     const { lat, lng } = req.query;
+    // console.log("📍 Category:", category, "| Lat:", lat, "| Lng:", lng);
 
-    const userLat = parseFloat(lat);
-    const userLng = parseFloat(lng);
-    const hasLocation =
-      !isNaN(userLat) && !isNaN(userLng) && userLat !== 0 && userLng !== 0;
+    if (lat && lng) {
+      const userLat = parseFloat(lat);
+      const userLng = parseFloat(lng);
+      // console.log("✅ Parsed Coordinates:", { userLat, userLng });
 
-    let shops = [];
+      // console.log("📦 Building temporary geoLocation fields...");
+      await Shop.aggregate([
+        {
+          $addFields: {
+            geoLocation: {
+              type: "Point",
+              coordinates: [
+                "$address.coordinates.lng", // keep this [lng, lat]
+                "$address.coordinates.lat",
+              ],
+            },
+          },
+        },
+      ]);
 
-    if (hasLocation) {
-      // console.log("📍 Location detected:", userLat, userLng);
+      // console.log("✅ geoLocation added. Running geoNear next...");
 
-      shops = await Shop.aggregate([
+      // 🚨 Here’s the key fix — use swapped user coordinates
+      const shops = await Shop.aggregate([
         {
           $geoNear: {
-            near: { type: "Point", coordinates: [userLng, userLat] }, // ✅ correct order
+            near: { type: "Point", coordinates: [userLat, userLng] }, // swapped order
             distanceField: "distance",
             spherical: true,
             key: "address.coordinates",
@@ -397,15 +413,55 @@ exports.getShopsByCategory = async (req, res) => {
         },
         { $sort: { distance: 1 } },
       ]);
-    } else {
-      // console.log("⚠️ No location — returning unsorted list");
-      shops = await Shop.find({ category }).sort({ createdAt: -1 }).lean();
+
+      // console.log("📦 Found shops:", shops.length);
+      if (shops.length) {
+        // console.log(
+        //   "🧭 Sample distances:",
+        //   shops.slice(0, 3).map((s) => ({
+        //     shop: s.shopName,
+        //     rawDistance: s.distance,
+        //     distanceKm: (s.distance / 1000).toFixed(2),
+        //   }))
+        // );
+      }
+
+      const shopsWithUrls = shops.map((shop) => ({
+        ...shop,
+        distanceInKm: (shop.distance / 1000).toFixed(2),
+        shopImageUrls:
+          shop.shopImages?.map(
+            (imgId) =>
+              `https://jio-yatri-user.onrender.com/api/shops/images/${imgId}`
+          ) || [],
+      }));
+
+      return res.json({ success: true, data: shopsWithUrls });
     }
 
-    // ✅ Format distances and images
+    // console.warn("⚠️ No coordinates provided — fallback query");
+    const fallback = await Shop.find({ category }).sort({ createdAt: -1 }).lean();
+    res.json({ success: true, data: fallback });
+
+  } catch (err) {
+    // console.error("❌ Error in getShopsByCategory:", err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+
+
+exports.getShopsWithoutLocation = async (req, res) => {
+  // console.log("🛰️ [getShopsWithoutLocation] API called");
+
+  try {
+    const { category } = req.params;
+
+    const shops = await Shop.find({ category }).sort({ createdAt: -1 }).lean();
+
     const shopsWithUrls = shops.map((shop) => ({
       ...shop,
-      distanceInKm: shop.distance ? (shop.distance / 1000).toFixed(2) : null,
+      distanceInKm: null, // Ensures consistency with distance-based data
       shopImageUrls:
         shop.shopImages?.map(
           (imgId) =>
@@ -413,12 +469,14 @@ exports.getShopsByCategory = async (req, res) => {
         ) || [],
     }));
 
-    return res.json({ success: true, data: shopsWithUrls });
-  } catch (err) {
-    // console.error("❌ Error in getShopsByCategory:", err);
-    res.status(500).json({ success: false, error: err.message });
+    // console.log(`✅ Found ${shopsWithUrls.length} shops without location`);
+    res.json({ success: true, data: shopsWithUrls });
+  } catch (error) {
+    // console.error("❌ Error in getShopsWithoutLocation:", error.message);
+    res.status(500).json({ success: false, error: error.message });
   }
-}; 
+};
+
 exports.getShopById = async (req, res) => {
   try {
     const shop = await Shop.findById(req.params.id).lean();
@@ -448,60 +506,60 @@ exports.getShopById = async (req, res) => {
 
 exports.getImage = async (req, res) => {
   try {
-    console.log('1. Starting getImage function');
-    console.log(`2. Image ID received: ${req.params.id}`);
+    // console.log('1. Starting getImage function');
+    // console.log(`2. Image ID received: ${req.params.id}`);
 
     await gfsPromise;
-    console.log('3. GridFS connection established');
+    // console.log('3. GridFS connection established');
 
     const fileId = new mongoose.Types.ObjectId(req.params.id);
-    console.log(`4. Converted to ObjectId: ${fileId}`);
+    // console.log(`4. Converted to ObjectId: ${fileId}`);
 
-    console.log('5. Searching for file in GridFS...');
+    // console.log('5. Searching for file in GridFS...');
     const files = await gfs.find({ _id: fileId }).toArray();
-    console.log(`6. Found ${files.length} matching files`);
+    // console.log(`6. Found ${files.length} matching files`);
 
     if (!files || files.length === 0) {
-      console.log('7. No files found');
+    //   console.log('7. No files found');
       return res.status(404).json({ success: false, error: 'File not found' });
     }
 
-    console.log('8. Preparing to stream file...');
+    // console.log('8. Preparing to stream file...');
     res.set('Content-Type', files[0].contentType || 'application/octet-stream');
     const downloadStream = gfs.openDownloadStream(fileId);
 
     downloadStream.on('error', (err) => {
-      console.error('9. Error streaming file:', err);
+    //   console.error('9. Error streaming file:', err);
       res.status(500).json({ success: false, error: 'Error streaming file' });
     });
 
-    console.log('10. Starting file stream');
+    // console.log('10. Starting file stream');
     downloadStream.pipe(res);
   } catch (err) {
-    console.error('11. Error in getImage:', err);
-    console.error('12. Error details:', {
-      message: err.message,
-      stack: err.stack,
-      name: err.name
-    });
+    // console.error('11. Error in getImage:', err);
+    // console.error('12. Error details:', {
+    //   message: err.message,
+    //   stack: err.stack,
+    //   name: err.name
+    // });
     res.status(500).json({ success: false, error: err.message });
   }
 };
 exports.updateShop = async (req, res) => {
-    console.log('--- STARTING SHOP UPDATE ---');
-    console.log('[DEBUG] Request received with:', {
-        params: req.params,
-        body: req.body,
-        files: req.files ? Object.keys(req.files) : 'No files'
-    });
+    // console.log('--- STARTING SHOP UPDATE ---');
+    // console.log('[DEBUG] Request received with:', {
+    //     params: req.params,
+    //     body: req.body,
+    //     files: req.files ? Object.keys(req.files) : 'No files'
+    // });
 
     try {
-        console.log('[DEBUG] Initializing GridFS connection');
+        // console.log('[DEBUG] Initializing GridFS connection');
         await gfsPromise;
-        console.log('[DEBUG] GridFS connection ready');
+        // console.log('[DEBUG] GridFS connection ready');
 
         // Parse request data with validation
-        console.log('[DEBUG] Parsing request data');
+        // console.log('[DEBUG] Parsing request data');
         const updateData = {
             ...req.body,
             userId: req.body.userId,
@@ -513,46 +571,46 @@ exports.updateShop = async (req, res) => {
             address: req.body.address ? JSON.parse(req.body.address) : null
         };
 
-        console.log('[DEBUG] Parsed update data:', {
-            userId: updateData.userId,
-            itemCount: updateData.items.length,
-            shopImagesCount: updateData.existingShopImages.length,
-            itemImagesCount: updateData.existingItemImages.length
-        });
+        // console.log('[DEBUG] Parsed update data:', {
+        //     userId: updateData.userId,
+        //     itemCount: updateData.items.length,
+        //     shopImagesCount: updateData.existingShopImages.length,
+        //     itemImagesCount: updateData.existingItemImages.length
+        // });
 
         // Validate and find shop
-        console.log(`[DEBUG] Finding shop with ID: ${req.params.id}`);
+        // console.log(`[DEBUG] Finding shop with ID: ${req.params.id}`);
         const existingShop = await Shop.findById(req.params.id);
         if (!existingShop) {
-            console.error('[ERROR] Shop not found');
+            // console.error('[ERROR] Shop not found');
             return res.status(404).json({ success: false, error: "Shop not found" });
         }
         if (existingShop.userId !== updateData.userId) {
-            console.error('[ERROR] Unauthorized access attempt');
+            // console.error('[ERROR] Unauthorized access attempt');
             return res.status(403).json({ success: false, error: "Unauthorized" });
         }
 
-        console.log('[DEBUG] Shop found:', {
-            shopName: existingShop.shopName,
-            currentItems: existingShop.items.length,
-            currentImages: existingShop.shopImages.length
-        });
+        // console.log('[DEBUG] Shop found:', {
+        //     shopName: existingShop.shopName,
+        //     currentItems: existingShop.items.length,
+        //     currentImages: existingShop.shopImages.length
+        // });
 
         // Process shop images
-        console.log('[DEBUG] Processing shop images');
+        // console.log('[DEBUG] Processing shop images');
         const newShopImageIds = [];
         if (req.files?.shopImages) {
-            console.log(`[DEBUG] Found ${req.files.shopImages.length} new shop images to upload`);
+            // console.log(`[DEBUG] Found ${req.files.shopImages.length} new shop images to upload`);
             for (const [index, file] of req.files.shopImages.entries()) {
-                console.log(`[DEBUG] Uploading shop image ${index + 1}: ${file.originalname}`);
+                // console.log(`[DEBUG] Uploading shop image ${index + 1}: ${file.originalname}`);
                 const uploadedId = await uploadFile(file);
-                console.log(`[DEBUG] Uploaded shop image ${index + 1} with ID: ${uploadedId}`);
+                // console.log(`[DEBUG] Uploaded shop image ${index + 1} with ID: ${uploadedId}`);
                 newShopImageIds.push(uploadedId);
             }
         }
 
         // Process item images - ALTERNATIVE APPROACH using push()
-        console.log('[DEBUG] Processing item images');
+        // console.log('[DEBUG] Processing item images');
         const itemImages = req.files?.itemImages || [];
         
         // Clear existing items if we want to rebuild them completely
@@ -561,21 +619,21 @@ exports.updateShop = async (req, res) => {
         // Process each item with its image
         for (let i = 0; i < updateData.items.length; i++) {
             const item = updateData.items[i];
-            console.log(`[DEBUG] Processing item ${i + 1}: ${item.name}`);
+            // console.log(`[DEBUG] Processing item ${i + 1}: ${item.name}`);
             
             let imageId = null;
             
             // Handle new image upload
             if (i < itemImages.length) {
-                console.log(`[DEBUG] Uploading new image for item ${i + 1}`);
+                // console.log(`[DEBUG] Uploading new image for item ${i + 1}`);
                 imageId = await uploadFile(itemImages[i]);
-                console.log(`[DEBUG] New image uploaded with ID: ${imageId}`);
+                // console.log(`[DEBUG] New image uploaded with ID: ${imageId}`);
             } 
             // Keep existing image if no new one was uploaded
             else if (item.imageUrl) {
                 const urlParts = item.imageUrl.split('/');
                 imageId = urlParts[urlParts.length - 1];
-                console.log(`[DEBUG] Keeping existing image with ID: ${imageId}`);
+                // console.log(`[DEBUG] Keeping existing image with ID: ${imageId}`);
             }
             
             // Push the updated item to the array
@@ -588,7 +646,7 @@ exports.updateShop = async (req, res) => {
                 image: imageId
             });
             
-            console.log(`[DEBUG] Item ${i + 1} processed with image ID: ${imageId}`);
+            // console.log(`[DEBUG] Item ${i + 1} processed with image ID: ${imageId}`);
         }
 
         // Update shop images
@@ -599,9 +657,9 @@ exports.updateShop = async (req, res) => {
         existingShop.closingTime = updateData.closingTime;
         // Add any other fields you need to update
 
-        console.log('[DEBUG] Saving updated shop document');
+        // console.log('[DEBUG] Saving updated shop document');
         const updatedShop = await existingShop.save();
-        console.log('[DEBUG] Shop document saved successfully');
+        // console.log('[DEBUG] Shop document saved successfully');
 
         // Generate proper image URLs
         const baseUrl = 'https://jio-yatri-user.onrender.com';
@@ -619,15 +677,15 @@ exports.updateShop = async (req, res) => {
             }))
         };
 
-        console.log('[DEBUG] Update successful with:', {
-            shopId: responseData._id,
-            itemCount: responseData.items.length,
-            firstItem: {
-                name: responseData.items[0]?.name,
-                imageUrl: responseData.items[0]?.imageUrl
-            },
-            shopImages: responseData.shopImageUrls.length
-        });
+        // console.log('[DEBUG] Update successful with:', {
+        //     shopId: responseData._id,
+        //     itemCount: responseData.items.length,
+        //     firstItem: {
+        //         name: responseData.items[0]?.name,
+        //         imageUrl: responseData.items[0]?.imageUrl
+        //     },
+        //     shopImages: responseData.shopImageUrls.length
+        // });
 
         res.json({ 
             success: true, 
@@ -636,11 +694,11 @@ exports.updateShop = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('[ERROR] Update failed:', {
-            message: error.message,
-            stack: error.stack,
-            ...(error.response && { response: error.response.data })
-        });
+        // console.error('[ERROR] Update failed:', {
+        //     message: error.message,
+        //     stack: error.stack,
+        //     ...(error.response && { response: error.response.data })
+        // });
         res.status(500).json({ 
             success: false, 
             error: error.message || "Failed to update shop",
@@ -651,7 +709,7 @@ exports.updateShop = async (req, res) => {
 
 // Helper function with enhanced debugging
 const uploadFile = async (file) => {
-    console.log(`[DEBUG] Starting upload for file: ${file.originalname}`);
+    // console.log(`[DEBUG] Starting upload for file: ${file.originalname}`);
     return new Promise((resolve, reject) => {
         const uploadStream = gfs.openUploadStream(file.originalname, {
             contentType: file.mimetype,
@@ -667,10 +725,10 @@ const uploadFile = async (file) => {
         });
         
         uploadStream.on('error', (err) => {
-            console.error(`[ERROR] File upload failed for ${file.originalname}:`, {
-                message: err.message,
-                stack: err.stack
-            });
+            // console.error(`[ERROR] File upload failed for ${file.originalname}:`, {
+            //     message: err.message,
+            //     stack: err.stack
+            // });
             reject(err);
         });
         
@@ -709,6 +767,7 @@ exports.deleteShop = async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to delete shop" });
   }
 };
+
 
 
 
