@@ -347,15 +347,16 @@ const categoryIcons = {
 const ShopDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [shop, setShop] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPhone, setShowPhone] = useState(false);
+  const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all");
   const [vegFilter, setVegFilter] = useState("all");
-  const { addItem, cart } = useCart();
 
+  const { addItem, cart } = useCart();
   const shopCartItems = shop ? cart?.[shop._id]?.items || [] : [];
   const cartCount = shopCartItems.reduce((s, it) => s + (it.quantity || 0), 0);
 
@@ -367,14 +368,25 @@ const ShopDetails = () => {
     return `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
   };
 
+  // ✅ Using only Render API URL
   useEffect(() => {
     const fetchShop = async () => {
       try {
+        if (!id) {
+          setError("Invalid shop ID");
+          setLoading(false);
+          return;
+        }
+
+        console.log("🧭 Fetching shop with ID:", id);
+
         const res = await axios.get(
-          "https://jio-yatri-user.onrender.com/api/shops/" + id
+          `https://jio-yatri-user.onrender.com/api/shops/${id}`
         );
+
         setShop(res.data.data);
       } catch (err) {
+        console.error("❌ Error fetching shop:", err);
         setError(
           err.response?.data?.error ||
             err.message ||
@@ -384,29 +396,40 @@ const ShopDetails = () => {
         setLoading(false);
       }
     };
+
     fetchShop();
   }, [id]);
 
-  const navigateImage = (dir) => {
+  const handleThumbnailClick = (index) => setCurrentImageIndex(index);
+
+  const navigateImage = (direction) => {
     if (!shop?.shopImageUrls) return;
-    setCurrentImageIndex((prev) =>
-      dir === "prev"
-        ? prev === 0
-          ? shop.shopImageUrls.length - 1
-          : prev - 1
-        : prev === shop.shopImageUrls.length - 1
-        ? 0
-        : prev + 1
-    );
+    if (direction === "prev") {
+      setCurrentImageIndex((prev) =>
+        prev === 0 ? shop.shopImageUrls.length - 1 : prev - 1
+      );
+    } else {
+      setCurrentImageIndex((prev) =>
+        prev === shop.shopImageUrls.length - 1 ? 0 : prev + 1
+      );
+    }
   };
 
   const openWhatsApp = (phone, shopName) => {
-    if (!phone) return alert("Phone number missing");
-    const phoneNumber = phone.replace(/\D/g, "").startsWith("91")
-      ? phone.replace(/\D/g, "")
-      : "91" + phone.replace(/\D/g, "");
-    const message = encodeURIComponent(`Hi, I found your business "${shopName}" on JioYatri.`);
-    const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+    if (!phone) {
+      alert("Phone number is missing");
+      return;
+    }
+    const rawPhone = phone.replace(/\D/g, "");
+    const phoneNumber = rawPhone.startsWith("91")
+      ? rawPhone
+      : "91" + rawPhone;
+    const message = encodeURIComponent(
+      `Hi, I found your business "${shopName}" on JioYatri.`
+    );
+    const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(
+      navigator.userAgent
+    );
     const url = isMobile
       ? `https://wa.me/${phoneNumber}?text=${message}`
       : `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
@@ -414,16 +437,18 @@ const ShopDetails = () => {
   };
 
   const filteredItems = () => {
-    if (!shop?.items) return [];
-    return shop.items.filter((item) => {
-      const catMatch =
+    if (!shop?.itemsWithUrls?.length && !shop?.items?.length) return [];
+    const items = shop.itemsWithUrls || shop.items;
+
+    return items.filter((item) => {
+      const categoryMatch =
         filter === "all" ||
         (item.category && item.category.toLowerCase() === filter);
       const vegMatch =
         vegFilter === "all" ||
         (vegFilter === "veg" && item.veg) ||
         (vegFilter === "nonveg" && !item.veg);
-      return catMatch && vegMatch;
+      return categoryMatch && vegMatch;
     });
   };
 
@@ -462,7 +487,7 @@ const ShopDetails = () => {
       <Header />
       <div className="sd-details-container">
         <button className="sd-back-btn" onClick={() => navigate(-1)}>
-          <FaChevronLeft /> Back
+          <FaChevronLeft /> Back to List
         </button>
 
         <div className="sd-category-badge">
@@ -470,13 +495,14 @@ const ShopDetails = () => {
           <span>{shop.category || "Shop"}</span>
         </div>
 
-        {/* Gallery */}
+        {/* Image Gallery */}
         {shop.shopImageUrls?.length > 0 && (
           <div className="sd-gallery-container">
             <div className="sd-main-image">
               <img
                 src={shop.shopImageUrls[currentImageIndex]}
-                alt={shop.shopName}
+                alt={`${shop.shopName} ${currentImageIndex + 1}`}
+                className="sd-current-image"
               />
               <button
                 className="sd-nav-btn sd-prev-btn"
@@ -491,78 +517,118 @@ const ShopDetails = () => {
                 <FaChevronRight />
               </button>
               <div className="sd-image-counter">
-                {currentImageIndex + 1}/{shop.shopImageUrls.length}
+                {currentImageIndex + 1} / {shop.shopImageUrls.length}
               </div>
             </div>
           </div>
         )}
 
-        {/* Shop info */}
+        {/* Shop Info */}
         <div className="sd-content-container">
-          <h1 className="sd-title">{shop.shopName}</h1>
-          <div className="sd-meta">
-            <FaMapMarkerAlt /> {shop.address?.address || "No address"}
-          </div>
-          <div className="sd-meta">
-            <FaClock /> {formatTime(shop.openingTime)} - {formatTime(shop.closingTime)}
-          </div>
+          <div className="sd-header">
+            <h1 className="sd-title">{shop.shopName}</h1>
+            <div className="sd-meta-container">
+              <div className="sd-meta-item">
+                <FaMapMarkerAlt className="sd-meta-icon" />
+                <span>{shop.address?.address || "Address not available"}</span>
+              </div>
+              <div className="sd-meta-item">
+                <FaClock className="sd-meta-icon" />
+                <span>
+                  {shop.openingTime
+                    ? `Opens at ${formatTime(shop.openingTime)}`
+                    : "Opening time not available"}
+                </span>
+                {shop.closingTime && (
+                  <span>{` | Closes at ${formatTime(shop.closingTime)}`}</span>
+                )}
+              </div>
+            </div>
 
-          <div className="sd-contact">
-            {showPhone ? (
-              <a href={`tel:${shop.phone}`} className="sd-call-btn">
-                <FaPhone /> {shop.phone}
-              </a>
-            ) : (
-              <button onClick={() => setShowPhone(true)} className="sd-call-btn">
-                <FaPhone /> Show Number
+            <div className="sd-contact-actions">
+              {showPhone ? (
+                <a href={`tel:${shop.phone}`} className="sd-call-btn">
+                  <FaPhone /> {shop.phone}
+                </a>
+              ) : (
+                <button
+                  className="sd-call-btn"
+                  onClick={() => setShowPhone(true)}
+                >
+                  <FaPhone /> Show Number
+                </button>
+              )}
+              <button
+                className="sd-whatsapp-btn"
+                onClick={() => openWhatsApp(shop.phone, shop.shopName)}
+              >
+                <FaWhatsapp /> WhatsApp
               </button>
-            )}
-            <button
-              className="sd-whatsapp-btn"
-              onClick={() => openWhatsApp(shop.phone, shop.shopName)}
-            >
-              <FaWhatsapp /> WhatsApp
-            </button>
+            </div>
           </div>
 
-          {/* Products */}
-          <h2>{isFoodCategory ? "Menu Items" : "Products"}</h2>
-          <div className="sd-products-grid">
+          {/* Products Section */}
+          <div className="sd-products-section">
+            <h2 className="sd-section-title">
+              {isFoodCategory ? "Menu Items" : "Products"}
+            </h2>
+
             {filteredItems().length > 0 ? (
-              filteredItems().map((item) => (
-                <div className="sd-product-card" key={item._id}>
-                  <img
-                    src={item.imageUrl || "/placeholder-food.jpg"}
-                    alt={item.name}
-                    className="sd-product-image"
-                  />
-                  <h3>{item.name}</h3>
-                  <p>₹{item.price}</p>
-                  <button
-                    className="sd-add-btn"
-                    onClick={() =>
-                      addItem(
-                        { _id: shop._id, shopName: shop.shopName },
-                        {
-                          itemId: item._id,
-                          name: item.name,
-                          price: Number(item.price) || 0,
-                          imageUrl: item.imageUrl || null,
+              <div className="sd-products-grid">
+                {filteredItems().map((item) => (
+                  <div className="sd-product-card" key={item._id || item.name}>
+                    <div className="sd-product-image-container">
+                      {item.imageUrl ? (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="sd-product-image"
+                        />
+                      ) : (
+                        <div className="sd-product-image-placeholder">
+                          {isFoodCategory ? (
+                            <FaUtensils className="sd-placeholder-icon" />
+                          ) : (
+                            <FaBoxes className="sd-placeholder-icon" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="sd-product-info">
+                      <h3 className="sd-product-name">{item.name}</h3>
+                      <p className="sd-product-price">₹{item.price}</p>
+                      <button
+                        className="sd-add-btn"
+                        onClick={() =>
+                          addItem(
+                            {
+                              _id: shop._id,
+                              shopName: shop.shopName,
+                              category: shop.category,
+                            },
+                            {
+                              itemId: item._id || item.id,
+                              name: item.name,
+                              price: Number(item.price) || 0,
+                              imageUrl: item.imageUrl || null,
+                            }
+                          )
                         }
-                      )
-                    }
-                  >
-                    + Add
-                  </button>
-                </div>
-              ))
+                      >
+                        + Add
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : (
-              <p>No items available</p>
+              <p className="sd-no-products">No products available</p>
             )}
           </div>
         </div>
 
-        {/* Cart Button */}
+        {/* Floating Cart Button */}
         <button
           className="sd-cart-fab"
           onClick={() => navigate(`/cart/${shop._id}`, { state: { shop } })}
@@ -571,6 +637,7 @@ const ShopDetails = () => {
           {cartCount > 0 && <span className="sd-cart-badge">{cartCount}</span>}
         </button>
       </div>
+
       <Footer />
     </>
   );
