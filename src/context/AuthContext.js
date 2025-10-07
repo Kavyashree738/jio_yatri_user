@@ -32,6 +32,7 @@
 // src/context/AuthContext.js
 import { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../firebase';
+import { onIdTokenChanged } from 'firebase/auth';
 
 const AuthContext = createContext();
 
@@ -39,7 +40,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [message, setMessage] = useState({ text: '', isError: false });
-  const [loading, setLoading] = useState(true); // NEW loading state
+  const [loading, setLoading] = useState(true);
 
   const login = (userData, authToken) => {
     setUser(userData);
@@ -54,26 +55,44 @@ export function AuthProvider({ children }) {
     setMessage({ text: '', isError: false });
   };
 
+  // ✅ Auto-refresh Firebase token
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+    const unsubscribe = onIdTokenChanged(auth, async (currentUser) => {
       if (currentUser) {
         try {
-          const idToken = await currentUser.getIdToken();
+          const idToken = await currentUser.getIdToken(true); // force refresh token
           setUser(currentUser);
           setToken(idToken);
           localStorage.setItem('authToken', idToken);
         } catch (error) {
+          console.error('Error refreshing token:', error);
           setMessage({ text: error.message, isError: true });
           logout();
         }
       } else {
         logout();
       }
-      setLoading(false); // Auth state finished loading
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  // ✅ Manual refresh function
+  const refreshToken = async () => {
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) return null;
+      const newToken = await currentUser.getIdToken(true);
+      setToken(newToken);
+      localStorage.setItem('authToken', newToken);
+      return newToken;
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      logout();
+      return null;
+    }
+  };
 
   const value = {
     user,
@@ -82,7 +101,8 @@ export function AuthProvider({ children }) {
     login,
     logout,
     setMessage,
-    loading, // expose loading state
+    loading,
+    refreshToken, // ✅ added
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
