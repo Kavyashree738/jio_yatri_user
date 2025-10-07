@@ -25,7 +25,7 @@ router.post(
 // Get shops by category
 router.get('/category/:category', shopController.getShopsByCategory);
 
-router.get('/category/all/:category', shopController.getShopsWithoutLocation);
+
 
 // Get single shop
 router.get('/:id', shopController.getShopById);
@@ -74,3 +74,4 @@ router.post('/:shopId/fcm-token', async (req, res) => {
 
 
 module.exports = router;
+
