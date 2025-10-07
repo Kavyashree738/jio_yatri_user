@@ -362,36 +362,45 @@ const ShopDisplay = () => {
     return `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
   };
 
-  useEffect(() => {
-    const fetchShops = async (lat, lng) => {
-      try {
-        const res = await axios.get(
-          `https://jio-yatri-user.onrender.com/api/shops/category/${category}?lat=${lat}&lng=${lng}`
-        );
-        setShops(res.data.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching shops:", err);
-        setError(
-          err.response?.data?.error || err.message || "Failed to fetch shops"
-        );
-        setLoading(false);
-      }
-    };
+useEffect(() => {
+  const fetchAllShops = async () => {
+    try {
+      // 1️⃣ Fetch all shops without waiting for location
+      const res = await axios.get(`https://jio-yatri-user.onrender.com/api/shops/category/${category}`);
+      setShops(res.data.data || []);
+      setLoading(false);
 
-    // 🔹 Get user location
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        fetchShops(latitude, longitude);
-      },
-      (error) => {
-        console.error("Location error:", error);
-        // fallback without location
-        fetchShops(null, null);
-      }
-    );
-  }, [category]);
+      // 2️⃣ After showing all, try to get location in background
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          try {
+            // 3️⃣ Fetch again, now sorted by distance
+            const sortedRes = await axios.get(
+              `https://jio-yatri-user.onrender.com/api/shops/category/${category}?lat=${latitude}&lng=${longitude}`
+            );
+
+            // 4️⃣ Replace list with distance-based sorting
+            setShops(sortedRes.data.data || []);
+          } catch (geoErr) {
+            console.error("Error fetching distance-based shops:", geoErr);
+          }
+        },
+        (error) => {
+          console.warn("Location not available:", error);
+          // no need to do anything — fallback already shown
+        }
+      );
+    } catch (err) {
+      console.error("Error fetching shops:", err);
+      setError(err.response?.data?.error || err.message || "Failed to fetch shops");
+      setLoading(false);
+    }
+  };
+
+  fetchAllShops();
+}, [category]);
 
   const openWhatsApp = (phone, shopName) => {
     if (!phone) return alert("Phone number is missing");
