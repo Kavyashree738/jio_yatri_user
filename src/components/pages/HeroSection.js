@@ -183,6 +183,16 @@ console.log('Verifying OTP:', otp, 'for phoneNumber:', phoneNumber, 'with referr
     }
   };
 
+  // ✅ Auto-verify when OTP is fully entered or auto-filled
+useEffect(() => {
+  // Run only if 4 digits entered, not already loading, and OTP screen is visible
+  if (showOtpComponent && otp.length === 4 && !isLoading) {
+    
+    verifyOtp(); // trigger verification automatically
+  }
+}, [otp, showOtpComponent]);
+
+
   const resendOtp = async () => {
     if (otpResendTime > 0) return;
     await sendCode();
