@@ -379,7 +379,7 @@ exports.getShopsByCategory = async (req, res) => {
     // Fetch all shops by category (no location filter)
     const shops = await Shop.find({ category }).sort({ createdAt: -1 }).lean();
 
-    const baseUrl = "https://jio-yatri-driver.onrender.com";
+    const baseUrl = "https://jio-yatri-user.onrender.com";
 
     // Attach image URLs
     const shopsWithUrls = shops.map(shop => ({
@@ -694,6 +694,7 @@ exports.deleteShop = async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to delete shop" });
   }
 };
+
 
 
 
