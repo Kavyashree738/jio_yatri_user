@@ -252,3 +252,67 @@
   margin-top:30px;
   margin-bottom:50px;
 }
+.sd-distance-heading {
+  margin-top: 25px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c3e50;
+  border-left: 5px solid #3498db;
+  padding-left: 10px;
+}
+
+.sd-distance {
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+
+/* ========== SHOP DISTANCE STYLE ========== */
+.sd-distance {
+  font-size: 0.8rem;           /* smaller and neat */
+  font-weight: 500;
+  color: #6c757d;              /* soft gray */
+  margin-left: 6px;
+  background: #f1f3f5;         /* light background for contrast */
+  padding: 3px 8px;
+  border-radius: 8px;
+  display: inline-block;
+  vertical-align: middle;
+  letter-spacing: 0.3px;
+}
+
+/* Slightly adjust shop header to align name + distance */
+.sd-shop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+/* ========== DISTANCE GROUP HEADERS ========== */
+.sd-distance-header {
+  font-size: 0.8rem;              /* smaller and balanced */
+  font-weight: 600;
+  color: #495057;
+  margin: 25px 0 10px;
+  text-align: left;
+  padding-left: 10px;
+  border-left: 3px solid #007bff;  /* thin accent line for clarity */
+  letter-spacing: 0.2px;
+  opacity: 0.9;
+}
+
+/* ========== SHOP DISTANCE LABEL ========== */
+.sd-distance {
+  font-size: 0.8rem;            /* smaller text */
+  font-weight: 500;
+  color: #6c757d;
+  background: #f1f3f5;
+  padding: 3px 8px;
+  border-radius: 8px;
+  display: inline-block;
+  vertical-align: middle;
+  letter-spacing: 0.3px;
+}
