@@ -309,22 +309,31 @@
 // export default ShopDisplay;
 
 // src/pages/ShopDisplay.jsx
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+// src/pages/ShopDisplay.jsx
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
-  FaStar, FaPhone, FaWhatsapp, FaShoppingBag,
-  FaClock, FaMapMarkerAlt, FaChevronLeft, FaChevronRight,
-  FaUtensils, FaStore, FaCarrot, FaBoxes, FaMedkit,
-  FaBreadSlice, FaCoffee
-} from 'react-icons/fa';
-import Slider from 'react-slick';
-import { useParams, useNavigate } from 'react-router-dom';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-import Header from '../components/pages/Header';
-import Footer from '../components/pages/Footer';
-import '../styles/ShopDisplay.css';
-import { useAuth } from '../context/AuthContext';
+  FaStar,
+  FaPhone,
+  FaWhatsapp,
+  FaShoppingBag,
+  FaClock,
+  FaMapMarkerAlt,
+  FaChevronLeft,
+  FaChevronRight,
+  FaUtensils,
+  FaStore,
+  FaCarrot,
+  FaBoxes,
+  FaMedkit,
+  FaBreadSlice,
+  FaCoffee,
+} from "react-icons/fa";
+import Header from "../components/pages/Header";
+import Footer from "../components/pages/Footer";
+import "../styles/ShopDisplay.css";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const ShopDisplay = () => {
   const { category } = useParams();
@@ -336,99 +345,74 @@ const ShopDisplay = () => {
   const { user } = useAuth();
 
   const categoryInfo = {
-    hotel:    { name: 'Hotels & Restaurants', icon: <FaUtensils /> },
-    grocery:  { name: 'Grocery Stores',       icon: <FaStore /> },
-    vegetable:{ name: 'Vegetable Vendors',    icon: <FaCarrot /> },
-    provision:{ name: 'Provision Stores',     icon: <FaBoxes /> },
-    medical:  { name: 'Medical Stores',       icon: <FaMedkit /> },
-    bakery:   { name: 'Bakeries',             icon: <FaBreadSlice /> },
-    cafe:     { name: 'Cafes',                icon: <FaCoffee /> },
+    hotel: { name: "Hotels & Restaurants", icon: <FaUtensils /> },
+    grocery: { name: "Grocery Stores", icon: <FaStore /> },
+    vegetable: { name: "Vegetable Vendors", icon: <FaCarrot /> },
+    provision: { name: "Provision Stores", icon: <FaBoxes /> },
+    medical: { name: "Medical Stores", icon: <FaMedkit /> },
+    bakery: { name: "Bakeries", icon: <FaBreadSlice /> },
+    cafe: { name: "Cafes", icon: <FaCoffee /> },
   };
 
   const formatTime = (timeStr) => {
-    if (!timeStr) return '';
-    const [hour, minute] = timeStr.split(':').map(Number);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
+    if (!timeStr) return "";
+    const [hour, minute] = timeStr.split(":").map(Number);
+    const ampm = hour >= 12 ? "PM" : "AM";
     const hour12 = hour % 12 === 0 ? 12 : hour % 12;
-    return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
+    return `${hour12}:${minute.toString().padStart(2, "0")} ${ampm}`;
   };
 
   useEffect(() => {
-    const fetchShops = async () => {
+    const fetchShops = async (lat, lng) => {
       try {
         const res = await axios.get(
-          `https://jio-yatri-user.onrender.com/api/shops/category/${category}`
+          `https://jio-yatri-user.onrender.com/api/shops/category/${category}?lat=${lat}&lng=${lng}`
         );
         setShops(res.data.data);
         setLoading(false);
       } catch (err) {
-        setError(err.response?.data?.error || err.message || 'Failed to fetch shops');
+        console.error("Error fetching shops:", err);
+        setError(
+          err.response?.data?.error || err.message || "Failed to fetch shops"
+        );
         setLoading(false);
       }
     };
-    fetchShops();
+
+    // 🔹 Get user location
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        fetchShops(latitude, longitude);
+      },
+      (error) => {
+        console.error("Location error:", error);
+        // fallback without location
+        fetchShops(null, null);
+      }
+    );
   }, [category]);
 
-  const NextArrow = ({ onClick }) => (
-    <div className="sd-arrow sd-next-arrow" onClick={onClick}>
-      <FaChevronRight />
-    </div>
-  );
-
-  const PrevArrow = ({ onClick }) => (
-    <div className="sd-arrow sd-prev-arrow" onClick={onClick}>
-      <FaChevronLeft />
-    </div>
-  );
-
-  const sliderSettings = {
-    dots: false,
-    infinite: false,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    arrows: true,
-    nextArrow: <NextArrow />,
-    prevArrow: <PrevArrow />,
-    responsive: [
-      { breakpoint: 768, settings: { slidesToShow: 2 } },
-      { breakpoint: 480, settings: { slidesToShow: 1 } }
-    ]
-  };
-
   const openWhatsApp = (phone, shopName) => {
-    if (!phone) {
-      alert('Phone number is missing');
-      return;
-    }
-    const rawPhone = phone.replace(/\D/g, '');
-    const phoneNumber = rawPhone.startsWith('91') ? rawPhone : '91' + rawPhone;
-    const message = encodeURIComponent(`Hi, I found your business "${shopName}" on JioYatri.`);
-    const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+    if (!phone) return alert("Phone number is missing");
+    const rawPhone = phone.replace(/\D/g, "");
+    const phoneNumber = rawPhone.startsWith("91")
+      ? rawPhone
+      : "91" + rawPhone;
+    const message = encodeURIComponent(
+      `Hi, I found your business "${shopName}" on JioYatri.`
+    );
+    const isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(
+      navigator.userAgent
+    );
     const url = isMobile
       ? `https://wa.me/${phoneNumber}?text=${message}`
       : `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
-    window.open(url, '_blank');
-  };
-
-  const handleOrder = (shop, e) => {
-    e.stopPropagation();
-    navigate(`/shop-order/${shop._id}`, { state: { shop } });
+    window.open(url, "_blank");
   };
 
   const handleShopClick = (shopId) => {
     navigate(`/shop/${shopId}`);
-  };
-
-  const handleEditShop = (shopId, e) => {
-    e.stopPropagation();
-    const shopToEdit = shops.find((s) => s._id === shopId);
-    if (!shopToEdit) return;
-    if (user?.uid !== shopToEdit.userId) {
-      alert("You don't have permission to edit this shop");
-      return;
-    }
-    navigate(`/edit-shop/${shopId}`);
   };
 
   if (loading) {
@@ -447,21 +431,22 @@ const ShopDisplay = () => {
     );
   }
 
-  return (
-    <>
-      <Header />
-      <div className="sd-container">
-        <div className="sd-header">
-          <h1 className="sd-title">{categoryInfo[category]?.name || 'Shops'}</h1>
-          <p className="sd-subtitle">
-            Discover the best {categoryInfo[category]?.name?.toLowerCase() || 'shops'} in your area
-          </p>
-        </div>
+  // 🧮 Group shops by distance
+  const nearby5 = shops.filter((s) => s.distanceInKm <= 5);
+  const nearby10 = shops.filter(
+    (s) => s.distanceInKm > 5 && s.distanceInKm <= 10
+  );
+  const nearby15 = shops.filter(
+    (s) => s.distanceInKm > 10 && s.distanceInKm <= 15
+  );
+  const beyond15 = shops.filter((s) => s.distanceInKm > 15);
 
-        <button className="sd-back-btn" onClick={() => navigate('/home')}>back</button>
-
+  const renderShopList = (list, title) =>
+    list.length > 0 && (
+      <>
+        <h2 className="sd-distance-header">{title}</h2>
         <div className="sd-shops-list">
-          {shops.map((shop) => (
+          {list.map((shop) => (
             <div
               key={shop._id}
               className="sd-shop-card"
@@ -483,11 +468,16 @@ const ShopDisplay = () => {
               <div className="sd-shop-info">
                 <div className="sd-shop-header">
                   <h2 className="sd-shop-name">{shop.shopName}</h2>
+                  <span className="sd-distance">
+                    {shop.distanceInKm
+                      ? `${shop.distanceInKm} km away`
+                      : ""}
+                  </span>
                 </div>
 
                 <div className="sd-shop-address">
                   <FaMapMarkerAlt className="sd-icon" />
-                  <span>{shop.address?.address || 'Address not available'}</span>
+                  <span>{shop.address?.address || "Address not available"}</span>
                 </div>
 
                 <div className="sd-shop-timing">
@@ -495,20 +485,10 @@ const ShopDisplay = () => {
                   <span>
                     {shop.openingTime
                       ? `Opens at ${formatTime(shop.openingTime)}`
-                      : 'Opening time not available'}
-                    {shop.closingTime && ` | Closes at ${formatTime(shop.closingTime)}`}
+                      : "Opening time not available"}
+                    {shop.closingTime &&
+                      ` | Closes at ${formatTime(shop.closingTime)}`}
                   </span>
-                </div>
-
-                <div className="sd-shop-stats">
-                  <div className="sd-stat-item">
-                    <FaStar className="sd-icon" />
-                    <span>{shop.averageRating || 'New'}</span>
-                  </div>
-                  <div className="sd-stat-item">
-                    <FaShoppingBag className="sd-icon" />
-                    <span>{shop.items?.length || 0} items</span>
-                  </div>
                 </div>
 
                 <div className="sd-shop-actions">
@@ -525,7 +505,10 @@ const ShopDisplay = () => {
                       className="sd-action-btn sd-call"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setVisiblePhoneNumbers([...visiblePhoneNumbers, shop._id]);
+                        setVisiblePhoneNumbers([
+                          ...visiblePhoneNumbers,
+                          shop._id,
+                        ]);
                       }}
                     >
                       <FaPhone className="sd-icon" /> Show Number
@@ -546,6 +529,29 @@ const ShopDisplay = () => {
             </div>
           ))}
         </div>
+      </>
+    );
+
+  return (
+    <>
+      <Header />
+      <div className="sd-container">
+        <div className="sd-header">
+          <h1 className="sd-title">{categoryInfo[category]?.name || "Shops"}</h1>
+          <p className="sd-subtitle">
+            Discover the best {categoryInfo[category]?.name?.toLowerCase() || "shops"} near you
+          </p>
+        </div>
+
+        <button className="sd-back-btn" onClick={() => navigate("/home")}>
+          Back
+        </button>
+
+        {/* 🧭 Grouped by distance */}
+        {renderShopList(nearby5, "🏠 Within 5 km")}
+        {renderShopList(nearby10, "🚗 Within 10 km")}
+        {renderShopList(nearby15, "🛣️ Within 15 km")}
+        {renderShopList(beyond15, "🌍 Beyond 15 km")}
       </div>
       <Footer />
     </>
@@ -553,3 +559,4 @@ const ShopDisplay = () => {
 };
 
 export default ShopDisplay;
+
