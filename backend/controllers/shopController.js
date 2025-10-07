@@ -370,112 +370,39 @@ exports.registerShop = async (req, res) => {
 };
 
 
+// controllers/shopController.js
 exports.getShopsByCategory = async (req, res) => {
-  // console.log("🛰️ [getShopsByCategory] API called");
-
   try {
     const { category } = req.params;
-    const { lat, lng } = req.query;
-    // console.log("📍 Category:", category, "| Lat:", lat, "| Lng:", lng);
+    console.log(`[ShopController] Fetching shops for category: ${category}`);
 
-    if (lat && lng) {
-      const userLat = parseFloat(lat);
-      const userLng = parseFloat(lng);
-      // console.log("✅ Parsed Coordinates:", { userLat, userLng });
-
-      // console.log("📦 Building temporary geoLocation fields...");
-      await Shop.aggregate([
-        {
-          $addFields: {
-            geoLocation: {
-              type: "Point",
-              coordinates: [
-                "$address.coordinates.lng", // keep this [lng, lat]
-                "$address.coordinates.lat",
-              ],
-            },
-          },
-        },
-      ]);
-
-      // console.log("✅ geoLocation added. Running geoNear next...");
-
-      // 🚨 Here’s the key fix — use swapped user coordinates
-      const shops = await Shop.aggregate([
-        {
-          $geoNear: {
-            near: { type: "Point", coordinates: [userLat, userLng] }, // swapped order
-            distanceField: "distance",
-            spherical: true,
-            key: "address.coordinates",
-            query: { category },
-          },
-        },
-        { $sort: { distance: 1 } },
-      ]);
-
-      // console.log("📦 Found shops:", shops.length);
-      if (shops.length) {
-        // console.log(
-        //   "🧭 Sample distances:",
-        //   shops.slice(0, 3).map((s) => ({
-        //     shop: s.shopName,
-        //     rawDistance: s.distance,
-        //     distanceKm: (s.distance / 1000).toFixed(2),
-        //   }))
-        // );
-      }
-
-      const shopsWithUrls = shops.map((shop) => ({
-        ...shop,
-        distanceInKm: (shop.distance / 1000).toFixed(2),
-        shopImageUrls:
-          shop.shopImages?.map(
-            (imgId) =>
-              `https://jio-yatri-user.onrender.com/api/shops/images/${imgId}`
-          ) || [],
-      }));
-
-      return res.json({ success: true, data: shopsWithUrls });
-    }
-
-    // console.warn("⚠️ No coordinates provided — fallback query");
-    const fallback = await Shop.find({ category }).sort({ createdAt: -1 }).lean();
-    res.json({ success: true, data: fallback });
-
-  } catch (err) {
-    // console.error("❌ Error in getShopsByCategory:", err.message);
-    res.status(500).json({ success: false, error: err.message });
-  }
-};
-
-
-
-exports.getShopsWithoutLocation = async (req, res) => {
-  // console.log("🛰️ [getShopsWithoutLocation] API called");
-
-  try {
-    const { category } = req.params;
-
+    // Fetch all shops by category (no location filter)
     const shops = await Shop.find({ category }).sort({ createdAt: -1 }).lean();
 
-    const shopsWithUrls = shops.map((shop) => ({
+    const baseUrl = "https://jio-yatri-driver.onrender.com";
+
+    // Attach image URLs
+    const shopsWithUrls = shops.map(shop => ({
       ...shop,
-      distanceInKm: null, // Ensures consistency with distance-based data
-      shopImageUrls:
-        shop.shopImages?.map(
-          (imgId) =>
-            `https://jio-yatri-user.onrender.com/api/shops/images/${imgId}`
-        ) || [],
+      shopImageUrls: shop.shopImages?.map(imgId => `${baseUrl}/api/shops/images/${imgId}`) || [],
+      items: shop.items?.map(item => ({
+        ...item,
+        imageUrl: item.image ? `${baseUrl}/api/shops/images/${item.image}` : null
+      })) || []
     }));
 
-    // console.log(`✅ Found ${shopsWithUrls.length} shops without location`);
-    res.json({ success: true, data: shopsWithUrls });
-  } catch (error) {
-    // console.error("❌ Error in getShopsWithoutLocation:", error.message);
-    res.status(500).json({ success: false, error: error.message });
+    console.log(`[ShopController] Found ${shopsWithUrls.length} shops`);
+    res.status(200).json({ success: true, data: shopsWithUrls });
+  } catch (err) {
+    console.error("[ShopController] Error in getShopsByCategory:", err.message);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch shops",
+      message: err.message
+    });
   }
 };
+
 
 exports.getShopById = async (req, res) => {
   try {
@@ -767,6 +694,7 @@ exports.deleteShop = async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to delete shop" });
   }
 };
+
 
 
 
