@@ -82,6 +82,24 @@ const shipmentSchema = new mongoose.Schema({
     coordinates: { type: [Number], default: [0, 0] }
   },
   // Corrected payment field in shipmentSchema
+
+   pickupOtp: {
+  type: String,
+  default: null
+},
+pickupVerifiedAt: {
+  type: Date,
+  default: null
+},
+deliveryOtp: {
+  type: String,
+  default: null
+},
+deliveryOtpVerified: {
+  type: Boolean,
+  default: false
+},
+
   payment: {
     type: paymentSchema,
     default: () => ({ status: 'pending', method: null })
