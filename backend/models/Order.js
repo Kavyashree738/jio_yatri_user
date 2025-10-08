@@ -17,7 +17,7 @@ const orderSchema = new mongoose.Schema({
     name: { type: String, required: true },
     phone: { type: String },
     phonePeNumber: { type: String },
-    category: { type: String, enum: ['grocery', 'vegetable', 'provision', 'medical', 'hotel'], required: true }
+    category: { type: String, enum: ['grocery', 'vegetable', 'provision', 'medical', 'hotel','bakery','cafe'], required: true }
   },
   customer: {
     userId: { type: String, default: null },
