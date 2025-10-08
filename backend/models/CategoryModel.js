@@ -54,7 +54,7 @@ const baseShopSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['grocery', 'vegetable', 'provision', 'medical', 'hotel']
+    enum: ['grocery', 'vegetable', 'provision', 'medical', 'hotel','bakery','cafe']
   },
   referralCode: {
     type: String,
@@ -310,5 +310,6 @@ Shop.discriminator('vegetable', vegetableSchema);
 Shop.discriminator('provision', provisionSchema);
 Shop.discriminator('medical', medicalSchema);
 Shop.discriminator('hotel', hotelSchema);
+
 
 module.exports = Shop;
