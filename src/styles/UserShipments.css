@@ -1564,3 +1564,49 @@ footer {
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+.otp-box {
+  background: #f5faff;
+  border: 1px dashed #007bffbd;
+  padding: 16px;
+  border-radius: 10px;
+  margin-top: 12px;
+  text-align: center;
+  max-width: 260px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.otp-box h4 {
+  margin: 0;
+  color: #007bff;
+  font-size: 1.1rem;
+}
+
+.otp-digits {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.otp-digit {
+  width: 35px;
+  height: 35px;
+  border: 1px solid #007bff56;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #333;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.1);
+}
+
+.otp-box p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+}
