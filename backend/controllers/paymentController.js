@@ -1221,14 +1221,14 @@ exports.markCashPaid = async (req, res) => {
     // 2. Validate Shipment Status
     console.log('\n[STEP 2] Validating shipment status...');
     console.log('Current status:', shipment.status);
-    if (shipment.status !== 'delivered') {
+    if (shipment.status !== 'picked_up') {
       console.error('[ERROR] Shipment not delivered');
       return res.status(400).json({
         success: false,
-        error: 'Shipment must be delivered first',
+        error: 'Shipment must be picked_up first',
         details: {
           currentStatus: shipment.status,
-          requiredStatus: 'delivered'
+          requiredStatus: 'picked_up'
         }
       });
     }
@@ -1384,4 +1384,5 @@ exports.markCashPaid = async (req, res) => {
       } : undefined
     });
   }
+
 };
