@@ -1663,19 +1663,7 @@ footer {
   background: #c9302c;
 }
 
-.cancel-btn {
-  background: #f0f0f0;
-  color: #333;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
 
-.cancel-btn:hover {
-  background: #ddd;
-}
 
 /* Animations */
 @keyframes fadeIn {
