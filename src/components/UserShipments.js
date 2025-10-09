@@ -37,6 +37,14 @@ const UserShipments = () => {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [ordersError, setOrdersError] = useState('');
 
+
+  const [confirmModal, setConfirmModal] = useState({
+  visible: false,
+  type: null, // "shipment" or "order"
+  id: null,
+});
+
+
   const fetchShipments = async (attempt = 1) => {
     try {
       setLoading(true);
@@ -447,11 +455,14 @@ const handleStopTracking = () => {
                 <div className="shipment-actions">
                  {(shipment.status === 'pending' || shipment.status === 'assigned') && (
                     <button
-                      onClick={() => handleCancelShipment(shipment._id)}
-                      className="cancel-btn"
-                    >
-                      Cancel Shipment
-                    </button>
+  onClick={() =>
+    setConfirmModal({ visible: true, type: "shipment", id: shipment._id })
+  }
+  className="cancel-btn"
+>
+  Cancel Shipment
+</button>
+
                   )}
 
 
@@ -634,11 +645,14 @@ const handleStopTracking = () => {
                 <div className="order-actions">
                   {String(o.status).toLowerCase() === 'pending' && (
                     <button
-                      onClick={() => handleCancelOrder(o._id)}
-                      className="cancel-order-btn"
-                    >
-                      Cancel Order
-                    </button>
+  onClick={() =>
+    setConfirmModal({ visible: true, type: "order", id: o._id })
+  }
+  className="cancel-order-btn"
+>
+  Cancel Order
+</button>
+
                   )}
                 </div>
               </div>
@@ -649,6 +663,41 @@ const handleStopTracking = () => {
 
         )}
       </div>
+
+          {confirmModal.visible && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h3>Confirm Cancellation</h3>
+      <p>
+        {confirmModal.type === 'shipment'
+          ? 'Are you sure you want to cancel this shipment?'
+          : 'Are you sure you want to cancel this order?'}
+      </p>
+      <div className="modal-buttons">
+        <button
+          className="confirm-btn"
+          onClick={async () => {
+            if (confirmModal.type === 'shipment') {
+              await handleCancelShipment(confirmModal.id);
+            } else {
+              await handleCancelOrder(confirmModal.id);
+            }
+            setConfirmModal({ visible: false, type: null, id: null });
+          }}
+        >
+          Yes, Cancel
+        </button>
+        <button
+          className="cancel-btn"
+          onClick={() => setConfirmModal({ visible: false, type: null, id: null })}
+        >
+          No, Go Back
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       <ToastContainer
         position="top-right"
