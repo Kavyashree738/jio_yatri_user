@@ -430,15 +430,29 @@ const handleStopTracking = () => {
                     {shipment.assignedDriver && (
                       <p><strong>Driver:</strong> {highlightText(shipment.assignedDriver.name)} ({shipment.assignedDriver.vehicleNumber})</p>
                     )}
+                      {shipment.status === 'assigned' && shipment.pickupOtp && (
+                      <div className="otp-box">
+                        <h4>Your Pickup OTP</h4>
+                        <div className="otp-digits">
+                          {shipment.pickupOtp.split('').map((digit, index) => (
+                            <div key={index} className="otp-digit">{digit}</div>
+                          ))}
+                        </div>
+                        <p>Share this code with the driver to confirm pickup.</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div className="shipment-actions">
-                  {shipment.status === 'pending' && (
-  <button onClick={() => handleCancelShipment(shipment._id)} className="cancel-btn">
-    Cancel Shipment
-  </button>
-)}
+                 {(shipment.status === 'pending' || shipment.status === 'assigned') && (
+                    <button
+                      onClick={() => handleCancelShipment(shipment._id)}
+                      className="cancel-btn"
+                    >
+                      Cancel Shipment
+                    </button>
+                  )}
 
 
                   {shipment.status === 'assigned' && (
@@ -447,7 +461,7 @@ const handleStopTracking = () => {
                     </button>
                   )}
 
-                  {shipment.status === 'delivered' && shipment.payment?.status === 'pending' && (
+                  {shipment.status === 'picked_up' && shipment.payment?.status === 'pending' && (
                     <button onClick={() => openPaymentModal(shipment)} className="pay-now-btn">
                       Complete Payment
                     </button>
