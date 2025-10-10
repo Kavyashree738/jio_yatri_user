@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Header from './Header'
+import axios from 'axios';
 import '../../styles/Home.css';
 import HeroSection from './HeroSection';
 import WelcomeSection from './WelcomeSection';
