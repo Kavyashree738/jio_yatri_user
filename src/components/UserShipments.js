@@ -189,7 +189,7 @@
 //   // cleanup
 //   return () => clearInterval(pollingRef.current);
 // }, [user, trackingShipment]);
- 
+
 //   useEffect(() => {
 //     if (user) {
 //       handleSearch(searchTerm);
@@ -736,7 +736,7 @@
 
 
 // src/pages/UserShipments.js
-import React, { useState, useEffect,useRef  } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Header from './pages/Header';
@@ -781,59 +781,59 @@ const UserShipments = () => {
 
 
   const dispatch = useDispatch();
-const { list: shipments, loading, error } = useSelector((state) => state.shipments);
-const { list: userOrders, loading: ordersLoading, error: ordersError } = useSelector((state) => state.orders);
+  const { list: shipments, loading, error } = useSelector((state) => state.shipments);
+  const { list: userOrders, loading: ordersLoading, error: ordersError } = useSelector((state) => state.orders);
 
   const [confirmModal, setConfirmModal] = useState({
-  visible: false,
-  type: null, // "shipment" or "order"
-  id: null,
-});
+    visible: false,
+    type: null, // "shipment" or "order"
+    id: null,
+  });
 
 
 
-//   const fetchShipments = async (attempt = 1) => {
-//     try {
-//       setLoading(true);
-//       setError('');
+  //   const fetchShipments = async (attempt = 1) => {
+  //     try {
+  //       setLoading(true);
+  //       setError('');
 
-//       const response = await axios.get(
-//         `https://jio-yatri-user.onrender.com/api/shipments/my-shipments`,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${token}`,
-//           },
-//           timeout: 10000
-//         }
-//       );
+  //       const response = await axios.get(
+  //         `https://jio-yatri-user.onrender.com/api/shipments/my-shipments`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //           timeout: 10000
+  //         }
+  //       );
 
-//       setShipments(response.data);
-//       setFilteredShipments(response.data);
-//      } catch (err) {
-//   const isExpired =
-//     err.response?.status === 403 &&
-//     (err.response?.data?.error?.includes('expired') ||
-//      err.response?.data?.message?.includes('expired'));
+  //       setShipments(response.data);
+  //       setFilteredShipments(response.data);
+  //      } catch (err) {
+  //   const isExpired =
+  //     err.response?.status === 403 &&
+  //     (err.response?.data?.error?.includes('expired') ||
+  //      err.response?.data?.message?.includes('expired'));
 
-//   if ((err.response?.status === 401 || isExpired) && attempt < 2) {
-//     console.warn('🔄 Token expired — refreshing...');
-//     const freshToken = await refreshToken();
-//     if (freshToken) return fetchShipments(attempt + 1);
-//   }
+  //   if ((err.response?.status === 401 || isExpired) && attempt < 2) {
+  //     console.warn('🔄 Token expired — refreshing...');
+  //     const freshToken = await refreshToken();
+  //     if (freshToken) return fetchShipments(attempt + 1);
+  //   }
 
-//   if (err.code === 'ECONNREFUSED') {
-//     setError('Backend server is not responding. Please try again later.');
-//   } else {
-//     setError(
-//       err.response?.data?.message ||
-//       'Failed to fetch shipments. Please try again.'
-//     );
-//   }
-// }
-//  finally {
-//       setLoading(false);
-//     }
-//   };
+  //   if (err.code === 'ECONNREFUSED') {
+  //     setError('Backend server is not responding. Please try again later.');
+  //   } else {
+  //     setError(
+  //       err.response?.data?.message ||
+  //       'Failed to fetch shipments. Please try again.'
+  //     );
+  //   }
+  // }
+  //  finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
 
   const formatCurrency = (n) => `₹${(Number(n) || 0).toFixed(2)}`;
@@ -843,25 +843,25 @@ const { list: userOrders, loading: ordersLoading, error: ordersError } = useSele
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit'
     });
-const handleSearch = (term) => {
-  setSearchTerm(term);
-  if (!term) {
-    setFilteredShipments(shipments);
-    setFilteredUserOrders(userOrders);
-    return;
-  }
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+    if (!term) {
+      setFilteredShipments(shipments);
+      setFilteredUserOrders(userOrders);
+      return;
+    }
 
-  const searchLower = term.toLowerCase();
+    const searchLower = term.toLowerCase();
 
-  const filtered = shipments.filter((s) =>
-    [s.trackingNumber, s.status, s.assignedDriver?.name,
-     s.sender?.name, s.receiver?.name, s.vehicleType, s.payment?.method]
-      .some((f) => f?.toLowerCase().includes(searchLower))
-  );
+    const filtered = shipments.filter((s) =>
+      [s.trackingNumber, s.status, s.assignedDriver?.name,
+      s.sender?.name, s.receiver?.name, s.vehicleType, s.payment?.method]
+        .some((f) => f?.toLowerCase().includes(searchLower))
+    );
 
-  setFilteredShipments(filtered);
-  setFilteredUserOrders(filterOrders(userOrders, term));
-};
+    setFilteredShipments(filtered);
+    setFilteredUserOrders(filterOrders(userOrders, term));
+  };
 
 
 
@@ -883,64 +883,64 @@ const handleSearch = (term) => {
     });
   };
 
-//   const fetchUserOrders = async (attempt = 1) => {
-//     try {
-//       setOrdersError('');
-//       setOrdersLoading(true);
-//       const res = await axios.get(`https://jio-yatri-user.onrender.com/api/orders/user`, {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-//       setUserOrders(res.data.data);
+  //   const fetchUserOrders = async (attempt = 1) => {
+  //     try {
+  //       setOrdersError('');
+  //       setOrdersLoading(true);
+  //       const res = await axios.get(`https://jio-yatri-user.onrender.com/api/orders/user`, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       setUserOrders(res.data.data);
 
-//       const data = res.data?.data || [];
-//       setUserOrders(data);
-//       // apply current search
-//       setFilteredUserOrders(filterOrders(data, searchTerm));
-//     } catch (err) {
-//   const isExpired =
-//     err.response?.status === 403 &&
-//     (err.response?.data?.error?.includes('expired') ||
-//      err.response?.data?.message?.includes('expired'));
+  //       const data = res.data?.data || [];
+  //       setUserOrders(data);
+  //       // apply current search
+  //       setFilteredUserOrders(filterOrders(data, searchTerm));
+  //     } catch (err) {
+  //   const isExpired =
+  //     err.response?.status === 403 &&
+  //     (err.response?.data?.error?.includes('expired') ||
+  //      err.response?.data?.message?.includes('expired'));
 
-//   if ((err.response?.status === 401 || isExpired) && attempt < 2) {
-//     console.warn('🔄 Token expired — refreshing for orders...');
-//     const fresh = await refreshToken();
-//     if (fresh) return fetchUserOrders(attempt + 1);
-//   }
+  //   if ((err.response?.status === 401 || isExpired) && attempt < 2) {
+  //     console.warn('🔄 Token expired — refreshing for orders...');
+  //     const fresh = await refreshToken();
+  //     if (fresh) return fetchUserOrders(attempt + 1);
+  //   }
 
-//   setOrdersError(err.response?.data?.error || err.message || 'Failed to fetch your orders');
-// }
-//  finally {
-//       setOrdersLoading(false);
-//     }
-//   };
+  //   setOrdersError(err.response?.data?.error || err.message || 'Failed to fetch your orders');
+  // }
+  //  finally {
+  //       setOrdersLoading(false);
+  //     }
+  //   };
 
-const loadShipments = () => dispatch(fetchShipments());
-const loadUserOrders = () => dispatch(fetchUserOrders());
+  const loadShipments = () => dispatch(fetchShipments());
+  const loadUserOrders = () => dispatch(fetchUserOrders());
 
 
- useEffect(() => {
-  if (!user) return;
+  useEffect(() => {
+    if (!user) return;
 
-  // clear any old interval
-  if (pollingRef.current) {
-    clearInterval(pollingRef.current);
-  }
+    // clear any old interval
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+    }
 
-  // fetch immediately
-  loadShipments();
-  loadUserOrders();
-
-  // set interval (5s if tracking, else 10s)
-  pollingRef.current = setInterval(() => {
+    // fetch immediately
     loadShipments();
     loadUserOrders();
-  }, trackingShipment ? 5000 : 10000);
 
-  // cleanup
-  return () => clearInterval(pollingRef.current);
-}, [user, trackingShipment]);
- 
+    // set interval (5s if tracking, else 10s)
+    pollingRef.current = setInterval(() => {
+      loadShipments();
+      loadUserOrders();
+    }, trackingShipment ? 5000 : 10000);
+
+    // cleanup
+    return () => clearInterval(pollingRef.current);
+  }, [user, trackingShipment]);
+
   useEffect(() => {
     if (user) {
       handleSearch(searchTerm);
@@ -948,12 +948,12 @@ const loadUserOrders = () => dispatch(fetchUserOrders());
   }, [shipments, user, userOrders]);
 
   const handleTrackShipment = (shipment) => {
-  setTrackingShipment(shipment);
-};
+    setTrackingShipment(shipment);
+  };
 
-const handleStopTracking = () => {
-  setTrackingShipment(null);
-};
+  const handleStopTracking = () => {
+    setTrackingShipment(null);
+  };
 
 
   const openPaymentModal = (shipment) => {
@@ -1206,30 +1206,31 @@ const handleStopTracking = () => {
                     {shipment.assignedDriver && (
                       <p><strong>Driver:</strong> {highlightText(shipment.assignedDriver.name)} ({shipment.assignedDriver.vehicleNumber})</p>
                     )}
-                    {shipment.status !== 'delivered' && shipment.status !== 'cancelled'(
-  <p>
-    <strong>To know where your parcel is, give call</strong>{' '}
-    {shipment.assignedDriver.phone.replace(/^\+91/, '')}
-    <a
-      href={`tel:${shipment.assignedDriver.phone.replace(/^\+/, '')}`}
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        marginLeft: '8px',
-        color: '#ffffff',
-        backgroundColor: '#09d670',
-        padding: '0.5rem',
-        borderRadius: '50%',
-        textDecoration: 'none',
-        display: 'inline-flex',
-        alignItems: 'center',
-      }}
-    >
-      <FaPhone style={{ marginRight: '4px' }} />
-    </a>
-  </p>
-)}
+                    {shipment.status !== 'delivered' && shipment.status !== 'cancelled' && (
+                      <p>
+                        <strong>To know where your parcel is, give call</strong>{' '}
+                        {shipment.assignedDriver.phone.replace(/^\+91/, '')}
+                        <a
+                          href={`tel:${shipment.assignedDriver.phone.replace(/^\+/, '')}`}
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            marginLeft: '8px',
+                            color: '#ffffff',
+                            backgroundColor: '#09d670',
+                            padding: '0.5rem',
+                            borderRadius: '50%',
+                            textDecoration: 'none',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <FaPhone style={{ marginRight: '4px' }} />
+                        </a>
+                      </p>
+                    )}
 
-                      {shipment.status === 'assigned' && shipment.pickupOtp && (
+
+                    {shipment.status === 'assigned' && shipment.pickupOtp && (
                       <div className="otp-box">
                         <h4>Your Pickup OTP</h4>
                         <div className="otp-digits">
@@ -1244,15 +1245,15 @@ const handleStopTracking = () => {
                 </div>
 
                 <div className="shipment-actions">
-                 {(shipment.status === 'pending' || shipment.status === 'assigned') && (
+                  {(shipment.status === 'pending' || shipment.status === 'assigned') && (
                     <button
-  onClick={() =>
-    setConfirmModal({ visible: true, type: "shipment", id: shipment._id })
-  }
-  className="cancel-btn"
->
-  Cancel Shipment
-</button>
+                      onClick={() =>
+                        setConfirmModal({ visible: true, type: "shipment", id: shipment._id })
+                      }
+                      className="cancel-btn"
+                    >
+                      Cancel Shipment
+                    </button>
 
                   )}
 
@@ -1436,13 +1437,13 @@ const handleStopTracking = () => {
                 <div className="order-actions">
                   {String(o.status).toLowerCase() === 'pending' && (
                     <button
-  onClick={() =>
-    setConfirmModal({ visible: true, type: "order", id: o._id })
-  }
-  className="cancel-order-btn"
->
-  Cancel Order
-</button>
+                      onClick={() =>
+                        setConfirmModal({ visible: true, type: "order", id: o._id })
+                      }
+                      className="cancel-order-btn"
+                    >
+                      Cancel Order
+                    </button>
 
                   )}
                 </div>
@@ -1455,39 +1456,39 @@ const handleStopTracking = () => {
         )}
       </div>
 
-          {confirmModal.visible && (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      <h3>Confirm Cancellation</h3>
-      <p>
-        {confirmModal.type === 'shipment'
-          ? 'Are you sure you want to cancel this shipment?'
-          : 'Are you sure you want to cancel this order?'}
-      </p>
-      <div className="modal-buttons">
-        <button
-          className="confirm-btn"
-          onClick={async () => {
-            if (confirmModal.type === 'shipment') {
-              await handleCancelShipment(confirmModal.id);
-            } else {
-              await handleCancelOrder(confirmModal.id);
-            }
-            setConfirmModal({ visible: false, type: null, id: null });
-          }}
-        >
-          Yes, Cancel
-        </button>
-        <button
-          className="cancel-btn"
-          onClick={() => setConfirmModal({ visible: false, type: null, id: null })}
-        >
-          No, Go Back
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      {confirmModal.visible && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Confirm Cancellation</h3>
+            <p>
+              {confirmModal.type === 'shipment'
+                ? 'Are you sure you want to cancel this shipment?'
+                : 'Are you sure you want to cancel this order?'}
+            </p>
+            <div className="modal-buttons">
+              <button
+                className="confirm-btn"
+                onClick={async () => {
+                  if (confirmModal.type === 'shipment') {
+                    await handleCancelShipment(confirmModal.id);
+                  } else {
+                    await handleCancelOrder(confirmModal.id);
+                  }
+                  setConfirmModal({ visible: false, type: null, id: null });
+                }}
+              >
+                Yes, Cancel
+              </button>
+              <button
+                className="cancel-btn"
+                onClick={() => setConfirmModal({ visible: false, type: null, id: null })}
+              >
+                No, Go Back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       <ToastContainer
