@@ -62,19 +62,28 @@ const UserShipments = () => {
 
       setShipments(response.data);
       setFilteredShipments(response.data);
-    } catch (err) {
-      if (err.code === 'ECONNREFUSED') {
-        setError('Backend server is not responding. Please try again later.');
-      } else if (err.response?.status === 401 && attempt < 2) {
-        const freshToken = await refreshToken();
-        if (freshToken) return fetchShipments(attempt + 1);
-      } else {
-        setError(
-          err.response?.data?.message ||
-          'Failed to fetch shipments. Please try again.'
-        );
-      }
-    } finally {
+     } catch (err) {
+  const isExpired =
+    err.response?.status === 403 &&
+    (err.response?.data?.error?.includes('expired') ||
+     err.response?.data?.message?.includes('expired'));
+
+  if ((err.response?.status === 401 || isExpired) && attempt < 2) {
+    console.warn('🔄 Token expired — refreshing...');
+    const freshToken = await refreshToken();
+    if (freshToken) return fetchShipments(attempt + 1);
+  }
+
+  if (err.code === 'ECONNREFUSED') {
+    setError('Backend server is not responding. Please try again later.');
+  } else {
+    setError(
+      err.response?.data?.message ||
+      'Failed to fetch shipments. Please try again.'
+    );
+  }
+}
+ finally {
       setLoading(false);
     }
   };
@@ -141,12 +150,20 @@ const handleSearch = (term) => {
       // apply current search
       setFilteredUserOrders(filterOrders(data, searchTerm));
     } catch (err) {
-      if (err.response?.status === 401 && attempt < 2) {
-        const fresh = await refreshToken();
-        if (fresh) return fetchUserOrders(attempt + 1);
-      }
-      setOrdersError(err.response?.data?.error || err.message || 'Failed to fetch your orders');
-    } finally {
+  const isExpired =
+    err.response?.status === 403 &&
+    (err.response?.data?.error?.includes('expired') ||
+     err.response?.data?.message?.includes('expired'));
+
+  if ((err.response?.status === 401 || isExpired) && attempt < 2) {
+    console.warn('🔄 Token expired — refreshing for orders...');
+    const fresh = await refreshToken();
+    if (fresh) return fetchUserOrders(attempt + 1);
+  }
+
+  setOrdersError(err.response?.data?.error || err.message || 'Failed to fetch your orders');
+}
+ finally {
       setOrdersLoading(false);
     }
   };
