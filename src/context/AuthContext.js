@@ -78,6 +78,21 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
+  // 🔁 Keep token fresh automatically every 50 minutes
+useEffect(() => {
+  const interval = setInterval(async () => {
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      console.log('⏰ Refreshing Firebase token automatically');
+      const newToken = await currentUser.getIdToken(true);
+      setToken(newToken);
+      localStorage.setItem('authToken', newToken);
+    }
+  }, 50 * 60 * 1000); // every 50 minutes
+
+  return () => clearInterval(interval);
+}, []);
+
   // ✅ Manual refresh function
   const refreshToken = async () => {
     try {
