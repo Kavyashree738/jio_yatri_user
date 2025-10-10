@@ -1211,7 +1211,7 @@ const UserShipments = () => {
                         <strong>To know where your parcel is, give call</strong>{' '}
                         {shipment.assignedDriver.phone.replace(/^\+91/, '')}
                         <a
-                          href={`tel:${shipment.assignedDriver.phone.replace(/^\+/, '')}`}
+                          href={`tel:${shipment.assignedDriver.phone.replace(/^\+?91/, '')}`}
                           onClick={(e) => e.stopPropagation()}
                           style={{
                             marginLeft: '8px',
