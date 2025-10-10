@@ -32,6 +32,9 @@ import CartProvider from './context/CartContext';
 import CartPage from './components/Cart';
 import OrderConfirmation from './components/OrderConfirmation';
 import ComingSoon from './components/pages/ComingSoon'
+
+import { Provider } from 'react-redux';
+import store from './redux/store';
 function AppWrapper() {
   return (
     <>
@@ -78,12 +81,14 @@ function AppWrapper() {
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
-        <AuthProvider>
-          <ScrollToTop />
-          <AppWrapper />
-        </AuthProvider>
-      </BrowserRouter>
+      <Provider store={store}>     {/* ✅ Wrap the whole app with Redux Provider */}
+        <BrowserRouter>
+          <AuthProvider>
+            <ScrollToTop />
+            <AppWrapper />
+          </AuthProvider>
+        </BrowserRouter>
+      </Provider>
     </div>
   );
 }
