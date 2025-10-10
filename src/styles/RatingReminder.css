@@ -1,0 +1,83 @@
+.rating-reminder-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
+
+.rating-reminder-card {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  width: 85%;
+  max-width: 350px;
+  text-align: center;
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+.rating-reminder-card h3 {
+  margin-bottom: 8px;
+  color: #222;
+}
+
+.rating-reminder-card p {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: #555;
+}
+
+.rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+/* 🔹 Initially gray */
+.star {
+  font-size: 28px;
+  cursor: pointer;
+  color: #ccc;
+  transition: transform 0.2s, color 0.2s;
+}
+
+/* 🔹 On hover */
+.star:hover {
+  transform: scale(1.2);
+  color: #ffd700;
+}
+
+/* 🔹 When selected */
+.star.filled {
+  color: #ffd700;
+}
+
+.close-popup-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #888;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

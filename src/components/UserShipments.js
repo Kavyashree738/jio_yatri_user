@@ -750,7 +750,7 @@ import '../styles/UserShipments.css';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchShipments } from '../redux/shipmentsSlice';
 import { fetchUserOrders } from '../redux/ordersSlice';
-
+import { FaPhone } from 'react-icons/fa';
 
 const UserShipments = () => {
   // const [shipments, setShipments] = useState([]);
@@ -1206,6 +1206,29 @@ const handleStopTracking = () => {
                     {shipment.assignedDriver && (
                       <p><strong>Driver:</strong> {highlightText(shipment.assignedDriver.name)} ({shipment.assignedDriver.vehicleNumber})</p>
                     )}
+                    {shipment.status !== 'delivered' && shipment.status !== 'cancelled'(
+  <p>
+    <strong>To know where your parcel is, give call</strong>{' '}
+    {shipment.assignedDriver.phone.replace(/^\+91/, '')}
+    <a
+      href={`tel:${shipment.assignedDriver.phone.replace(/^\+/, '')}`}
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        marginLeft: '8px',
+        color: '#ffffff',
+        backgroundColor: '#09d670',
+        padding: '0.5rem',
+        borderRadius: '50%',
+        textDecoration: 'none',
+        display: 'inline-flex',
+        alignItems: 'center',
+      }}
+    >
+      <FaPhone style={{ marginRight: '4px' }} />
+    </a>
+  </p>
+)}
+
                       {shipment.status === 'assigned' && shipment.pickupOtp && (
                       <div className="otp-box">
                         <h4>Your Pickup OTP</h4>
