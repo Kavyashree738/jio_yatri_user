@@ -1107,7 +1107,7 @@ useEffect(() => {
         <div className="loader-circle"></div>
         <div className="loader-circle"></div>
       </div>
-      <div className="loading-text">Loading shipments and orders...</div>
+      <div className="loading-text">Loading ....</div>
     </div>
   );
 }
