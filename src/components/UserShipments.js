@@ -1098,7 +1098,22 @@ const showOrdersLoader = ordersLoading && userOrders.length > 0;
   }
 
   {/* Shipment loader */}
-{showShipmentLoader && (
+
+
+
+  if (error) {
+    return (
+      <div className="shipments-error">
+        <p>{error}</p>
+        <button onClick={() => loadShipments()}>Retry</button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+
+    {showShipmentLoader && (
   <div className="shipments-loading">
     <div className="loader">
       <div className="loader-circle"></div>
@@ -1115,19 +1130,6 @@ const showOrdersLoader = ordersLoading && userOrders.length > 0;
     Loading orders…
   </div>
 )}
-
-
-  if (error) {
-    return (
-      <div className="shipments-error">
-        <p>{error}</p>
-        <button onClick={() => loadShipments()}>Retry</button>
-      </div>
-    );
-  }
-
-  return (
-    <>
       <Header />
       <div className="shipments-container">
         <h4>Your Shipments</h4>
@@ -1152,6 +1154,8 @@ const showOrdersLoader = ordersLoading && userOrders.length > 0;
             </button>
           )}
         </div>
+
+      
 
         {trackingShipment ? (
           <div className="tracking-view">
