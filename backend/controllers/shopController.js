@@ -696,7 +696,91 @@ exports.deleteShop = async (req, res) => {
 };
 
 
+exports.calculateDistances = async (req, res) => {
+  try {
+    const { userLat, userLng, shops } = req.body;
+    
+    console.log(`[ShopController] Calculating distances for ${shops.length} shops from user location`);
 
+    // Validate required parameters
+    if (!userLat || !userLng) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'User location coordinates are required' 
+      });
+    }
+
+    if (!shops || !Array.isArray(shops)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Shops array is required' 
+      });
+    }
+
+    // Calculate distance for each shop
+    const shopsWithDistance = shops.map(shop => {
+      let distance = null;
+      
+      // Only calculate distance if shop has coordinates
+      if (shop.address?.coordinates?.lat && shop.address?.coordinates?.lng) {
+        distance = calculateDistance(
+          userLat, 
+          userLng, 
+          shop.address.coordinates.lat, 
+          shop.address.coordinates.lng
+        );
+      }
+      
+      return {
+        ...shop,
+        distance: distance
+      };
+    });
+
+    // Sort by distance (nearest first)
+    // Shops without distance will go to the end
+    const sortedShops = shopsWithDistance.sort((a, b) => {
+      if (a.distance === null && b.distance === null) return 0;
+      if (a.distance === null) return 1; // Put shops without distance at end
+      if (b.distance === null) return -1; // Put shops with distance first
+      return a.distance - b.distance; // Sort by distance ascending
+    });
+
+    // console.log(`[ShopController] Calculated distances and sorted ${sortedShops.length} shops`);
+
+    res.status(200).json({ 
+      success: true, 
+      data: sortedShops,
+      metadata: {
+        totalShops: sortedShops.length,
+        shopsWithDistance: sortedShops.filter(s => s.distance !== null).length,
+        userLocation: { lat: userLat, lng: userLng }
+      }
+    });
+
+  } catch (err) {
+    // console.error('[ShopController] Error in calculateDistances:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to calculate distances',
+      message: err.message 
+    });
+  }
+};
+
+// Helper function to calculate distance between two coordinates (Haversine formula)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c;
+  return Math.round(distance * 10) / 10; // Round to 1 decimal place
+}
 
 
 

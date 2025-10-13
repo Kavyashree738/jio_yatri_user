@@ -26,7 +26,7 @@ router.post(
 router.get('/category/:category', shopController.getShopsByCategory);
 
 
-
+router.post('/calculate-distances', shopController.calculateDistances);
 // Get single shop
 router.get('/:id', shopController.getShopById);
 
