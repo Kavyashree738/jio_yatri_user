@@ -779,11 +779,6 @@ const UserShipments = () => {
   // const [ordersLoading, setOrdersLoading] = useState(true);
   // const [ordersError, setOrdersError] = useState('');
 
-  // Only show loader if data exists OR fetch is in progress for first time
-const showShipmentLoader = loading && shipments.length > 0;
-const showOrdersLoader = ordersLoading && userOrders.length > 0;
-
-
 
   const dispatch = useDispatch();
   const { list: shipments, loading, error } = useSelector((state) => state.shipments);
@@ -1097,9 +1092,18 @@ const showOrdersLoader = ordersLoading && userOrders.length > 0;
     );
   }
 
-  {/* Shipment loader */}
-
-
+  if (loading && shipments.length === 0) {
+    return (
+      <div className="shipments-loading">
+        <div className="loader">
+          <div className="loader-circle"></div>
+          <div className="loader-circle"></div>
+          <div className="loader-circle"></div>
+        </div>
+        <div className="loading-text">Loading shipments</div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -1112,24 +1116,6 @@ const showOrdersLoader = ordersLoading && userOrders.length > 0;
 
   return (
     <>
-
-    {showShipmentLoader && (
-  <div className="shipments-loading">
-    <div className="loader">
-      <div className="loader-circle"></div>
-      <div className="loader-circle"></div>
-      <div className="loader-circle"></div>
-    </div>
-    <div className="loading-text">Loading shipments…</div>
-  </div>
-)}
-
-{/* Orders loader */}
-{showOrdersLoader && (
-  <div className="orders-loading">
-    Loading orders…
-  </div>
-)}
       <Header />
       <div className="shipments-container">
         <h4>Your Shipments</h4>
@@ -1154,8 +1140,6 @@ const showOrdersLoader = ordersLoading && userOrders.length > 0;
             </button>
           )}
         </div>
-
-      
 
         {trackingShipment ? (
           <div className="tracking-view">
@@ -1373,7 +1357,7 @@ const showOrdersLoader = ordersLoading && userOrders.length > 0;
       <div className="orders-section">
         <h4>Your Shop Orders</h4>
 
-        {ordersLoading ? (
+        {ordersLoading && userOrders.length === 0 ? (
           <div className="orders-loading">Loading orders…</div>
         ) : ordersError ? (
           <div className="orders-error">
