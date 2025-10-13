@@ -779,6 +779,11 @@ const UserShipments = () => {
   // const [ordersLoading, setOrdersLoading] = useState(true);
   // const [ordersError, setOrdersError] = useState('');
 
+  // Only show loader if data exists OR fetch is in progress for first time
+const showShipmentLoader = loading && shipments.length > 0;
+const showOrdersLoader = ordersLoading && userOrders.length > 0;
+
+
 
   const dispatch = useDispatch();
   const { list: shipments, loading, error } = useSelector((state) => state.shipments);
@@ -1092,18 +1097,25 @@ const UserShipments = () => {
     );
   }
 
-  if (loading && shipments.length === 0) {
-    return (
-      <div className="shipments-loading">
-        <div className="loader">
-          <div className="loader-circle"></div>
-          <div className="loader-circle"></div>
-          <div className="loader-circle"></div>
-        </div>
-        <div className="loading-text">Loading shipments</div>
-      </div>
-    );
-  }
+  {/* Shipment loader */}
+{showShipmentLoader && (
+  <div className="shipments-loading">
+    <div className="loader">
+      <div className="loader-circle"></div>
+      <div className="loader-circle"></div>
+      <div className="loader-circle"></div>
+    </div>
+    <div className="loading-text">Loading shipments…</div>
+  </div>
+)}
+
+{/* Orders loader */}
+{showOrdersLoader && (
+  <div className="orders-loading">
+    Loading orders…
+  </div>
+)}
+
 
   if (error) {
     return (
