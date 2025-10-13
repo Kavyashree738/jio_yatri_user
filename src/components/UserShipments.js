@@ -1092,7 +1092,7 @@ const UserShipments = () => {
     );
   }
 
-  if (loading && shipments.length === 0) {
+  if (loading) {
     return (
       <div className="shipments-loading">
         <div className="loader">
