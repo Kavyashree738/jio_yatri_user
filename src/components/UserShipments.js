@@ -752,6 +752,7 @@ import { fetchShipments } from '../redux/shipmentsSlice';
 import { fetchUserOrders } from '../redux/ordersSlice';
 import { FaPhone } from 'react-icons/fa';
 
+
 const UserShipments = () => {
   // const [shipments, setShipments] = useState([]);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -778,6 +779,8 @@ const UserShipments = () => {
   const [filteredOwnerOrders, setFilteredOwnerOrders] = useState([]);
   // const [ordersLoading, setOrdersLoading] = useState(true);
   // const [ordersError, setOrdersError] = useState('');
+
+  const [initialLoad, setInitialLoad] = useState(true);
 
 
   const dispatch = useDispatch();
@@ -919,28 +922,23 @@ const UserShipments = () => {
   const loadUserOrders = () => dispatch(fetchUserOrders());
 
 
-  useEffect(() => {
-    if (!user) return;
+ useEffect(() => {
+  if (!user) return;
 
-    // clear any old interval
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current);
-    }
+  loadShipments().finally(() => setInitialLoad(false));
+  loadUserOrders().finally(() => setInitialLoad(false));
 
-    // fetch immediately
+  if (pollingRef.current) clearInterval(pollingRef.current);
+
+  pollingRef.current = setInterval(() => {
     loadShipments();
     loadUserOrders();
+  }, trackingShipment ? 5000 : 10000);
 
-    // set interval (5s if tracking, else 10s)
-    pollingRef.current = setInterval(() => {
-      loadShipments();
-      loadUserOrders();
-    }, trackingShipment ? 5000 : 10000);
+  return () => clearInterval(pollingRef.current);
+}, [user, trackingShipment]);
 
-    // cleanup
-    return () => clearInterval(pollingRef.current);
-  }, [user, trackingShipment]);
-
+  
   useEffect(() => {
     if (user) {
       handleSearch(searchTerm);
@@ -1092,18 +1090,19 @@ const UserShipments = () => {
     );
   }
 
-  if (loading && shipments.length === 0) {
-    return (
-      <div className="shipments-loading">
-        <div className="loader">
-          <div className="loader-circle"></div>
-          <div className="loader-circle"></div>
-          <div className="loader-circle"></div>
-        </div>
-        <div className="loading-text">Loading shipments</div>
+ if (initialLoad) {
+  return (
+    <div className="shipments-loading">
+      <div className="loader">
+        <div className="loader-circle"></div>
+        <div className="loader-circle"></div>
+        <div className="loader-circle"></div>
       </div>
-    );
-  }
+      <div className="loading-text">Loading shipments and orders...</div>
+    </div>
+  );
+}
+
 
   if (error) {
     return (
