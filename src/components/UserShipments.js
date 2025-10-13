@@ -751,6 +751,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchShipments } from '../redux/shipmentsSlice';
 import { fetchUserOrders } from '../redux/ordersSlice';
 import { FaPhone } from 'react-icons/fa';
+import img from '../assets/images/login-message.jpg'
 
 const UserShipments = () => {
   // const [shipments, setShipments] = useState([]);
@@ -778,6 +779,8 @@ const UserShipments = () => {
   const [filteredOwnerOrders, setFilteredOwnerOrders] = useState([]);
   // const [ordersLoading, setOrdersLoading] = useState(true);
   // const [ordersError, setOrdersError] = useState('');
+
+  const [initialLoad, setInitialLoad] = useState(true);
 
 
   const dispatch = useDispatch();
@@ -919,28 +922,32 @@ const UserShipments = () => {
   const loadUserOrders = () => dispatch(fetchUserOrders());
 
 
-  useEffect(() => {
-    if (!user) return;
+useEffect(() => {
+  if (!user) return;
 
-    // clear any old interval
-    if (pollingRef.current) {
-      clearInterval(pollingRef.current);
-    }
+  // Only fetch if there’s no data yet
+  if (shipments.length === 0) {
+    loadShipments().finally(() => setInitialLoad(false));
+  } else {
+    setInitialLoad(false);
+  }
 
-    // fetch immediately
+  if (userOrders.length === 0) {
+    loadUserOrders();
+  }
+
+  if (pollingRef.current) clearInterval(pollingRef.current);
+
+  pollingRef.current = setInterval(() => {
     loadShipments();
     loadUserOrders();
+  }, trackingShipment ? 5000 : 10000);
 
-    // set interval (5s if tracking, else 10s)
-    pollingRef.current = setInterval(() => {
-      loadShipments();
-      loadUserOrders();
-    }, trackingShipment ? 5000 : 10000);
+  return () => clearInterval(pollingRef.current);
+}, [user, trackingShipment]);
 
-    // cleanup
-    return () => clearInterval(pollingRef.current);
-  }, [user, trackingShipment]);
 
+  
   useEffect(() => {
     if (user) {
       handleSearch(searchTerm);
@@ -1075,10 +1082,11 @@ const UserShipments = () => {
     return (
       <>
         <Header />
-        <div className="shipments-container">
+        <div className="shipments-container-login">
           <div className="no-shipments">
-            <h4>Your Shipments</h4>
-            <p>Please log in to view or create shipments</p>
+            {/* <h4>Your Shipments</h4> */}
+            <img src={img} className='img'></img>
+            <p> Uh oh! You don’t seem to be logged in. Please login to view or create shipments.</p>
             <button
               onClick={() => navigate('/home')}
               className="sign-in-button"
@@ -1092,18 +1100,19 @@ const UserShipments = () => {
     );
   }
 
-  if (loading && shipments.length === 0) {
-    return (
-      <div className="shipments-loading">
-        <div className="loader">
-          <div className="loader-circle"></div>
-          <div className="loader-circle"></div>
-          <div className="loader-circle"></div>
-        </div>
-        <div className="loading-text">Loading shipments</div>
+ if (initialLoad) {
+  return (
+    <div className="shipments-loading">
+      <div className="loader">
+        <div className="loader-circle"></div>
+        <div className="loader-circle"></div>
+        <div className="loader-circle"></div>
       </div>
-    );
-  }
+      <div className="loading-text">Loading ....</div>
+    </div>
+  );
+}
+
 
   if (error) {
     return (
@@ -1156,9 +1165,17 @@ const UserShipments = () => {
             {searchTerm ? (
               <p>No shipments match your search criteria.</p>
             ) : (
-              <p>No shipments found.</p>
+               <>
+              <img src={img} className='img'></img>
+              <p> Uh oh! No Shipments Yet</p>
+              </>
             )}
-            <a href="/shipment">Create your first shipment</a>
+           <button
+              onClick={() => navigate('/shipment')}
+              className="sign-in-button"
+            >
+              Create Shipment
+            </button>
           </div>
         ) : (
           <div className="shipments-list">
@@ -1357,7 +1374,7 @@ const UserShipments = () => {
       <div className="orders-section">
         <h4>Your Shop Orders</h4>
 
-        {ordersLoading && userOrders.length === 0 ? (
+        {initialLoad ? (
           <div className="orders-loading">Loading orders…</div>
         ) : ordersError ? (
           <div className="orders-error">
@@ -1366,7 +1383,10 @@ const UserShipments = () => {
           </div>
         ) : filteredUserOrders.length === 0 ? (
           <div className="no-orders">
-            {searchTerm ? <p>No orders match your search.</p> : <p>You haven’t placed any orders yet.</p>}
+            {searchTerm ? <p>No orders match your search.</p> :  <>
+            <img src={img} className='img'></img>
+            <p>You haven’t placed any orders yet.</p>
+            </>}
           </div>
         ) : (
           <div className="orders-list">
