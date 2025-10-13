@@ -922,11 +922,19 @@ const UserShipments = () => {
   const loadUserOrders = () => dispatch(fetchUserOrders());
 
 
- useEffect(() => {
+useEffect(() => {
   if (!user) return;
 
-  loadShipments().finally(() => setInitialLoad(false));
-  loadUserOrders().finally(() => setInitialLoad(false));
+  // Only fetch if there’s no data yet
+  if (shipments.length === 0) {
+    loadShipments().finally(() => setInitialLoad(false));
+  } else {
+    setInitialLoad(false);
+  }
+
+  if (userOrders.length === 0) {
+    loadUserOrders();
+  }
 
   if (pollingRef.current) clearInterval(pollingRef.current);
 
@@ -937,6 +945,7 @@ const UserShipments = () => {
 
   return () => clearInterval(pollingRef.current);
 }, [user, trackingShipment]);
+
 
   
   useEffect(() => {
