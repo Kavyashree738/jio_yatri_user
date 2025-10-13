@@ -1357,7 +1357,7 @@ const UserShipments = () => {
       <div className="orders-section">
         <h4>Your Shop Orders</h4>
 
-        {ordersLoading && userOrders.length === 0 ? (
+        {ordersLoading ? (
           <div className="orders-loading">Loading orders…</div>
         ) : ordersError ? (
           <div className="orders-error">
