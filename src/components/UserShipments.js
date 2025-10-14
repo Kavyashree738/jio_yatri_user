@@ -783,6 +783,8 @@ const UserShipments = () => {
 
   const [initialLoad, setInitialLoad] = useState(true);
 
+  const [activeTab, setActiveTab] = useState('all');
+
 
   const dispatch = useDispatch();
   const { list: shipments, loading, error } = useSelector((state) => state.shipments);
@@ -923,32 +925,32 @@ const UserShipments = () => {
   const loadUserOrders = () => dispatch(fetchUserOrders());
 
 
-useEffect(() => {
-  if (!user) return;
+  useEffect(() => {
+    if (!user) return;
 
-  // Only fetch if there’s no data yet
-  if (shipments.length === 0) {
-    loadShipments().finally(() => setInitialLoad(false));
-  } else {
-    setInitialLoad(false);
-  }
+    // Only fetch if there’s no data yet
+    if (shipments.length === 0) {
+      loadShipments().finally(() => setInitialLoad(false));
+    } else {
+      setInitialLoad(false);
+    }
 
-  if (userOrders.length === 0) {
-    loadUserOrders();
-  }
+    if (userOrders.length === 0) {
+      loadUserOrders();
+    }
 
-  if (pollingRef.current) clearInterval(pollingRef.current);
+    if (pollingRef.current) clearInterval(pollingRef.current);
 
-  pollingRef.current = setInterval(() => {
-    loadShipments();
-    loadUserOrders();
-  }, trackingShipment ? 5000 : 10000);
+    pollingRef.current = setInterval(() => {
+      loadShipments();
+      loadUserOrders();
+    }, trackingShipment ? 5000 : 10000);
 
-  return () => clearInterval(pollingRef.current);
-}, [user, trackingShipment]);
+    return () => clearInterval(pollingRef.current);
+  }, [user, trackingShipment]);
 
 
-  
+
   useEffect(() => {
     if (user) {
       handleSearch(searchTerm);
@@ -1101,18 +1103,18 @@ useEffect(() => {
     );
   }
 
- if (initialLoad) {
-  return (
-    <div className="shipments-loading">
-      <div className="loader">
-        <div className="loader-circle"></div>
-        <div className="loader-circle"></div>
-        <div className="loader-circle"></div>
+  if (initialLoad) {
+    return (
+      <div className="shipments-loading">
+        <div className="loader">
+          <div className="loader-circle"></div>
+          <div className="loader-circle"></div>
+          <div className="loader-circle"></div>
+        </div>
+        <div className="loading-text">Loading ....</div>
       </div>
-      <div className="loading-text">Loading ....</div>
-    </div>
-  );
-}
+    );
+  }
 
 
   if (error) {
@@ -1129,6 +1131,27 @@ useEffect(() => {
       <Header />
       <div className="shipments-container">
         <h4>Your Shipments</h4>
+
+        <div className="tabs-container">
+          <button
+            className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+            onClick={() => setActiveTab('all')}
+          >
+            All
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'shipments' ? 'active' : ''}`}
+            onClick={() => setActiveTab('shipments')}
+          >
+            Shipments
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
+            onClick={() => setActiveTab('orders')}
+          >
+            Shops
+          </button>
+        </div>
 
         <div className="search-container">
           <input
@@ -1151,183 +1174,190 @@ useEffect(() => {
           )}
         </div>
 
-        {trackingShipment ? (
-          <div className="tracking-view">
-            <div className="tracking-header">
-              <h3>Tracking Shipment: {trackingShipment.trackingNumber}</h3>
-              <button onClick={handleStopTracking} className="stop-tracking-btn">
-                Back to Shipments
-              </button>
-            </div>
-            <LocationTracker shipment={trackingShipment} />
-          </div>
-        ) : filteredShipments.length === 0 ? (
-          <div className="no-shipments">
-            {searchTerm ? (
-              <p>No shipments match your search criteria.</p>
+        {(activeTab === 'all' || activeTab === 'shipments') && (
+          <>
+            {trackingShipment ? (
+              <div className="tracking-view">
+                <div className="tracking-header">
+                  <h3>Tracking Shipment: {trackingShipment.trackingNumber}</h3>
+                  <button onClick={handleStopTracking} className="stop-tracking-btn">
+                    Back to Shipments
+                  </button>
+                </div>
+                <LocationTracker shipment={trackingShipment} />
+              </div>
+            ) : filteredShipments.length === 0 ? (
+              <div className="no-shipments">
+                {searchTerm ? (
+                  <p>No shipments match your search criteria.</p>
+                ) : (
+                  <>
+                    <img src={img} className='img' />
+                    <p>Uh oh! No Shipments Yet</p>
+                  </>
+                )}
+                <button
+                  onClick={() => navigate('/shipment')}
+                  className="sign-in-button"
+                >
+                  Create Shipment
+                </button>
+              </div>
             ) : (
-               <>
-              <img src={img} className='img'></img>
-              <p> Uh oh! No Shipments Yet</p>
-              </>
-            )}
-           <button
-              onClick={() => navigate('/shipment')}
-              className="sign-in-button"
-            >
-              Create Shipment
-            </button>
-          </div>
-        ) : (
-          <div className="shipments-list">
-            {filteredShipments.map((shipment) => (
-              <div key={shipment._id} className="shipment-card">
-                <div className="shipment-header">
-                  <h3>Tracking #: {highlightText(shipment.trackingNumber)}</h3>
-                  <span className="created-date">
-                    {new Date(shipment.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
+              <div className="shipments-list">
+                {filteredShipments.map((shipment) => (
+                  <div key={shipment._id} className="shipment-card">
+                    <div className="shipment-header">
+                      <h3>Tracking #: {highlightText(shipment.trackingNumber)}</h3>
+                      <span className="created-date">
+                        {new Date(shipment.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
 
-                <div className="shipment-details-grid">
-                  <div className="sender-details">
-                    <h4>Sender</h4>
-                    <p><strong>Name:</strong> {highlightText(shipment.sender.name)}</p>
-                    <p><strong>Phone:</strong> {shipment.sender.phone}</p>
-                    {shipment.sender.email && <p><strong>Email:</strong> {shipment.sender.email}</p>}
-                    <p><strong>Address:</strong> {shipment.sender.address?.addressLine1 || 'N/A'}</p>
-                  </div>
-
-                  <div className="receiver-details">
-                    <h4>Receiver</h4>
-                    <p><strong>Name:</strong> {highlightText(shipment.receiver.name)}</p>
-                    <p><strong>Phone:</strong> {shipment.receiver.phone}</p>
-                    {shipment.receiver.email && <p><strong>Email:</strong> {shipment.receiver.email}</p>}
-                    <p><strong>Address:</strong> {shipment.receiver.address?.addressLine1 || 'N/A'}</p>
-                  </div>
-
-                  <div className="shipment-meta">
-                    <h4>Shipment Details</h4>
-                    <p><strong>Vehicle Type:</strong> {highlightText(shipment.vehicleType)}</p>
-                    <p><strong>Distance:</strong> {shipment.distance} km</p>
-                    <p><strong>Cost:</strong> ₹{shipment.cost?.toFixed(2) || '0.00'}</p>
-                    <p><strong>Status:</strong> {highlightText(shipment.status)}</p>
-
-                     {shipment.isShopOrder && shipment.recreatedFrom && shipment.status !== 'delivered' && shipment.status !== 'picked_up' && (
-                      <p className="shipment-recreated-info">
-                        The driver cancelled your previous delivery. Don’t worry — another driver will deliver your order shortly.
-                      </p>
-                    )}
-                    {shipment.status === 'cancelled' && shipment.cancellationReason && (
-                      <p><strong>Cancellation Reason:</strong> {shipment.cancellationReason}</p>
-                    )}
-                    {shipment.assignedDriver && (
-                      <p><strong>Driver:</strong> {highlightText(shipment.assignedDriver.name)} ({shipment.assignedDriver.vehicleNumber})</p>
-                    )}
-                  {shipment.status !== 'delivered' &&
- shipment.status !== 'cancelled' &&
- shipment.assignedDriver?.phone && (   // ✅ this extra check prevents undefined error
-  <p>
-    <strong>To know where your parcel is, give call</strong>{' '}
-    {shipment.assignedDriver.phone.replace(/^\+91/, '')}
-    <a
-      href={`tel:${shipment.assignedDriver.phone.replace(/^\+?91/, '')}`}
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        marginLeft: '8px',
-        color: '#ffffff',
-        backgroundColor: '#09d670',
-        padding: '0.5rem',
-        borderRadius: '50%',
-        textDecoration: 'none',
-        display: 'inline-flex',
-        alignItems: 'center',
-      }}
-    >
-      <FaPhone style={{ marginRight: '4px' }} />
-    </a>
-  </p>
-)}
-
-
-
-
-                    {shipment.status === 'assigned' && shipment.pickupOtp && (
-                      <div className="otp-box">
-                        <h4>Your Pickup OTP</h4>
-                        <div className="otp-digits">
-                          {shipment.pickupOtp.split('').map((digit, index) => (
-                            <div key={index} className="otp-digit">{digit}</div>
-                          ))}
-                        </div>
-                        <p>Share this code with the driver to confirm pickup.</p>
+                    <div className="shipment-details-grid">
+                      <div className="sender-details">
+                        <h4>Sender</h4>
+                        <p><strong>Name:</strong> {highlightText(shipment.sender.name)}</p>
+                        <p><strong>Phone:</strong> {shipment.sender.phone}</p>
+                        {shipment.sender.email && <p><strong>Email:</strong> {shipment.sender.email}</p>}
+                        <p><strong>Address:</strong> {shipment.sender.address?.addressLine1 || 'N/A'}</p>
                       </div>
-                    )}
-                  </div>
-                </div>
 
-                <div className="shipment-actions">
-                 {(
-  // ✅ Regular shipment: show when pending or assigned
-  (!shipment.isShopOrder && (shipment.status === 'pending' || shipment.status === 'assigned')) ||
+                      <div className="receiver-details">
+                        <h4>Receiver</h4>
+                        <p><strong>Name:</strong> {highlightText(shipment.receiver.name)}</p>
+                        <p><strong>Phone:</strong> {shipment.receiver.phone}</p>
+                        {shipment.receiver.email && <p><strong>Email:</strong> {shipment.receiver.email}</p>}
+                        <p><strong>Address:</strong> {shipment.receiver.address?.addressLine1 || 'N/A'}</p>
+                      </div>
 
-  // ✅ Shop shipment: show only when pending (hide after assigned)
-  (shipment.isShopOrder && shipment.status === 'pending')
-) && (
-  <button
-    onClick={() =>
-      setConfirmModal({ visible: true, type: "shipment", id: shipment._id })
-    }
-    className="cancel-btn"
-  >
-    Cancel Shipment
-  </button>
-)}
-
+                      <div className="shipment-meta">
+                        <h4>Shipment Details</h4>
+                        <p><strong>Vehicle Type:</strong> {highlightText(shipment.vehicleType)}</p>
+                        <p><strong>Distance:</strong> {shipment.distance} km</p>
+                        <p><strong>Cost:</strong> ₹{shipment.cost?.toFixed(2) || '0.00'}</p>
+                        <p><strong>Status:</strong> {highlightText(shipment.status)}</p>
+                        {shipment.isShopOrder && shipment.recreatedFrom && shipment.status !== 'delivered' && shipment.status !== 'picked_up' && (
+                          <p className="shipment-recreated-info">
+                            The driver cancelled your previous delivery. Don’t worry — another driver will deliver your parcel shortly.
+                          </p>
+                        )}
 
 
-                  {shipment.status === 'assigned' && (
-                    <button onClick={() => handleTrackShipment(shipment)} className="track-shipment-btn">
-                      Track Shipment
-                    </button>
-                  )}
 
-                  {shipment.status === 'picked_up' && shipment.payment?.status === 'pending' && (
-                    <button onClick={() => openPaymentModal(shipment)} className="pay-now-btn">
-                      Complete Payment
-                    </button>
-                  )}
-
-                  {shipment.status === 'delivered' && shipment.payment?.status === 'paid' && (
-                    <div className="shipment-rating-section">
-                      {shipment.rating ? (
-                        <div className="rating-submitted">
-                          <span>Your rating: {shipment.rating.value} ★</span>
-                          {shipment.rating.feedback && (
-                            <p className="rating-feedback-text">"{shipment.rating.feedback}"</p>
+                        {shipment.status === 'cancelled' && shipment.cancellationReason && (
+                          <p><strong>Cancellation Reason:</strong> {shipment.cancellationReason}</p>
+                        )}
+                        {shipment.assignedDriver && (
+                          <p><strong>Driver:</strong> {highlightText(shipment.assignedDriver.name)} ({shipment.assignedDriver.vehicleNumber})</p>
+                        )}
+                        {shipment.status !== 'delivered' &&
+                          shipment.status !== 'cancelled' &&
+                          shipment.assignedDriver?.phone && (   // ✅ this extra check prevents undefined error
+                            <p>
+                              <strong>To know where your parcel is, give call</strong>{' '}
+                              {shipment.assignedDriver.phone.replace(/^\+91/, '')}
+                              <a
+                                href={`tel:${shipment.assignedDriver.phone.replace(/^\+?91/, '')}`}
+                                onClick={(e) => e.stopPropagation()}
+                                style={{
+                                  marginLeft: '8px',
+                                  color: '#ffffff',
+                                  backgroundColor: '#09d670',
+                                  padding: '0.5rem',
+                                  borderRadius: '50%',
+                                  textDecoration: 'none',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <FaPhone style={{ marginRight: '4px' }} />
+                              </a>
+                            </p>
                           )}
-                        </div>
-                      ) : (
-                        <button
-                          className="rate-driver-btn"
-                          onClick={() => handleOpenRatingModal(shipment)}
-                        >
-                          Rate This Driver
+
+
+
+
+                        {shipment.status === 'assigned' && shipment.pickupOtp && (
+                          <div className="otp-box">
+                            <h4>Your Pickup OTP</h4>
+                            <div className="otp-digits">
+                              {shipment.pickupOtp.split('').map((digit, index) => (
+                                <div key={index} className="otp-digit">{digit}</div>
+                              ))}
+                            </div>
+                            <p>Share this code with the driver to confirm pickup.</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="shipment-actions">
+                      {(
+                        // ✅ Regular shipment: show when pending or assigned
+                        (!shipment.isShopOrder && (shipment.status === 'pending' || shipment.status === 'assigned')) ||
+
+                        // ✅ Shop shipment: show only when pending (hide after assigned)
+                        (shipment.isShopOrder && shipment.status === 'pending')
+                      ) && (
+                          <button
+                            onClick={() =>
+                              setConfirmModal({ visible: true, type: "shipment", id: shipment._id })
+                            }
+                            className="cancel-btn"
+                          >
+                            Cancel Shipment
+                          </button>
+                        )}
+
+
+
+                      {shipment.status === 'assigned' && (
+                        <button onClick={() => handleTrackShipment(shipment)} className="track-shipment-btn">
+                          Track Shipment
                         </button>
                       )}
+
+                      {shipment.status === 'picked_up' && shipment.payment?.status === 'pending' && (
+                        <button onClick={() => openPaymentModal(shipment)} className="pay-now-btn">
+                          Complete Payment
+                        </button>
+                      )}
+
+                      {shipment.status === 'delivered' && shipment.payment?.status === 'paid' && (
+                        <div className="shipment-rating-section">
+                          {shipment.rating ? (
+                            <div className="rating-submitted">
+                              <span>Your rating: {shipment.rating.value} ★</span>
+                              {shipment.rating.feedback && (
+                                <p className="rating-feedback-text">"{shipment.rating.feedback}"</p>
+                              )}
+                            </div>
+                          ) : (
+                            <button
+                              className="rate-driver-btn"
+                              onClick={() => handleOpenRatingModal(shipment)}
+                            >
+                              Rate This Driver
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
+
       </div>
 
       {paymentModalOpen && selectedShipment && (
@@ -1384,71 +1414,75 @@ useEffect(() => {
           </div>
         </div>
       )}
-      <div className="orders-section">
-        <h4>Your Shop Orders</h4>
+      {(activeTab === 'all' || activeTab === 'orders') && (
+        <div className="orders-section">
+          {/* <h4>Your Shop Orders</h4> */}
+          {initialLoad ? (
+            <div className="orders-loading">Loading orders…</div>
+          ) : ordersError ? (
+            <div className="orders-error">
+              <p>{ordersError}</p>
+              <button onClick={() => loadUserOrders()}>Retry</button>
+            </div>
+          ) : filteredUserOrders.length === 0 ? (
+            <div className="no-orders">
+              {searchTerm ? (
+                <p>No orders match your search.</p>
+              ) : (
+                <>
+                  <img src={img} className="img" />
+                  <p>You haven’t placed any orders yet.</p>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="orders-list">
+              {filteredUserOrders.map((o) => (
+                <div key={o._id} className="order-card">
+                  <div className="order-header">
+                    <h3>Order: {highlightText(o.orderCode)}</h3>
+                    <span className="created-date">{formatDateTime(o.createdAt)}</span>
+                  </div>
 
-        {initialLoad ? (
-          <div className="orders-loading">Loading orders…</div>
-        ) : ordersError ? (
-          <div className="orders-error">
-            <p>{ordersError}</p>
-            <button onClick={() => loadUserOrders()}>Retry</button>
-          </div>
-        ) : filteredUserOrders.length === 0 ? (
-          <div className="no-orders">
-            {searchTerm ? <p>No orders match your search.</p> :  <>
-            <img src={img} className='img'></img>
-            <p>You haven’t placed any orders yet.</p>
-            </>}
-          </div>
-        ) : (
-          <div className="orders-list">
-            {filteredUserOrders.map((o) => (
-              <div key={o._id} className="order-card">
-                <div className="order-header">
-                  <h3>Order: {highlightText(o.orderCode)}</h3>
-                  <span className="created-date">{formatDateTime(o.createdAt)}</span>
-                </div>
+                  <div className="order-shop-meta">
+                    <p><strong>Shop:</strong> {highlightText(o.shop?.name)} ({o.shop?.category})</p>
+                    {o.shop?.phone && <p><strong>Shop Phone:</strong> {o.shop.phone}</p>}
+                    <p><strong>Vehicle Type:</strong> {highlightText(o.vehicleType)}</p>
+                  </div>
 
-                <div className="order-shop-meta">
-                  <p><strong>Shop:</strong> {highlightText(o.shop?.name)} ({o.shop?.category})</p>
-                  {o.shop?.phone && <p><strong>Shop Phone:</strong> {o.shop.phone}</p>}
-                  <p><strong>Vehicle Type:</strong> {highlightText(o.vehicleType)}</p>
-                </div>
-
-                <div className="order-items">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Item</th><th>Qty</th><th>Price</th><th>Line Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(o.items || []).map((it, idx) => (
-                        <tr key={idx}>
-                          <td>{highlightText(it.name)}</td>
-                          <td>{it.quantity}</td>
-                          <td>{formatCurrency(it.price)}</td>
-                          <td>{formatCurrency((Number(it.price) || 0) * (Number(it.quantity) || 1))}</td>
+                  <div className="order-items">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Item</th><th>Qty</th><th>Price</th><th>Line Total</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {(o.items || []).map((it, idx) => (
+                          <tr key={idx}>
+                            <td>{highlightText(it.name)}</td>
+                            <td>{it.quantity}</td>
+                            <td>{formatCurrency(it.price)}</td>
+                            <td>{formatCurrency((Number(it.price) || 0) * (Number(it.quantity) || 1))}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-                <div className="order-pricing">
-                  {/* <div><strong>Subtotal:</strong> {formatCurrency(o.pricing?.subtotal)}</div>
+                  <div className="order-pricing">
+                    {/* <div><strong>Subtotal:</strong> {formatCurrency(o.pricing?.subtotal)}</div>
                   <div><strong>Delivery Fee:</strong> {formatCurrency(o.pricing?.deliveryFee)}</div>
                   <div><strong>Discount:</strong> {formatCurrency(o.pricing?.discount)}</div> */}
-                  <div className="order-total"><strong>Total:</strong> {formatCurrency(o.pricing?.total)}</div>
-                </div>
+                    <div className="order-total"><strong>Total:</strong> {formatCurrency(o.pricing?.total)}</div>
+                  </div>
 
-                <div className="order-status">
-                  <div><strong>Status:</strong> {highlightText(o.status)}</div>
-                  <div><strong>Payment:</strong> {highlightText(o.payment?.status)}</div>
-                </div>
+                  <div className="order-status">
+                    <div><strong>Status:</strong> {highlightText(o.status)}</div>
+                    <div><strong>Payment:</strong> {highlightText(o.payment?.status)}</div>
+                  </div>
 
-                {/* <div className="order-actions">
+                  {/* <div className="order-actions">
                   {o.shipmentId ? (
                     <button
                       className="track-shipment-btn"
@@ -1471,27 +1505,28 @@ useEffect(() => {
                 </div> */}
 
 
-                <div className="order-actions">
-                  {String(o.status).toLowerCase() === 'pending' && (
-                    <button
-                      onClick={() =>
-                        setConfirmModal({ visible: true, type: "order", id: o._id })
-                      }
-                      className="cancel-order-btn"
-                    >
-                      Cancel Order
-                    </button>
+                  <div className="order-actions">
+                    {String(o.status).toLowerCase() === 'pending' && (
+                      <button
+                        onClick={() =>
+                          setConfirmModal({ visible: true, type: "order", id: o._id })
+                        }
+                        className="cancel-order-btn"
+                      >
+                        Cancel Order
+                      </button>
 
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
 
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
 
-        )}
-      </div>
 
       {confirmModal.visible && (
         <div className="modal-overlay">

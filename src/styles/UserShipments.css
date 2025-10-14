@@ -1486,7 +1486,7 @@ footer {
 @media (max-width: 768px) {
   .orders-section {
     padding: 1.5rem;
-    margin-top: 80px;
+    margin-top: -70px;
     border-radius: 0;
   }
   
@@ -1513,7 +1513,7 @@ footer {
 @media (max-width: 480px) {
   .orders-section {
     padding: 1rem;
-    margin-top: 70px;
+    /* margin-top: 70px; */
   }
   
   .order-header h3 {
@@ -1687,3 +1687,72 @@ footer {
   to { transform: scale(1); opacity: 1; }
 }
 
+.shipment-recreated-info {
+  background: #fff7d1;
+  border-left: 4px solid #ffb100;
+  color: #4a3b00;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.tab-btn {
+  background: #e9ecef;
+  border: none;
+  padding: 0.7rem 1.8rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  background: #d6d8db;
+}
+
+.tab-btn.active {
+  background: #007bff;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  transform: scale(1.05);
+}
+
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.tab-btn {
+  background: #f2f2f2;
+  border: none;
+  padding: 0.6rem 1.5rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-btn:hover {
+  background: #e0e0e0;
+}
+
+.tab-btn.active {
+  background: #007bff;
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
