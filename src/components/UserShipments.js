@@ -1267,17 +1267,23 @@ useEffect(() => {
                 </div>
 
                 <div className="shipment-actions">
-                  {(shipment.status === 'pending' || shipment.status === 'assigned') && (
-                    <button
-                      onClick={() =>
-                        setConfirmModal({ visible: true, type: "shipment", id: shipment._id })
-                      }
-                      className="cancel-btn"
-                    >
-                      Cancel Shipment
-                    </button>
+                 {(
+  // ✅ Regular shipment: show when pending or assigned
+  (!shipment.isShopOrder && (shipment.status === 'pending' || shipment.status === 'assigned')) ||
 
-                  )}
+  // ✅ Shop shipment: show only when pending (hide after assigned)
+  (shipment.isShopOrder && shipment.status === 'pending')
+) && (
+  <button
+    onClick={() =>
+      setConfirmModal({ visible: true, type: "shipment", id: shipment._id })
+    }
+    className="cancel-btn"
+  >
+    Cancel Shipment
+  </button>
+)}
+
 
 
                   {shipment.status === 'assigned' && (
