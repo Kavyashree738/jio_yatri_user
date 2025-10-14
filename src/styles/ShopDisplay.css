@@ -398,3 +398,73 @@
   align-items: center;
   gap: 0.4rem;
 }
+
+.jy-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background: rgba(255,255,255,0.95); */
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* all images share same animation but start at different times */
+.jy-item {
+  position: absolute;
+  width: clamp(70px, 10vw, 100px);
+  opacity: 0;
+  transform: translateY(20px) scale(0.9);
+  animation: soloTimeline 7.5s linear infinite;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+}
+
+/* exact timing offsets */
+.i1 { animation-delay: 0s; }
+.i2 { animation-delay: 1.5s; }
+.i3 { animation-delay: 3s; }
+.i4 { animation-delay: 4.5s; }
+.i5 { animation-delay: 6s; }
+
+/* main jump sequence — only one visible at any time */
+@keyframes soloTimeline {
+  0%, 9% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0) scale(1.02);
+  }
+  15% {
+    transform: translateY(-15px) scale(1.07);
+  }
+  20% {
+    transform: translateY(0) scale(1);
+  }
+  24% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  /* hide immediately, no fading */
+  25%, 100% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+}
+/* make loader column layout */
+.jy-loader {
+  flex-direction: column;
+}
+
+/* loading text */
+.jy-text {
+  margin-top: 140px; /* adjust spacing so text sits below jumping images */
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.5px;
+}

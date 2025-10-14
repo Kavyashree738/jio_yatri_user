@@ -12,6 +12,12 @@ import Footer from '../components/pages/Footer';
 import '../styles/ShopDisplay.css';
 import { useAuth } from '../context/AuthContext';
 
+import l1 from '../assets/images/loading/banana.png'
+import l2 from '../assets/images/loading/brocolli.png'
+import l3 from '../assets/images/loading/cake.png'
+import l4 from '../assets/images/loading/medicine.png'
+import l5 from '../assets/images/loading/milk.png'
+
 const ShopDisplay = () => {
   const { category } = useParams();
   const [shops, setShops] = useState([]); // All shops with distances
@@ -133,11 +139,19 @@ const ShopDisplay = () => {
     navigate(`/shop/${shopId}`);
   };
 
-  if (loading) {
+ if (loading) { // force always true
     return (
-      <div className="sd-loading-container">
-        <div className="sd-spinner"></div>
+      <div className="jy-loader">
+        <img src={l1} className="jy-item i1" alt="item1" />
+        <img src={l2} className="jy-item i2" alt="item2" />
+        <img src={l3} className="jy-item i3" alt="item3" />
+        <img src={l4} className="jy-item i4" alt="item4" />
+        <img src={l5} className="jy-item i5" alt="item5" />
+
+        <div className="jy-text">Loading your essentials...</div>
+
       </div>
+
     );
   }
 
