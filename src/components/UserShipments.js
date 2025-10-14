@@ -1218,6 +1218,12 @@ useEffect(() => {
                     <p><strong>Distance:</strong> {shipment.distance} km</p>
                     <p><strong>Cost:</strong> ₹{shipment.cost?.toFixed(2) || '0.00'}</p>
                     <p><strong>Status:</strong> {highlightText(shipment.status)}</p>
+
+                     {shipment.isShopOrder && shipment.recreatedFrom && shipment.status !== 'delivered' && shipment.status !== 'picked_up' && (
+                      <p className="shipment-recreated-info">
+                        The driver cancelled your previous delivery. Don’t worry — another driver will deliver your order shortly.
+                      </p>
+                    )}
                     {shipment.status === 'cancelled' && shipment.cancellationReason && (
                       <p><strong>Cancellation Reason:</strong> {shipment.cancellationReason}</p>
                     )}
