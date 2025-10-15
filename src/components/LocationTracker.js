@@ -326,6 +326,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 
   // start listening for changes
   const unsubscribe = onValue(driverRef, (snapshot) => {
+    console.log("📥 Firebase snapshot value:", snapshot.val());
     const data = snapshot.val();
     if (!data) return;
 
@@ -525,6 +526,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 };
 
 export default LocationTracker;
+
 
 
 
