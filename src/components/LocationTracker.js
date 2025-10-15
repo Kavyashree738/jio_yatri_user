@@ -229,6 +229,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/LocationTracker.css';
 import axios from 'axios';
+import { ref, onValue } from "firebase/database";
+import { db } from "../firebase";
+
 
 /* ------------------------------- Helpers ------------------------------- */
 function normalizeToLatLng(input) {
@@ -315,27 +318,45 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 
   /* ------------------------------- Polling ------------------------------- */
   useEffect(() => {
-    const interval = setInterval(async () => {
-      if (!shipment?._id || !user) return;
-      try {
-        const token = await user.getIdToken();
-        const res = await axios.get(`${API_BASE_URL}/api/shipments/${shipment._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  // ✅ make sure driver exists
+  if (!shipment?.driver?.userId) return;
 
-        const newCoords = res.data?.driverLocation?.coordinates || [];
-        const oldCoords = shipment?.driverLocation?.coordinates || [];
+  // reference driver's live location node in Firebase
+  const driverRef = ref(db, `driver_locations/${shipment.driver.userId}`);
 
-        if (JSON.stringify(newCoords) !== JSON.stringify(oldCoords)) {
-          setShipment(res.data);
-        }
-      } catch (err) {
-        console.error('Polling failed:', err);
-      }
-    }, 5000);
+  // start listening for changes
+  const unsubscribe = onValue(driverRef, (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
 
-    return () => clearInterval(interval);
-  }, [shipment?._id, user]);
+    const newDriverPosition = { lat: data.lat, lng: data.lng };
+
+    // update or create marker on map
+    if (driverMarkerRef.current) {
+      driverMarkerRef.current.setPosition(newDriverPosition);
+    } else {
+      driverMarkerRef.current = new window.google.maps.Marker({
+        position: newDriverPosition,
+        map: mapRef.current,
+        icon: {
+          path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          scale: 6,
+          fillColor: "#EA4335",
+          fillOpacity: 1,
+          strokeWeight: 2,
+          strokeColor: "#FFFFFF",
+        },
+        title: "Driver",
+      });
+    }
+
+    console.log("📡 Driver moved →", newDriverPosition);
+  });
+
+  // cleanup listener on unmount
+  return () => unsubscribe();
+}, [shipment?.driver?.userId]);
+
 
   /* ------------------------------ Init Map ------------------------------- */
   const initMap = useCallback(() => {
@@ -504,6 +525,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 };
 
 export default LocationTracker;
+
 
 
 
