@@ -337,41 +337,66 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 
   const driverRef = ref(db, firebasePath);
 
-  const unsubscribe = onValue(driverRef, (snapshot) => {
-    // console.groupCollapsed("%c📥 Firebase Snapshot Event", "color: green; font-weight: bold;");
-    const data = snapshot.val();
-    if (!data) {
-      // console.warn("⚠️ No data available for this UID:", driverUid);
-      // console.groupEnd();
-      return;
-    }
+    /* --------------------------- Smooth Marker Animation --------------------------- */
+function animateMarker(marker, newLatLng, duration = 1000) {
+  if (!marker || !window.google) return;
+  const startLatLng = marker.getPosition();
+  if (!startLatLng) return;
 
-    // console.log("✅ Firebase Data Received →", data);
+  const startTime = performance.now();
 
-    const newDriverPosition = { lat: data.lat, lng: data.lng };
+  function step(currentTime) {
+    const elapsed = currentTime - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const lat = startLatLng.lat() + (newLatLng.lat - startLatLng.lat()) * progress;
+    const lng = startLatLng.lng() + (newLatLng.lng - startLatLng.lng()) * progress;
+    marker.setPosition(new window.google.maps.LatLng(lat, lng));
+    if (progress < 1) requestAnimationFrame(step);
+  }
 
-    if (driverMarkerRef.current) {
-      driverMarkerRef.current.setPosition(newDriverPosition);
-      // console.log("📍 Updated existing driver marker:", newDriverPosition);
-    } else if (mapRef.current) {
-      driverMarkerRef.current = new window.google.maps.Marker({
-        position: newDriverPosition,
-        map: mapRef.current,
-        icon: {
-          path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-          scale: 6,
-          fillColor: "#EA4335",
-          fillOpacity: 1,
-          strokeWeight: 2,
-          strokeColor: "#FFFFFF",
-        },
-        title: "Driver",
+  requestAnimationFrame(step);
+}
+
+
+const unsubscribe = onValue(driverRef, (snapshot) => {
+  const data = snapshot.val();
+  if (!data) return;
+
+  const newDriverPosition = { lat: data.lat, lng: data.lng };
+
+  if (driverMarkerRef.current) {
+    // 🌀 smooth animation
+    animateMarker(driverMarkerRef.current, newDriverPosition, 1000);
+
+    // 🔁 rotate arrow to match heading (if available)
+    if (typeof data.heading === "number") {
+      driverMarkerRef.current.setIcon({
+        path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+        scale: 6,
+        rotation: data.heading, // 🔁 heading-based rotation
+        fillColor: "#EA4335",
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: "#FFFFFF",
       });
-      // console.log("🆕 Created NEW driver marker:", newDriverPosition);
     }
+  } else if (mapRef.current) {
+    driverMarkerRef.current = new window.google.maps.Marker({
+      position: newDriverPosition,
+      map: mapRef.current,
+      icon: {
+        path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+        scale: 6,
+        fillColor: "#EA4335",
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: "#FFFFFF",
+      },
+      title: "Driver",
+    });
+  }
+});
 
-    // console.groupEnd();
-  });
 
   // console.groupEnd();
   return () => {
@@ -394,11 +419,15 @@ const LocationTracker = ({ shipment: initialShipment }) => {
     const driverLatLng = normalizeToLatLng(shipment?.driverLocation?.coordinates);
     const center = driverLatLng || { lat: 12.9716, lng: 77.5946 };
 
-    mapRef.current = new window.google.maps.Map(mapContainerRef.current, {
-      zoom: 15,
-      center,
-      mapTypeId: 'roadmap',
-    });
+ mapRef.current = new window.google.maps.Map(mapContainerRef.current, {
+  zoom: 15,
+  center,
+  mapTypeId: 'roadmap',
+  gestureHandling: 'greedy', // 👆 enables pinch-rotate
+  tilt: 45,
+  rotateControl: true
+});
+
 
     directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
       suppressMarkers: true,
@@ -417,6 +446,34 @@ const LocationTracker = ({ shipment: initialShipment }) => {
     console.log("✅ Google Map initialized successfully at:", center);
     console.groupEnd();
   }, [shipment]);
+
+  /* ---------------------- Device Orientation Auto-Rotation ---------------------- */
+useEffect(() => {
+  if (!mapRef.current || !window.DeviceOrientationEvent) return;
+
+  const handleOrientation = (event) => {
+    const compassHeading = event.alpha; // degrees relative to north
+    if (Number.isFinite(compassHeading)) {
+      mapRef.current.setHeading(compassHeading);
+    }
+  };
+
+  // iOS requires explicit permission
+  if (typeof DeviceOrientationEvent.requestPermission === "function") {
+    DeviceOrientationEvent.requestPermission().then((response) => {
+      if (response === "granted") {
+        window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+      }
+    });
+  } else {
+    window.addEventListener("deviceorientationabsolute", handleOrientation, true);
+  }
+
+  return () => {
+    window.removeEventListener("deviceorientationabsolute", handleOrientation, true);
+  };
+}, []);
+
 
   /* ----------------------------- Update Route ---------------------------- */
   const updateRoute = useCallback(() => {
@@ -567,6 +624,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 };
 
 export default LocationTracker;
+
 
 
 
