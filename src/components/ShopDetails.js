@@ -1227,7 +1227,7 @@ const ShopDetails = () => {
 
 
                       {/* Provision & Grocery items meta */}
-                      {["provision", "grocery"].includes(shop.category) &&
+                      {["provision", "grocery","vegetable"].includes(shop.category) &&
                         (item.brand || item.weight || item.quantity !== undefined) && (
                           <div className="sd-provision-meta">
                             {item.brand && (
