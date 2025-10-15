@@ -23,6 +23,11 @@ const sendToToken = async (token, { title, body, data = {} }) => {
         body,
         icon: '/logo.jpg',
       },
+      android: {
+      priority: 'high',
+      // Optional: uncomment if you want to force the same channel as Dart
+      // notification: { channelId: 'driver_general' },
+    },
       fcmOptions: {
         link: '/business-orders', // where you want to land when user clicks
       },
@@ -103,6 +108,11 @@ const sendNotificationToDriver = async (driverId, title, body, data = {}) => {
         ...data,
         click_action: 'FLUTTER_NOTIFICATION_CLICK'
       },
+      android: {
+      priority: 'high',
+      // Optional: uncomment if you want to force the same channel as Dart
+      // notification: { channelId: 'driver_general' },
+    },
       token: driver.fcmToken,
     };
 
