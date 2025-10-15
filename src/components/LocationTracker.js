@@ -225,6 +225,7 @@
 
 // export default LocationTracker;
 
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/LocationTracker.css';
@@ -309,65 +310,84 @@ const LocationTracker = ({ shipment: initialShipment }) => {
   const directionsServiceRef = useRef(null);
   const googleMapsScriptRef = useRef(null);
 
-  const API_BASE_URL = 'https://jio-yatri-user.onrender.com';
+  const API_BASE_URL = 'http://localhost:5000';
 
   /* ------------------------------- Firebase Listener ------------------------------- */
   useEffect(() => {
-    if (!shipment?.driver?.userId) {
-      console.warn("⚠️ No driver UID found in shipment. Waiting for data...");
+  // console.group("%c[Firebase Listener Setup]", "color: orange; font-weight: bold;");
+  // console.log("🚀 Full Shipment Object →", shipment);
+
+  // ✅ FIX: handle assignedDriver.userId
+  const driverUid =
+    shipment?.assignedDriver?.userId || // this is the one your backend sends
+    shipment?.driver?.userId || 
+    shipment?.driverId ||
+    shipment?.assignedDriverId ||
+    null;
+
+  if (!driverUid) {
+    // console.warn("⚠️ No driver UID found! Available keys:", Object.keys(shipment || {}));
+    // console.log("🚚 assignedDriver object:", shipment?.assignedDriver);
+    // console.groupEnd();
+    return;
+  }
+
+  const firebasePath = `driver_locations/${driverUid}`;
+  // console.log("🎯 Listening to Firebase node:", firebasePath);
+
+  const driverRef = ref(db, firebasePath);
+
+  const unsubscribe = onValue(driverRef, (snapshot) => {
+    // console.groupCollapsed("%c📥 Firebase Snapshot Event", "color: green; font-weight: bold;");
+    const data = snapshot.val();
+    if (!data) {
+      // console.warn("⚠️ No data available for this UID:", driverUid);
+      // console.groupEnd();
       return;
     }
 
-    const firebasePath = `driver_locations/${shipment.driver.userId}`;
-    console.log("🎯 Listening to Firebase node:", firebasePath);
+    // console.log("✅ Firebase Data Received →", data);
 
-    const driverRef = ref(db, firebasePath);
+    const newDriverPosition = { lat: data.lat, lng: data.lng };
 
-    const unsubscribe = onValue(driverRef, (snapshot) => {
-      console.log("📥 Firebase snapshot triggered!");
-      const data = snapshot.val();
+    if (driverMarkerRef.current) {
+      driverMarkerRef.current.setPosition(newDriverPosition);
+      // console.log("📍 Updated existing driver marker:", newDriverPosition);
+    } else if (mapRef.current) {
+      driverMarkerRef.current = new window.google.maps.Marker({
+        position: newDriverPosition,
+        map: mapRef.current,
+        icon: {
+          path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          scale: 6,
+          fillColor: "#EA4335",
+          fillOpacity: 1,
+          strokeWeight: 2,
+          strokeColor: "#FFFFFF",
+        },
+        title: "Driver",
+      });
+      // console.log("🆕 Created NEW driver marker:", newDriverPosition);
+    }
 
-      if (!data) {
-        console.warn("⚠️ No location data for this driver UID:", shipment.driver.userId);
-        return;
-      }
+    // console.groupEnd();
+  });
 
-      console.log("📡 Received driver location from Firebase:", data);
-      const newDriverPosition = { lat: data.lat, lng: data.lng };
+  // console.groupEnd();
+  return () => {
+    // console.log("🧹 Cleaning up Firebase listener for:", firebasePath);
+    unsubscribe();
+  };
+}, [shipment?.assignedDriver?.userId]);
 
-      if (driverMarkerRef.current) {
-        driverMarkerRef.current.setPosition(newDriverPosition);
-        console.log("📍 Updated driver marker position:", newDriverPosition);
-      } else if (mapRef.current) {
-        driverMarkerRef.current = new window.google.maps.Marker({
-          position: newDriverPosition,
-          map: mapRef.current,
-          icon: {
-            path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-            scale: 6,
-            fillColor: "#EA4335",
-            fillOpacity: 1,
-            strokeWeight: 2,
-            strokeColor: "#FFFFFF",
-          },
-          title: "Driver",
-        });
-        console.log("🆕 Created new driver marker on map");
-      }
-    });
-
-    return () => {
-      console.log("🧹 Cleaning up Firebase listener...");
-      unsubscribe();
-    };
-  }, [shipment?.driver?.userId]);
 
   /* ------------------------------ Init Map ------------------------------- */
   const initMap = useCallback(() => {
-    console.log("🗺️ Initializing Google Map...");
+    // console.group("%c[Google Maps Init]", "color: purple; font-weight: bold;");
 
     if (!mapContainerRef.current || !window.google || !window.google.maps) {
-      console.error("❌ Google Maps not loaded yet!");
+      // console.error("❌ Google Maps not loaded yet!");
+      // console.groupEnd();
       return;
     }
 
@@ -394,28 +414,33 @@ const LocationTracker = ({ shipment: initialShipment }) => {
     directionsServiceRef.current = new window.google.maps.DirectionsService();
     setMapLoaded(true);
 
-    console.log("✅ Google Map initialized successfully");
+    console.log("✅ Google Map initialized successfully at:", center);
+    console.groupEnd();
   }, [shipment]);
 
   /* ----------------------------- Update Route ---------------------------- */
   const updateRoute = useCallback(() => {
-    if (!mapRef.current || !window.google || !shipment) return;
+    // console.group("%c[Route Update]", "color: teal; font-weight: bold;");
 
-    console.log("🔄 Updating route on map...");
+    if (!mapRef.current || !window.google || !shipment) {
+      // console.warn("⚠️ Map or shipment not ready yet.");
+      // console.groupEnd();
+      return;
+    }
 
     const driverLatLng = normalizeToLatLng(shipment?.driverLocation?.coordinates);
     const senderLatLng = normalizeToLatLng(shipment?.sender?.address?.coordinates);
     const receiverLatLng = normalizeToLatLng(shipment?.receiver?.address?.coordinates);
 
-    console.log("📍 Normalized points:", { driverLatLng, senderLatLng, receiverLatLng });
+    // console.log("📍 Normalized Points →", { driverLatLng, senderLatLng, receiverLatLng });
 
     if (!isValidLatLng(driverLatLng) || !isValidLatLng(senderLatLng) || !isValidLatLng(receiverLatLng)) {
-      setRouteError('Invalid coordinates for driver, sender, or receiver');
-      console.error("❌ Invalid coordinates:", { driverLatLng, senderLatLng, receiverLatLng });
+      setRouteError('Invalid coordinates detected');
+      // console.error("❌ Invalid Coordinates →", { driverLatLng, senderLatLng, receiverLatLng });
+      // console.groupEnd();
       return;
     }
 
-    // Sender Marker
     if (!senderMarkerRef.current) {
       senderMarkerRef.current = new window.google.maps.Marker({
         position: senderLatLng,
@@ -423,10 +448,9 @@ const LocationTracker = ({ shipment: initialShipment }) => {
         label: { text: 'S', color: '#FFFFFF' },
         icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
       });
-      console.log("🟢 Sender marker added");
+      // console.log("🟢 Sender Marker Added");
     }
 
-    // Receiver Marker
     if (!receiverMarkerRef.current) {
       receiverMarkerRef.current = new window.google.maps.Marker({
         position: receiverLatLng,
@@ -434,7 +458,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
         label: { text: 'R', color: '#FFFFFF' },
         icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
       });
-      console.log("🔴 Receiver marker added");
+      // console.log("🔴 Receiver Marker Added");
     }
 
     directionsServiceRef.current.route(
@@ -445,7 +469,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
         travelMode: window.google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
-        console.log("📡 Route service status:", status);
+        // console.log("📡 Directions Service Status →", status);
         if (status === 'OK') {
           directionsRendererRef.current.setDirections({ routes: [] });
           directionsRendererRef.current.setDirections(result);
@@ -457,26 +481,29 @@ const LocationTracker = ({ shipment: initialShipment }) => {
             setEtaToSender(legs[0].duration.text);
             setDistanceToReceiver(legs[1].distance.text);
             setEtaToReceiver(legs[1].duration.text);
-            console.log("✅ Route ETA/distance updated successfully");
+            // console.log("✅ Route distances/ETA updated successfully");
           }
         } else {
-          console.error("❌ Route error:", status);
+          // console.error("❌ Route Calculation Failed:", status);
           setRouteError(`Route error: ${status}`);
         }
       }
     );
+
+    // console.groupEnd();
   }, [shipment]);
 
   /* -------------------------- Load Google Maps --------------------------- */
   useEffect(() => {
-    console.log("🧩 Loading Google Maps script...");
+    // console.group("%c[Google Maps Script Loader]", "color: blue; font-weight: bold;");
     if (!window.google) {
+      // console.log("📜 Loading Google Maps API Script...");
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
-        console.log("✅ Google Maps script loaded");
+        // console.log("✅ Google Maps Script Loaded");
         initMap();
         updateRoute();
       };
@@ -486,17 +513,19 @@ const LocationTracker = ({ shipment: initialShipment }) => {
       return () => {
         if (googleMapsScriptRef.current) {
           document.body.removeChild(googleMapsScriptRef.current);
-          console.log("🧹 Google Maps script removed on unmount");
+          // console.log("🧹 Google Maps Script Removed");
         }
       };
     } else if (!mapRef.current) {
+      // console.log("🗺️ Google Maps already available → Initializing map");
       initMap();
     }
+    // console.groupEnd();
   }, [initMap, updateRoute]);
 
   useEffect(() => {
     if (mapLoaded) {
-      console.log("🔁 Map loaded → updating route now...");
+      // console.log("🔁 Map loaded → refreshing route now...");
       updateRoute();
     }
   }, [mapLoaded, shipment, updateRoute]);
@@ -506,13 +535,15 @@ const LocationTracker = ({ shipment: initialShipment }) => {
     const driverLatLng = normalizeToLatLng(shipment?.driverLocation?.coordinates);
     if (mapRef.current && isValidLatLng(driverLatLng)) {
       mapRef.current.panTo(driverLatLng);
-      console.log("🧭 Map recentered to driver location:", driverLatLng);
+      // console.log("🧭 Recentered map to driver →", driverLatLng);
+    } else {
+      // console.warn("⚠️ Cannot recenter: invalid driver location");
     }
   };
 
   /* ------------------------------- Render ------------------------------- */
   if (!shipment) {
-    console.warn("⚠️ No active shipment found.");
+    // console.warn("⚠️ No active shipment found");
     return <div className="no-shipment-map"><p>No active shipment selected</p></div>;
   }
 
@@ -536,6 +567,8 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 };
 
 export default LocationTracker;
+
+
 
 
 
