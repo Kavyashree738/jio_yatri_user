@@ -232,29 +232,24 @@ import axios from 'axios';
 import { ref, onValue } from "firebase/database";
 import { db } from "../firebase";
 
-
 /* ------------------------------- Helpers ------------------------------- */
 function normalizeToLatLng(input) {
   if (!input) return null;
 
-  // Case A: {lat, lng}
   if (Number.isFinite(input?.lat) && Number.isFinite(input?.lng)) {
     return { lat: Number(input.lat), lng: Number(input.lng) };
   }
 
-  // Case B: {latitude, longitude}
   if (Number.isFinite(input?.latitude) && Number.isFinite(input?.longitude)) {
     return { lat: Number(input.latitude), lng: Number(input.longitude) };
   }
 
-  // Case C: {coordinates:[lng,lat]}
   if (Array.isArray(input?.coordinates) && input.coordinates.length >= 2) {
     const lng = Number(input.coordinates[0]);
     const lat = Number(input.coordinates[1]);
     if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
   }
 
-  // Case D: raw [lng,lat]
   if (Array.isArray(input) && input.length >= 2) {
     const lng = Number(input[0]);
     const lat = Number(input[1]);
@@ -316,52 +311,65 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 
   const API_BASE_URL = 'https://jio-yatri-user.onrender.com';
 
-  /* ------------------------------- Polling ------------------------------- */
+  /* ------------------------------- Firebase Listener ------------------------------- */
   useEffect(() => {
-  // ✅ make sure driver exists
-  if (!shipment?.driver?.userId) return;
-
-  // reference driver's live location node in Firebase
-  const driverRef = ref(db, `driver_locations/${shipment.driver.userId}`);
-
-  // start listening for changes
-  const unsubscribe = onValue(driverRef, (snapshot) => {
-    console.log("📥 Firebase snapshot value:", snapshot.val());
-    const data = snapshot.val();
-    if (!data) return;
-
-    const newDriverPosition = { lat: data.lat, lng: data.lng };
-
-    // update or create marker on map
-    if (driverMarkerRef.current) {
-      driverMarkerRef.current.setPosition(newDriverPosition);
-    } else {
-      driverMarkerRef.current = new window.google.maps.Marker({
-        position: newDriverPosition,
-        map: mapRef.current,
-        icon: {
-          path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-          scale: 6,
-          fillColor: "#EA4335",
-          fillOpacity: 1,
-          strokeWeight: 2,
-          strokeColor: "#FFFFFF",
-        },
-        title: "Driver",
-      });
+    if (!shipment?.driver?.userId) {
+      console.warn("⚠️ No driver UID found in shipment. Waiting for data...");
+      return;
     }
 
-    console.log("📡 Driver moved →", newDriverPosition);
-  });
+    const firebasePath = `driver_locations/${shipment.driver.userId}`;
+    console.log("🎯 Listening to Firebase node:", firebasePath);
 
-  // cleanup listener on unmount
-  return () => unsubscribe();
-}, [shipment?.driver?.userId]);
+    const driverRef = ref(db, firebasePath);
 
+    const unsubscribe = onValue(driverRef, (snapshot) => {
+      console.log("📥 Firebase snapshot triggered!");
+      const data = snapshot.val();
+
+      if (!data) {
+        console.warn("⚠️ No location data for this driver UID:", shipment.driver.userId);
+        return;
+      }
+
+      console.log("📡 Received driver location from Firebase:", data);
+      const newDriverPosition = { lat: data.lat, lng: data.lng };
+
+      if (driverMarkerRef.current) {
+        driverMarkerRef.current.setPosition(newDriverPosition);
+        console.log("📍 Updated driver marker position:", newDriverPosition);
+      } else if (mapRef.current) {
+        driverMarkerRef.current = new window.google.maps.Marker({
+          position: newDriverPosition,
+          map: mapRef.current,
+          icon: {
+            path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+            scale: 6,
+            fillColor: "#EA4335",
+            fillOpacity: 1,
+            strokeWeight: 2,
+            strokeColor: "#FFFFFF",
+          },
+          title: "Driver",
+        });
+        console.log("🆕 Created new driver marker on map");
+      }
+    });
+
+    return () => {
+      console.log("🧹 Cleaning up Firebase listener...");
+      unsubscribe();
+    };
+  }, [shipment?.driver?.userId]);
 
   /* ------------------------------ Init Map ------------------------------- */
   const initMap = useCallback(() => {
-    if (!mapContainerRef.current || !window.google || !window.google.maps) return;
+    console.log("🗺️ Initializing Google Map...");
+
+    if (!mapContainerRef.current || !window.google || !window.google.maps) {
+      console.error("❌ Google Maps not loaded yet!");
+      return;
+    }
 
     const driverLatLng = normalizeToLatLng(shipment?.driverLocation?.coordinates);
     const center = driverLatLng || { lat: 12.9716, lng: 77.5946 };
@@ -385,38 +393,26 @@ const LocationTracker = ({ shipment: initialShipment }) => {
     directionsRendererRef.current.setMap(mapRef.current);
     directionsServiceRef.current = new window.google.maps.DirectionsService();
     setMapLoaded(true);
+
+    console.log("✅ Google Map initialized successfully");
   }, [shipment]);
 
   /* ----------------------------- Update Route ---------------------------- */
   const updateRoute = useCallback(() => {
     if (!mapRef.current || !window.google || !shipment) return;
 
+    console.log("🔄 Updating route on map...");
+
     const driverLatLng = normalizeToLatLng(shipment?.driverLocation?.coordinates);
     const senderLatLng = normalizeToLatLng(shipment?.sender?.address?.coordinates);
     const receiverLatLng = normalizeToLatLng(shipment?.receiver?.address?.coordinates);
 
+    console.log("📍 Normalized points:", { driverLatLng, senderLatLng, receiverLatLng });
+
     if (!isValidLatLng(driverLatLng) || !isValidLatLng(senderLatLng) || !isValidLatLng(receiverLatLng)) {
       setRouteError('Invalid coordinates for driver, sender, or receiver');
+      console.error("❌ Invalid coordinates:", { driverLatLng, senderLatLng, receiverLatLng });
       return;
-    }
-
-    // Driver Marker
-    if (!driverMarkerRef.current) {
-      driverMarkerRef.current = new window.google.maps.Marker({
-        position: driverLatLng,
-        map: mapRef.current,
-        icon: {
-          path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-          scale: 6,
-          fillColor: '#EA4335',
-          fillOpacity: 1,
-          strokeWeight: 2,
-          strokeColor: '#FFFFFF',
-        },
-        title: 'Driver Location',
-      });
-    } else {
-      driverMarkerRef.current.setPosition(driverLatLng);
     }
 
     // Sender Marker
@@ -427,6 +423,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
         label: { text: 'S', color: '#FFFFFF' },
         icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
       });
+      console.log("🟢 Sender marker added");
     }
 
     // Receiver Marker
@@ -437,9 +434,9 @@ const LocationTracker = ({ shipment: initialShipment }) => {
         label: { text: 'R', color: '#FFFFFF' },
         icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
       });
+      console.log("🔴 Receiver marker added");
     }
 
-    // Route
     directionsServiceRef.current.route(
       {
         origin: driverLatLng,
@@ -448,6 +445,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
         travelMode: window.google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
+        console.log("📡 Route service status:", status);
         if (status === 'OK') {
           directionsRendererRef.current.setDirections({ routes: [] });
           directionsRendererRef.current.setDirections(result);
@@ -459,8 +457,10 @@ const LocationTracker = ({ shipment: initialShipment }) => {
             setEtaToSender(legs[0].duration.text);
             setDistanceToReceiver(legs[1].distance.text);
             setEtaToReceiver(legs[1].duration.text);
+            console.log("✅ Route ETA/distance updated successfully");
           }
         } else {
+          console.error("❌ Route error:", status);
           setRouteError(`Route error: ${status}`);
         }
       }
@@ -469,12 +469,14 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 
   /* -------------------------- Load Google Maps --------------------------- */
   useEffect(() => {
+    console.log("🧩 Loading Google Maps script...");
     if (!window.google) {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_API_KEY}&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
+        console.log("✅ Google Maps script loaded");
         initMap();
         updateRoute();
       };
@@ -484,6 +486,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
       return () => {
         if (googleMapsScriptRef.current) {
           document.body.removeChild(googleMapsScriptRef.current);
+          console.log("🧹 Google Maps script removed on unmount");
         }
       };
     } else if (!mapRef.current) {
@@ -493,6 +496,7 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 
   useEffect(() => {
     if (mapLoaded) {
+      console.log("🔁 Map loaded → updating route now...");
       updateRoute();
     }
   }, [mapLoaded, shipment, updateRoute]);
@@ -502,17 +506,23 @@ const LocationTracker = ({ shipment: initialShipment }) => {
     const driverLatLng = normalizeToLatLng(shipment?.driverLocation?.coordinates);
     if (mapRef.current && isValidLatLng(driverLatLng)) {
       mapRef.current.panTo(driverLatLng);
+      console.log("🧭 Map recentered to driver location:", driverLatLng);
     }
   };
 
   /* ------------------------------- Render ------------------------------- */
   if (!shipment) {
+    console.warn("⚠️ No active shipment found.");
     return <div className="no-shipment-map"><p>No active shipment selected</p></div>;
   }
 
   return (
     <div className="location-tracker-container">
-      <div ref={mapContainerRef} className="map-container" style={{ height: '500px', width: '100%' }} />
+      <div
+        ref={mapContainerRef}
+        className="map-container"
+        style={{ height: '500px', width: '100%' }}
+      />
       <button onClick={handleRecenter} className="recenter-button">📍</button>
       <EtaDisplay
         etaToSender={etaToSender}
@@ -526,6 +536,8 @@ const LocationTracker = ({ shipment: initialShipment }) => {
 };
 
 export default LocationTracker;
+
+
 
 
 
