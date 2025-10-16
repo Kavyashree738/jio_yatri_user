@@ -95,12 +95,12 @@ async function findNearbyDrivers({ vehicleType, centerPoint, radiusMeters = 10_0
     }
   }).select('userId fcmToken lastKnownLocation').lean();
 
-  console.log(`[findNearbyDrivers] Found ${drivers.length} drivers within ${(radiusMeters/1000)} km`, 
-    drivers.map(d => ({
-      userId: d.userId,
-      coords: d.lastKnownLocation.coordinates
-    }))
-  );
+  // console.log(`[findNearbyDrivers] Found ${drivers.length} drivers within ${(radiusMeters/1000)} km`, 
+  //   drivers.map(d => ({
+  //     userId: d.userId,
+  //     coords: d.lastKnownLocation.coordinates
+  //   }))
+  // );
 
   return drivers;
 }
@@ -113,14 +113,14 @@ async function findNearbyDrivers({ vehicleType, centerPoint, radiusMeters = 10_0
 async function fanOutShipmentToNearbyDrivers({ shipment, vehicleType, pickupPoint, radiusMeters = 10_000 }) {
   try {
     const drivers = await findNearbyDrivers({ vehicleType, centerPoint: pickupPoint, radiusMeters });
-    console.log(`[fanOut] Preparing to notify ${drivers.length} drivers`);
+    // console.log(`[fanOut] Preparing to notify ${drivers.length} drivers`);
 
     await Promise.all(drivers.map(d => {
-      console.log(`[fanOut] Notifying driver ${d.userId} with shipment ${shipment._id}`);
+      // console.log(`[fanOut] Notifying driver ${d.userId} with shipment ${shipment._id}`);
       return notifyNewShipment?.(d.userId, shipment);
     }));
   } catch (e) {
-    console.warn('[fanOut] notify failed:', e.message);
+    // console.warn('[fanOut] notify failed:', e.message);
   }
 }
 
@@ -128,7 +128,7 @@ async function fanOutShipmentToNearbyDrivers({ shipment, vehicleType, pickupPoin
 // --------------------------- create order ---------------------------
 exports.createOrder = async (req, res) => {
   try {
-    console.log('[createOrder] body:', JSON.stringify(req.body, null, 2));
+    // console.log('[createOrder] body:', JSON.stringify(req.body, null, 2));
 
     const {
       shopId,
@@ -152,7 +152,7 @@ exports.createOrder = async (req, res) => {
     const shop = await Shop.findById(shopId).lean();
     if (!shop) return res.status(404).json({ success: false, error: 'Shop not found' });
 
-    console.log('[createOrder] shop items count =', (shop.items || []).length);
+    // console.log('[createOrder] shop items count =', (shop.items || []).length);
 
     // normalize items against shop catalog
     const normalized = [];
@@ -160,7 +160,7 @@ exports.createOrder = async (req, res) => {
       const itemFromDb = (shop.items || []).find(i => String(i._id) === String(cartItem.itemId));
       if (!itemFromDb) {
         const msg = `[createOrder] invalid item id: ${cartItem.itemId}`;
-        console.log(msg);
+        // console.log(msg);
         return res.status(400).json({ success: false, error: msg });
       }
       const qty = Math.max(1, Number(cartItem.quantity || 1));
@@ -208,19 +208,19 @@ exports.createOrder = async (req, res) => {
       payment: { method: paymentMethod, status: 'unpaid' }
     });
 
-    console.log('[createOrder] created:', doc._id.toString(), doc.orderCode);
+    // console.log('[createOrder] created:', doc._id.toString(), doc.orderCode);
 
     // ✅ THEN notify the shop owner (non-blocking)
     try {
       await notifyShopNewOrder(shop._id, doc);
-      console.log('[createOrder] notifyShopNewOrder sent');
+      // console.log('[createOrder] notifyShopNewOrder sent');
     } catch (e) {
-      console.warn('[createOrder] notifyShopNewOrder failed:', e.message);
+      // console.warn('[createOrder] notifyShopNewOrder failed:', e.message);
     }
 
     return res.status(201).json({ success: true, data: doc });
   } catch (e) {
-    console.error('[createOrder] failed:', e);
+    // console.error('[createOrder] failed:', e);
     return res.status(500).json({ success: false, error: 'Failed to create order' });
   }
 };
@@ -228,12 +228,12 @@ exports.createOrder = async (req, res) => {
 // --------------------------- read single ---------------------------
 exports.getOrder = async (req, res) => {
   try {
-    console.log('[getOrder] id =', req.params.id);
+    // console.log('[getOrder] id =', req.params.id);
     const order = await Order.findById(req.params.id).lean();
     if (!order) return res.status(404).json({ success: false, error: 'Order not found' });
     return res.json({ success: true, data: order });
   } catch (e) {
-    console.error('[getOrder] error:', e);
+    // console.error('[getOrder] error:', e);
     return res.status(500).json({ success: false, error: 'Failed to fetch order' });
   }
 };
@@ -242,7 +242,7 @@ exports.getOrder = async (req, res) => {
 exports.getOrdersByShop = async (req, res) => {
   try {
     const { shopId } = req.params;
-    console.log('[getOrdersByShop] shopId param =', shopId);
+    // console.log('[getOrdersByShop] shopId param =', shopId);
 
     const or = [{ 'shop._id': shopId }]; // string form
     if (mongoose.isValidObjectId(shopId)) {
@@ -251,12 +251,12 @@ exports.getOrdersByShop = async (req, res) => {
     const orders = await Order.find({ $or: or })
       .sort({ createdAt: -1 })
       .lean();
-    console.log('[getOrdersByShop] found =', orders.length,
-      orders.map(o => ({ _id: o._id, code: o.orderCode, shop: String(o.shop?._id) })).slice(0, 5)
-    );
+    // console.log('[getOrdersByShop] found =', orders.length,
+    //   orders.map(o => ({ _id: o._id, code: o.orderCode, shop: String(o.shop?._id) })).slice(0, 5)
+    // );
     return res.json({ success: true, data: orders });
   } catch (e) {
-    console.error('[getOrdersByShop] error:', e);
+    // console.error('[getOrdersByShop] error:', e);
     return res.status(500).json({ success: false, error: 'Failed to fetch orders' });
   }
 };
@@ -264,21 +264,21 @@ exports.getOrdersByShop = async (req, res) => {
 // --------------------------- list by user ---------------------------
 exports.getOrdersByUser = async (req, res) => {
   try {
-    console.log('──────────────────────────────');
-    console.log('[getOrdersByUser] 🟢 Incoming request');
-    console.log('[getOrdersByUser] Headers:', req.headers);
-    console.log('[getOrdersByUser] Query params:', req.query);
-    console.log('[getOrdersByUser] req.user:', req.user);
+    // console.log('──────────────────────────────');
+    // console.log('[getOrdersByUser] 🟢 Incoming request');
+    // console.log('[getOrdersByUser] Headers:', req.headers);
+    // console.log('[getOrdersByUser] Query params:', req.query);
+    // console.log('[getOrdersByUser] req.user:', req.user);
 
     const { phone } = req.query;
     // Prefer verified uid from token; ignore/override query userId
     const userId = phone ? null : (req.user?.uid || null);
 
-    console.log('[getOrdersByUser] phone =', phone);
-    console.log('[getOrdersByUser] userId =', userId);
+    // console.log('[getOrdersByUser] phone =', phone);
+    // console.log('[getOrdersByUser] userId =', userId);
 
     if (!phone && !userId) {
-      console.warn('[getOrdersByUser] ⚠️ Missing both phone and authenticated user');
+      // console.warn('[getOrdersByUser] ⚠️ Missing both phone and authenticated user');
       return res.status(400).json({
         success: false,
         error: 'phone or authenticated user required'
@@ -286,18 +286,18 @@ exports.getOrdersByUser = async (req, res) => {
     }
 
     const q = phone ? { 'customer.phone': phone } : { 'customer.userId': userId };
-    console.log('[getOrdersByUser] Final Mongo query:', q);
+    // console.log('[getOrdersByUser] Final Mongo query:', q);
 
     const orders = await Order.find(q).sort({ createdAt: -1 }).lean();
 
-    console.log(`[getOrdersByUser] ✅ Found ${orders.length} orders`);
+    // console.log(`[getOrdersByUser] ✅ Found ${orders.length} orders`);
     if (orders.length > 0) {
-      console.log('[getOrdersByUser] Example order ID:', orders[0]._id);
+      // console.log('[getOrdersByUser] Example order ID:', orders[0]._id);
     }
 
     return res.json({ success: true, data: orders });
   } catch (e) {
-    console.error('[getOrdersByUser] ❌ Error:', e);
+    // console.error('[getOrdersByUser] ❌ Error:', e);
     return res.status(500).json({
       success: false,
       error: 'Failed to fetch user orders'
@@ -310,7 +310,7 @@ exports.getOrdersByUser = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    console.log('[updateOrderStatus] id =', req.params.id, 'status =', status);
+    // console.log('[updateOrderStatus] id =', req.params.id, 'status =', status);
 
     const allowed = [
       'pending', 'accepted', 'confirmed', 'preparing',
@@ -336,16 +336,16 @@ exports.updateOrderStatus = async (req, res) => {
         const shipment = await createShipmentForOrder(order);
         // re-fetch to include the newly set shipmentId
         order = await Order.findById(order._id).lean();
-        console.log('[updateOrderStatus] Shipment created:', shipment._id.toString());
+        // console.log('[updateOrderStatus] Shipment created:', shipment._id.toString());
       } catch (e) {
-        console.error('[updateOrderStatus] Shipment creation failed:', e.message);
+        // console.error('[updateOrderStatus] Shipment creation failed:', e.message);
       }
     }
 
-    console.log('[updateOrderStatus] updated ->', order._id.toString(), order.status);
+    // console.log('[updateOrderStatus] updated ->', order._id.toString(), order.status);
     return res.json({ success: true, data: order });
   } catch (e) {
-    console.error('[updateOrderStatus] error:', e);
+    // console.error('[updateOrderStatus] error:', e);
     return res.status(500).json({ success: false, error: 'Failed to update status' });
   }
 };
@@ -354,7 +354,7 @@ exports.updateOrderStatus = async (req, res) => {
 exports.updatePaymentStatus = async (req, res) => {
   try {
     const { status = 'paid', method, provider, txnId } = req.body;
-    console.log('[updatePaymentStatus] id =', req.params.id, 'payload =', req.body);
+    // console.log('[updatePaymentStatus] id =', req.params.id, 'payload =', req.body);
 
     const allowed = ['unpaid', 'paid', 'refunded'];
     if (!allowed.includes(status)) {
@@ -379,7 +379,7 @@ exports.updatePaymentStatus = async (req, res) => {
     // Intentionally NOT creating a shipment here anymore.
     return res.json({ success: true, data: doc });
   } catch (e) {
-    console.error('[updatePaymentStatus] failed:', e);
+    // console.error('[updatePaymentStatus] failed:', e);
     return res.status(500).json({ success: false, error: 'Failed to update payment status' });
   }
 };
@@ -460,7 +460,7 @@ async function createShipmentForOrder(orderDoc) {
 exports.getOrdersByOwner = async (req, res) => {
   try {
     const { ownerId } = req.params;
-    console.log('[getOrdersByOwner] ownerId =', ownerId);
+    // console.log('[getOrdersByOwner] ownerId =', ownerId);
 
     // get all shops for this owner
     const shops = await Shop.find({ userId: ownerId })
@@ -477,10 +477,10 @@ exports.getOrdersByOwner = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    console.log('[getOrdersByOwner] shops =', shopIds.length, 'orders =', orders.length);
+    // console.log('[getOrdersByOwner] shops =', shopIds.length, 'orders =', orders.length);
     return res.json({ success: true, data: orders });
   } catch (e) {
-    console.error('[getOrdersByOwner] error:', e);
+    // console.error('[getOrdersByOwner] error:', e);
     return res.status(500).json({ success: false, error: 'Failed to fetch owner orders' });
   }
 };
