@@ -36,7 +36,8 @@
 
 .cart-topbar h2 {
   margin: 0;
-  font-size: 22px;
+  font-size: 17px;
+  margin-top:10px;
   font-weight: 600;
   color: #374151;
 }
@@ -250,7 +251,7 @@
 .field textarea:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  /* box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); */
 }
 
 .checkout button {
@@ -259,12 +260,12 @@
   border: none;
   border-radius: 8px;
   padding: 12px 20px;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: bold;
   width: 100%;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3);
+  /* box-shadow: 0 4px 8px rgba(34, 197, 94, 0.3); */
   margin-top: 10px;
 }
 
@@ -545,7 +546,7 @@
 /* Delivery Estimator Section */
 .delivery-estimator {
   margin-top: 1.5rem;
-  padding: 1.5rem;
+  /* padding: 1.5rem; */
   background: #f8f9fa;
   border-radius: 12px;
   border: 1px solid #e9ecef;
@@ -712,8 +713,8 @@
   flex-direction: row;
   justify-content: space-between;
   padding: 7px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  /* border: 2px solid #e2e8f0; */
+  /* border-radius: 12px; */
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   background: white;
@@ -726,13 +727,13 @@
 .vehicle-options.cart-vehicle-option:hover {
   border-color: #4299e1;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(66, 153, 225, 0.15);
+  /* box-shadow: 0 6px 16px rgba(66, 153, 225, 0.15); */
 }
 
 .vehicle-options.cart-vehicle-option.selected {
   border-color: #4299e1;
-  background-color: #ebf8ff;
-  box-shadow: 0 6px 16px rgba(66, 153, 225, 0.2);
+  background-color: #1282be;
+  /* box-shadow: 0 6px 16px rgba(66, 153, 225, 0.2); */
 }
 
 .vehicle-options.cart-vehicle-option.unavailable {
@@ -790,7 +791,7 @@
 .vehicle-price.cart-vehicle-price {
   font-weight: 700;
   font-size: 16px;
-  color: #2d3748;
+  color: #0857e0;
   white-space: nowrap;
 }
 
@@ -922,28 +923,28 @@
   align-items: center;
   flex-direction: row;
   justify-content: space-between;
-  padding: 7px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  padding: 2px;
+  /* border: 2px solid #e2e8f0; */
+  /* border-radius: 12px; */
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  background: white;
+  background: rgba(255, 255, 255, 0.212);
   position: relative;
   width: 100%;
   text-align: left;
-  gap: 16px;
+  gap: 0px;
 }
 
 .vehicle-options.cart-vehicle-option:hover {
-  border-color: #4299e1;
+  border-color: #c1cdd8;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(66, 153, 225, 0.15);
+  /* box-shadow: 0 6px 16px rgba(66, 153, 225, 0.15); */
 }
 
 .vehicle-options.cart-vehicle-option.selected {
-  border-color: #4299e1;
-  background-color: #ebf8ff;
-  box-shadow: 0 6px 16px rgba(66, 153, 225, 0.2);
+  /* border-color: #4299e1; */
+  background-color: #15669136;
+  /* box-shadow: 0 6px 16px rgba(66, 153, 225, 0.2); */
 }
 
 .vehicle-options.cart-vehicle-option.unavailable {
@@ -952,7 +953,7 @@
 }
 
 .vehicle-icons.cart-vehicle-icons {
-  font-size: 36px;
+  font-size: 20px;
   flex-shrink: 0;
   width: 50px;
   text-align: center;
@@ -965,16 +966,16 @@
 
 .vehicle-name.cart-vehicle-name {
   font-weight: 600;
-  font-size: 16px;
+  font-size: 10px;
   margin-bottom: 4px;
-  color: #2d3748;
+  color: #080808;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .vehicle-capacity.cart-vehicle-capacity {
-  font-size: 14px;
+  font-size: 10px;
   color: #718096;
   white-space: nowrap;
   overflow: hidden;
@@ -983,15 +984,16 @@
 
 .vehicle-meta.cart-vehicle-meta {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
+  gap:10px;
   text-align: right;
   flex-shrink: 0;
   min-width: 120px;
 }
 
 .vehicle-rate.cart-vehicle-rate {
-  font-size: 14px;
+  font-size: 9px;
   color: #38a169;
   font-weight: 500;
   margin-bottom: 6px;
@@ -999,9 +1001,9 @@
 }
 
 .vehicle-price.cart-vehicle-price {
-  font-weight: 700;
-  font-size: 16px;
-  color: #2d3748;
+  font-weight: bold;
+  font-size: 10px;
+  color: #0850cc;
   white-space: nowrap;
 }
 
@@ -1024,15 +1026,15 @@
 
 
   .vehicle-capacity.cart-vehicle-capacity {
-    font-size: 13px;
+    font-size: 10px;
   }
   
   .vehicle-rate.cart-vehicle-rate {
-    font-size: 13px;
+    font-size: 10px;
   }
   
   .vehicle-price.cart-vehicle-price {
-    font-size: 15px;
+    font-size: 10px;
   }
   
   .vehicle-meta.cart-vehicle-meta {
@@ -1040,4 +1042,120 @@
   }
 .suggestions-dropdown{
   background-color: #ffffff;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  text-align: center;
+  width: 300px;
+  animation: scaleIn 0.25s ease;
+}
+
+.modal-content h3 {
+  margin-bottom: 10px;
+  color: #d9534f;
+}
+
+.modal-content p {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 15px;
+}
+
+.ok-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ok-btn:hover {
+  background: #0056b3;
+}
+
+/* animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px 28px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  width: 320px;
+  animation: scaleIn 0.25s ease;
+}
+
+.modal-content h3 {
+  margin-bottom: 8px;
+  color: #d9534f;
+  font-weight: 600;
+}
+
+.modal-content p {
+  margin-bottom: 18px;
+  color: #333;
+}
+
+.ok-btn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ok-btn:hover {
+  background: #0056b3;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
