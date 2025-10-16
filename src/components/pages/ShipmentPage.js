@@ -70,7 +70,7 @@ const vehicleTypes = [
     capacity: 'Up to 5000kg',
     available: false,
     comingSoon: true,
-    displayRate: "₹160 per 2 km"
+    displayRate: "₹700 per 2 km"
   }
 ];
 
