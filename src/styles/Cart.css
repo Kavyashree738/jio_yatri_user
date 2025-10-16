@@ -1169,3 +1169,27 @@
   font-weight:bold;
   text-decoration: none;
 }
+.payment-hand-pointer {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content:flex-start; /* centers it horizontally */
+  margin-bottom: -20px;
+  margin-top:-15px;
+  pointer-events: none; /* makes sure hand doesn't block button clicks */
+}
+
+.payment-hand-pointer .emoji {
+  font-size: 32px;
+  color: #ff9800;
+  animation: pointToButton 1.4s infinite ease-in-out;
+  transform-origin: center right;
+  filter: drop-shadow(0 0 4px rgba(255, 152, 0, 0.7));
+}
+
+@keyframes pointToButton {
+  0% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+  40% { transform: translateY(4px) rotate(5deg); }
+  60% { transform: translateY(2px) rotate(-3deg); }
+  100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+}
