@@ -340,6 +340,10 @@ export default function CartPage() {
                       Pay in PhonePe (₹{upiUi.amount.toFixed(2)})
                     </a> */}
 
+                    <div className="payment-hand-pointer">
+                      <span className="emoji">👇</span>
+                    </div>
+
                     {/* UPI chooser (GPay/Paytm/PhonePe/etc.) */}
                     <a
                       href={upiUi.upiChooserIntent}
