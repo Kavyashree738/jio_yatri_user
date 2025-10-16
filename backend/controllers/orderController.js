@@ -264,16 +264,47 @@ exports.getOrdersByShop = async (req, res) => {
 // --------------------------- list by user ---------------------------
 exports.getOrdersByUser = async (req, res) => {
   try {
-    const { phone, userId } = req.query;
-    console.log('[getOrdersByUser] query =', req.query);
+    console.log('──────────────────────────────');
+    console.log('[getOrdersByUser] 🟢 Incoming request');
+    console.log('[getOrdersByUser] Headers:', req.headers);
+    console.log('[getOrdersByUser] Query params:', req.query);
+    console.log('[getOrdersByUser] req.user:', req.user);
+
+    const { phone } = req.query;
+    // Prefer verified uid from token; ignore/override query userId
+    const userId = phone ? null : (req.user?.uid || null);
+
+    console.log('[getOrdersByUser] phone =', phone);
+    console.log('[getOrdersByUser] userId =', userId);
+
+    if (!phone && !userId) {
+      console.warn('[getOrdersByUser] ⚠️ Missing both phone and authenticated user');
+      return res.status(400).json({
+        success: false,
+        error: 'phone or authenticated user required'
+      });
+    }
+
     const q = phone ? { 'customer.phone': phone } : { 'customer.userId': userId };
+    console.log('[getOrdersByUser] Final Mongo query:', q);
+
     const orders = await Order.find(q).sort({ createdAt: -1 }).lean();
+
+    console.log(`[getOrdersByUser] ✅ Found ${orders.length} orders`);
+    if (orders.length > 0) {
+      console.log('[getOrdersByUser] Example order ID:', orders[0]._id);
+    }
+
     return res.json({ success: true, data: orders });
   } catch (e) {
-    console.error('[getOrdersByUser] error:', e);
-    return res.status(500).json({ success: false, error: 'Failed to fetch user orders' });
+    console.error('[getOrdersByUser] ❌ Error:', e);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch user orders'
+    });
   }
 };
+
 
 // --------------------------- update status ---------------------------
 exports.updateOrderStatus = async (req, res) => {
