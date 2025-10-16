@@ -16,16 +16,7 @@ if (!admin.apps.length) {
 const sendToToken = async (token, { title, body, data = {} }) => {
   const message = {
     token,
-     android: {
-      priority: 'high',
-      // Optional: uncomment if you want to force the same channel as Dart
-      // notification: { channelId: 'driver_general' },
-    },
-     notification: {
-      title,
-      body,
-      imageUrl: '/logo.jpg', // optional
-    },
+     
     // For web you should prefer the webpush envelope
     webpush: {
       notification: {
@@ -33,7 +24,12 @@ const sendToToken = async (token, { title, body, data = {} }) => {
         body,
         icon: '/logo.jpg',
       },
-     
+     android: {
+      priority: 'high',
+      // Optional: uncomment if you want to force the same channel as Dart
+      // notification: { channelId: 'driver_general' },
+    },
+   
       fcmOptions: {
         link: '/business-orders', // where you want to land when user clicks
       },
