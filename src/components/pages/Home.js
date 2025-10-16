@@ -75,7 +75,6 @@ const Home = () => {
       <WelcomeSection />
       <HelpCenter />
       <WhyChoosePorter />
-      <PorterPromo />
       <TestimonialsSection />
       <NetworkSection />
       <HouseShiftingFeatures />
