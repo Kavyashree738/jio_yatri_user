@@ -313,97 +313,77 @@ const LocationTracker = ({ shipment: initialShipment }) => {
   const API_BASE_URL = 'http://localhost:5000';
 
   /* ------------------------------- Firebase Listener ------------------------------- */
-  useEffect(() => {
-  // console.group("%c[Firebase Listener Setup]", "color: orange; font-weight: bold;");
-  // console.log("🚀 Full Shipment Object →", shipment);
-
-  // ✅ FIX: handle assignedDriver.userId
+  /* ------------------------------- Firebase Listener ------------------------------- */
+// ✅ This version updates the blue route dynamically when the driver moves
+useEffect(() => {
   const driverUid =
-    shipment?.assignedDriver?.userId || // this is the one your backend sends
-    shipment?.driver?.userId || 
+    shipment?.assignedDriver?.userId ||
+    shipment?.driver?.userId ||
     shipment?.driverId ||
     shipment?.assignedDriverId ||
     null;
 
-  if (!driverUid) {
-    // console.warn("⚠️ No driver UID found! Available keys:", Object.keys(shipment || {}));
-    // console.log("🚚 assignedDriver object:", shipment?.assignedDriver);
-    // console.groupEnd();
-    return;
-  }
+  if (!driverUid) return;
 
   const firebasePath = `driver_locations/${driverUid}`;
-  // console.log("🎯 Listening to Firebase node:", firebasePath);
-
   const driverRef = ref(db, firebasePath);
+  let lastUpdate = 0; // prevent recalculating too often
 
-    /* --------------------------- Smooth Marker Animation --------------------------- */
-function animateMarker(marker, newLatLng, duration = 1000) {
-  if (!marker || !window.google) return;
-  const startLatLng = marker.getPosition();
-  if (!startLatLng) return;
+  // Smooth animation function for marker
+  function animateMarker(marker, newLatLng, duration = 1000) {
+    if (!marker || !window.google) return;
+    const startLatLng = marker.getPosition();
+    if (!startLatLng) return;
 
-  const startTime = performance.now();
-
-  function step(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const lat = startLatLng.lat() + (newLatLng.lat - startLatLng.lat()) * progress;
-    const lng = startLatLng.lng() + (newLatLng.lng - startLatLng.lng()) * progress;
-    marker.setPosition(new window.google.maps.LatLng(lat, lng));
-    if (progress < 1) requestAnimationFrame(step);
+    const startTime = performance.now();
+    function step(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const lat = startLatLng.lat() + (newLatLng.lat - startLatLng.lat()) * progress;
+      const lng = startLatLng.lng() + (newLatLng.lng - startLatLng.lng()) * progress;
+      marker.setPosition(new window.google.maps.LatLng(lat, lng));
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
   }
 
-  requestAnimationFrame(step);
-}
+  const unsubscribe = onValue(driverRef, (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
 
+    const now = Date.now();
+    if (now - lastUpdate < 4000) return; // ✅ throttle: only every 4 sec
+    lastUpdate = now;
 
-const unsubscribe = onValue(driverRef, (snapshot) => {
-  const data = snapshot.val();
-  if (!data) return;
+    const newDriverPosition = { lat: data.lat, lng: data.lng };
 
-  const newDriverPosition = { lat: data.lat, lng: data.lng };
-
-  if (driverMarkerRef.current) {
-    // 🌀 smooth animation
-    animateMarker(driverMarkerRef.current, newDriverPosition, 1000);
-
-    // 🔁 rotate arrow to match heading (if available)
-    if (typeof data.heading === "number") {
-      driverMarkerRef.current.setIcon({
-        path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-        scale: 6,
-        rotation: data.heading, // 🔁 heading-based rotation
-        fillColor: "#EA4335",
-        fillOpacity: 1,
-        strokeWeight: 2,
-        strokeColor: "#FFFFFF",
+    // 🟢 Move driver marker
+    if (driverMarkerRef.current) {
+      animateMarker(driverMarkerRef.current, newDriverPosition, 1000);
+    } else if (mapRef.current) {
+      driverMarkerRef.current = new window.google.maps.Marker({
+        position: newDriverPosition,
+        map: mapRef.current,
+        icon: {
+          path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+          scale: 6,
+          fillColor: "#EA4335",
+          fillOpacity: 1,
+          strokeWeight: 2,
+          strokeColor: "#FFFFFF",
+        },
+        title: "Driver",
       });
     }
-  } else if (mapRef.current) {
-    driverMarkerRef.current = new window.google.maps.Marker({
-      position: newDriverPosition,
-      map: mapRef.current,
-      icon: {
-        path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-        scale: 6,
-        fillColor: "#EA4335",
-        fillOpacity: 1,
-        strokeWeight: 2,
-        strokeColor: "#FFFFFF",
-      },
-      title: "Driver",
-    });
-  }
-});
 
+    // 🔵 Update shipment and re-draw route line dynamically
+    shipment.driverLocation = { coordinates: [data.lng, data.lat] };
+    updateRoute(); // 🔄 this makes blue line move as driver moves
+  });
 
-  // console.groupEnd();
-  return () => {
-    // console.log("🧹 Cleaning up Firebase listener for:", firebasePath);
-    unsubscribe();
-  };
-}, [shipment?.assignedDriver?.userId]);
+  return () => unsubscribe();
+}, [shipment, updateRoute]);
+
 
 
   /* ------------------------------ Init Map ------------------------------- */
@@ -624,6 +604,7 @@ useEffect(() => {
 };
 
 export default LocationTracker;
+
 
 
 
