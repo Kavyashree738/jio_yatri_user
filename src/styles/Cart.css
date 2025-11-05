@@ -1162,12 +1162,14 @@
 
 .btn-outline{
   background-color: rgb(8, 22, 221);
-  padding:0.5rem;
+  padding:0.8rem;
   border-radius:10px;
   color:white;
-  font-size:10px;
+  font-size:14px;
   font-weight:bold;
   text-decoration: none;
+  width: 100%;
+  text-align: center;
 }
 .payment-hand-pointer {
   position: relative;
