@@ -12,9 +12,9 @@ const TermsAndConditions = () => {
       <div className="terms-container">
 
         <div className="help-topbar">
-        <button className="help-back-btn" onClick={() => navigate('/profile')}>
+        {/* <button className="help-back-btn" onClick={() => navigate('/profile')}>
           ←
-        </button>
+        </button> */}
         <h3>Terms & Conditions</h3>
       </div>
 

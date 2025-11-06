@@ -62,17 +62,22 @@ const HeroSection = () => {
     return isValid;
   };
 
-  const handlePhoneChange = (value) => {
-    console.log("PhoneInput value:", value);
-    const formatted = value.startsWith('+') ? value : `+${value}`;
-    console.log("Formatted:", formatted);
-    setPhoneNumber(formatted);
+   const handlePhoneChange = (value, country) => {
+  const formatted = value.startsWith('+') ? value : `+${value}`;
+  setPhoneNumber(formatted);
 
-    const digits = formatted.replace(/\D/g, '');
-    const valid = digits.length >= 10;  // simple rule: 10+ digits
-    console.log("isValidPhone:", valid);
-    setIsValidPhone(valid);
-  };
+  // Extract digits only
+  const digits = formatted.replace(/\D/g, '');
+
+  // If country is India, remove '91' prefix before validating
+  let localDigits = digits;
+  if (digits.startsWith('91')) {
+    localDigits = digits.slice(2);
+  }
+
+  const valid = localDigits.length === 10;
+  setIsValidPhone(valid);
+};
 
 
   const startResendTimer = () => {
@@ -145,7 +150,7 @@ const handleApiRequest = async (url, options = {}) => {
       startResendTimer();
 
       if (process.env.NODE_ENV === 'development' && data.otp) {
-        console.log(`[DEV] OTP: ${data.otp}`);
+        // console.log(`[DEV] OTP: ${data.otp}`);
       }
     } catch (error) {
       setMessage({
@@ -162,7 +167,7 @@ const handleApiRequest = async (url, options = {}) => {
       setMessage({ text: 'Please enter a 6-digit code', isError: true });
       return;
     }
-console.log('Verifying OTP:', otp, 'for phoneNumber:', phoneNumber, 'with referralCode:', referralCode);
+// console.log('Verifying OTP:', otp, 'for phoneNumber:', phoneNumber, 'with referralCode:', referralCode);
     try {
       setIsLoading(true);
       const data = await handleApiRequest(`https://jio-yatri-user.onrender.com/api/auth/verify-otp`, {
@@ -231,10 +236,10 @@ useEffect(() => {
       const result = await signInWithPopup(auth, googleProvider);
 
       if (referralCode) {
-        console.log('Applying referral code:', referralCode);
+        // console.log('Applying referral code:', referralCode);
         try {
           const token = await result.user.getIdToken();
-          console.log('User token:', token);
+          // console.log('User token:', token);
           
           const referralResponse = await handleApiRequest(
             `https://jio-yatri-user.onrender.com/api/users/apply-referral`,
@@ -248,13 +253,13 @@ useEffect(() => {
             }
           );
           
-          console.log('Referral application response:', referralResponse);
+          // console.log('Referral application response:', referralResponse);
         } catch (referralError) {
-          console.error('Referral application failed:', referralError);
+          // console.error('Referral application failed:', referralError);
           throw referralError;
         }
       } else {
-        console.log('No referral code provided');
+        // console.log('No referral code provided');
       }
       setMessage({ text: 'Google sign-in successful!', isError: false });
       setReferralCode('');
