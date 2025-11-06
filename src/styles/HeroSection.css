@@ -39,7 +39,7 @@
   padding-top: 10vh;
   flex-wrap: wrap;
   padding: 0px;
-  /* margin-top:140px; */
+  margin-top:140px;
 }
 
 .hero-text {
@@ -366,6 +366,7 @@
     flex-direction: column;
     align-items: center;
     padding-top: 5vh;
+    margin-top:0;
   }
 
   .hero-text {
@@ -813,13 +814,167 @@
   outline: none;
 }
 
-.cancell-button {
-  display: block;
-  margin: 1rem auto 0;
-  background: none;
-  border: none;
-  color: #666;
-  font-size: 0.9rem;
+
+
+/* Container alignment */
+.form-groups.terms-checkbox {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 16px;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Label layout */
+.terms-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+/* Hide the default checkbox */
+.terms-label input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #0d6efd;
+  border-radius: 6px;
+  background-color: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+/* Add custom checkmark */
+.terms-label input[type="checkbox"]:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.terms-label input[type="checkbox"]:checked::after {
+  content: "✔";
+  position: absolute;
+  left: 3px;
+  top: -1px;
+  font-size: 14px;
+  color: white;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+/* Smooth hover effect */
+.terms-label input[type="checkbox"]:hover {
+  box-shadow: 0 0 6px rgba(13, 110, 253, 0.4);
+  transform: scale(1.05);
+}
+
+/* Text styling */
+.terms-text {
+  color: #444;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.terms-text a {
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.terms-text a:hover {
+  color: #0a58ca;
   text-decoration: underline;
+}
+
+/* Responsive tweak for small screens */
+@media (max-width: 500px) {
+  .terms-text {
+    font-size: 14px;
+  }
+
+  .terms-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+}
+/* Container */
+.form-groups.terms-checkbox {
+  margin-top: 16px;
+}
+
+/* Label layout */
+.terms-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Native checkbox (keep default look, just enhance it) */
+.terms-label input[type="checkbox"] {
+  width: 29px;
+  height: 18px;
+  accent-color: #0d6efd; /* blue tick color */
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+/* Text */
+.terms-text {
+  color: #444;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.terms-text a {
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.terms-text a:hover {
+  text-decoration: underline;
+}
+
+/* Small screen adjustment */
+@media (max-width: 500px) {
+  .terms-text {
+    font-size: 14px;
+  }
+}
+/* Common button style */
+.button {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  background-color: #000;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+/* Enabled button */
+.button.enabled {
+  background-color: #000; /* Dark solid */
+  color: #fff;
+  opacity: 1;
+  cursor: pointer;
+}
+
+/* Disabled button — dimmed, but no cross cursor */
+.button.disabled {
+  background-color: #000; /* Keep same color tone */
+  color: #fff;
+  opacity: 0.5; /* Dimmed look */
+  cursor: default; /* 👈 Regular arrow, not 'not-allowed' */
+  pointer-events: none; /* Prevents clicking */
 }

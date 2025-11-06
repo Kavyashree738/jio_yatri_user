@@ -27,6 +27,7 @@ import ShopOrder from './components/ShopOrder';
 import EditShopRegistration from './components/EditShopRegistration';
 // import CallOwner from './components/CallOwner';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import Terms from './components/TermsAndConditions'
 import ReferralShare from './components/pages/ReferralShare';
 import CartProvider from './context/CartContext';
 import CartPage from './components/Cart';
@@ -63,6 +64,7 @@ function AppWrapper() {
           <Route path="/shop-order/:shopId" element={<ShopOrder />} />
           <Route path="/edit-shop/:shopId" element={<EditShopRegistration />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                     <Route path="/terms-and-condition" element={<Terms/>} />
           <Route path="/shops/hotel-book" element={<ComingSoon />} />
           <Route path="/refferal" element={<ReferralShare />} />
           <Route path="/cart/:shopId" element={<CartPage />} />

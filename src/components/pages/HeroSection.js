@@ -27,6 +27,7 @@ const HeroSection = () => {
   const [referralCode, setReferralCode] = useState('');
   const [showReferralField, setShowReferralField] = useState(false);
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
+   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const TEST_PHONE = "+911234567898";
   const TEST_OTP = "1234";
@@ -62,10 +63,17 @@ const HeroSection = () => {
   };
 
   const handlePhoneChange = (value) => {
-    const formattedValue = value.startsWith('+') ? value : `+${value}`;
-    setPhoneNumber(formattedValue);
-    validatePhoneNumber(formattedValue);
+    console.log("PhoneInput value:", value);
+    const formatted = value.startsWith('+') ? value : `+${value}`;
+    console.log("Formatted:", formatted);
+    setPhoneNumber(formatted);
+
+    const digits = formatted.replace(/\D/g, '');
+    const valid = digits.length >= 10;  // simple rule: 10+ digits
+    console.log("isValidPhone:", valid);
+    setIsValidPhone(valid);
   };
+
 
   const startResendTimer = () => {
     setOtpResendTime(300);
@@ -296,27 +304,57 @@ useEffect(() => {
               <div className="phone-input-group">
                 <PhoneInput
                   country={'in'}
+                  enableSearch={true}
+                  countryCodeEditable={false}   // ✅ +91 part not editable
                   value={phoneNumber}
                   onChange={handlePhoneChange}
-                  placeholder="+91 9876543210"
-                  inputClass={`phone-input ${!isValidPhone && phoneNumber ? 'error' : ''}`}
-                  containerClass="phone-input-container"
                 />
-                {!isValidPhone && phoneNumber && (
-                  <p className="phone-error-message">
-                    Please enter in international format (e.g., +91XXXXXXXXXX)
-                  </p>
-                )}
+
+
               </div>
 
-              <button
+                            <div className="form-groups terms-checkbox">
+                <label className="terms-label">
+                  <input
+                    type="checkbox"
+                    id="termsCheckbox"
+                    checked={acceptedTerms} // optional sync visual
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    required
+                  />
+                  <span className="terms-text">
+                    I have read, understood and accept&nbsp;
+                    <a
+                      href="/terms-and-condition"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="terms-link"
+                    >
+                      Terms & Conditions
+                    </a>
+                    &nbsp;and&nbsp;
+                    <a
+                      href="/privacy-policy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="terms-link"
+                    >
+                      Privacy Policy
+                    </a>
+                  </span>
+                </label>
+              </div>
+
+               <button
                 onClick={sendCode}
                 type="button"
-                disabled={!isValidPhone || isLoading}
-                className={`button ${(!isValidPhone || isLoading) ? 'disabled' : ''}`}
+                disabled={!isValidPhone || isLoading || !acceptedTerms}
+                className={`button ${isValidPhone && acceptedTerms && !isLoading ? 'enabled' : 'disabled'}`}
               >
                 {isLoading ? 'Sending...' : 'Send Verification Code'}
               </button>
+
+              
 
               <div className="referral-toggle" onClick={() => setShowReferralField(!showReferralField)}>
                 {showReferralField ? 'Hide referral code' : 'Have a referral code?'}
