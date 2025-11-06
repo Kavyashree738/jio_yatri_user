@@ -38,6 +38,7 @@ const UserProfile = () => {
   const [isUploading, setIsUploading] = useState(false);
   const loadedRef = useRef(false);
   const pressTimer = useRef(null);
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
   /* ---------------- Provider Info ---------------- */
   const providerInfo = useMemo(() => {
@@ -47,10 +48,10 @@ const UserProfile = () => {
       type: ids.includes("phone")
         ? "phone"
         : ids.includes("google.com")
-        ? "google"
-        : ids.includes("password") || ids.includes("apple.com")
-        ? "email"
-        : "unknown",
+          ? "google"
+          : ids.includes("password") || ids.includes("apple.com")
+            ? "email"
+            : "unknown",
       ids,
       isPhone: ids.includes("phone"),
       isGoogle: ids.includes("google.com"),
@@ -67,11 +68,11 @@ const UserProfile = () => {
   const getUserInitials = () =>
     resolvedName
       ? resolvedName
-          .split(" ")
-          .map((n) => n[0])
-          .join("")
-          .toUpperCase()
-          .substring(0, 2)
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .substring(0, 2)
       : "";
 
   /* ---------------- API ---------------- */
@@ -419,10 +420,36 @@ const UserProfile = () => {
 
             <button
               className="user-profile-modern-logout-btn"
-              onClick={handleLogout}
+              onClick={() => setShowLogoutPopup(true)}
             >
               <FaSignOutAlt /> Sign Out
             </button>
+            {showLogoutPopup && (
+              <div className="logout-popup-overlay">
+                <div className="logout-popup">
+                  <div className="logout-popup-icon">⚠️</div>
+                  <h3>Log out now?</h3>
+                  <p>You can always log back in whenever you need us.</p>
+                  <div className="logout-popup-buttons">
+                    <button
+                      className="logout-cancel-btnn"
+                      onClick={() => setShowLogoutPopup(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button className="logout-confirm-btn" onClick={handleLogout}>
+                      Log out
+                    </button>
+                  </div>
+                  <button
+                    className="logout-popup-close"
+                    onClick={() => setShowLogoutPopup(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

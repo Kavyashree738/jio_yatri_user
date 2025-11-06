@@ -978,3 +978,13 @@
   cursor: default; /* 👈 Regular arrow, not 'not-allowed' */
   pointer-events: none; /* Prevents clicking */
 }
+.cancell-button {
+  display: block;
+  margin: 1rem auto 0;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
