@@ -101,7 +101,7 @@ const sendNotificationToDriver = async (driverId, title, body, data = {}) => {
     console.log('[SEND] FCM token found:', driver.fcmToken);
 
     const message = {
-      notification: { title, body },
+    
       data: {
         ...data,
         click_action: 'FLUTTER_NOTIFICATION_CLICK'
