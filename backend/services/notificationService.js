@@ -16,25 +16,14 @@ if (!admin.apps.length) {
 const sendToToken = async (token, { title, body, data = {} }) => {
   const message = {
     token,
-     
-    // For web you should prefer the webpush envelope
-    webpush: {
-      notification: {
-        title,
-        body,
-        icon: '/logo.jpg',
-      },
-
-   
-      fcmOptions: {
-        link: '/business-orders', // where you want to land when user clicks
-      },
-    },
+    // ✅ Only send data payload, remove webpush.notification completely
     data: {
+      title,
+      body,
       ...data,
-      // keep data values as strings
       link: '/business-orders',
     },
+    android: { priority: 'high' },
   };
 
   try {
@@ -46,6 +35,7 @@ const sendToToken = async (token, { title, body, data = {} }) => {
     return { ok: false, err };
   }
 };
+
 // Update to only use the array approach
 const sendToManyTokens = async (tokens, payload, shopId) => {
   if (!tokens || tokens.length === 0) return;
