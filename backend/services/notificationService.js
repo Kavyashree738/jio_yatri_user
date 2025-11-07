@@ -149,13 +149,24 @@ const notifyNewShipment = async (driverId, shipment) => {
     vehicleType: shipment.vehicleType
   });
   const title = 'JioYatri Driver — New shipment';
-  const body = `A ${shipment.vehicleType} shipment available. Accept it now!`;
+  const pickup = shipment.sender?.address?.addressLine1 || 'Unknown pickup';
+  const drop = shipment.receiver?.address?.addressLine1 || 'Unknown drop';
+const cost = shipment.cost ? `₹${shipment.cost.toFixed(2)}` : 'N/A';
+const vehicleType = shipment.vehicleType || '—';
+
+const body = `Pickup: ${pickup}\nDrop: ${drop}\nAmount: ${cost}\nVehicle: ${vehicleType}`;
+
   try {
     const result = await sendNotificationToDriver(driverId, title, body, {
-      shipmentId: shipment._id.toString(),
-      type: 'NEW_SHIPMENT',
-      icon: '/logo.jpg', // Add this line
-    });
+  shipmentId: shipment._id.toString(),
+  type: 'NEW_SHIPMENT',
+  pickup,
+  drop,
+  cost: shipment.cost ? shipment.cost.toFixed(2) : '',
+  vehicleType,
+  icon: '/logo.jpg',
+});
+
     console.log('[NOTIFY] Notification result:', result);
     return result;
   } catch (err) {
