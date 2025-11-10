@@ -191,18 +191,20 @@ const notifyShopNewOrder = async (shopId, orderDoc) => {
 
   // ✅ Data payload for FCM
   const data = {
-    type: 'NEW_ORDER',
-    orderId: String(orderDoc._id),
-    orderCode,
-    shopId: String(shopId),
-    customerName,
-    address,
-    items: orderDoc.items?.map(it => ({
-      name: it.name,
-      qty: it.quantity,
-      price: it.price,
-    })) || [],
-  };
+  type: 'NEW_ORDER',
+  orderId: String(orderDoc._id),
+  orderCode: String(orderDoc.orderCode || ''),
+  shopId: String(shopId),
+  customerName: String(customerName),
+  address: String(address),
+  // 👇 Convert array to JSON string
+  items: JSON.stringify(orderDoc.items?.map(it => ({
+    name: it.name,
+    qty: String(it.quantity || 1),
+    price: String(it.price || 0),
+  })) || []),
+};
+
 
   // ✅ Send notification to all FCM tokens
   const tokens = Array.isArray(shop.fcmTokens) ? shop.fcmTokens.filter(Boolean) : [];
