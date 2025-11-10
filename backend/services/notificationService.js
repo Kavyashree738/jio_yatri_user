@@ -168,23 +168,53 @@ const body = `Pickup: ${pickup}\nDrop: ${drop}\nAmount: ${cost}\nVehicle: ${vehi
 const notifyShopNewOrder = async (shopId, orderDoc) => {
   const shop = await Shop.findById(shopId).lean();
   if (!shop) return;
-  const title = ' New Order Received';
-  const body = `${orderDoc.customer?.name || 'Customer'} placed order ${orderDoc.orderCode}`;
+
+  // ✅ Extract order details
+  const customerName = orderDoc.customer?.name || 'Customer';
+  const orderCode = orderDoc.orderCode || '';
+  const address = orderDoc.address?.line || 'Unknown address';
+
+  // ✅ Prepare a short summary of items
+  let itemList = '';
+  if (Array.isArray(orderDoc.items) && orderDoc.items.length) {
+    const names = orderDoc.items.map(it => `${it.name} ×${it.quantity || 1}`);
+    // show only first 3 to keep message short
+    itemList = names.slice(0, 3).join(', ');
+    if (names.length > 3) itemList += ` +${names.length - 3} more`;
+  } else {
+    itemList = 'No items listed';
+  }
+
+  // ✅ Notification content
+  const title = '🛍️ New Order Received';
+  const body = `${customerName} placed order ${orderCode}\n📍 ${address}\n🧾 ${itemList}`;
+
+  // ✅ Data payload for FCM
   const data = {
     type: 'NEW_ORDER',
     orderId: String(orderDoc._id),
-    orderCode: orderDoc.orderCode || '',
+    orderCode,
     shopId: String(shopId),
+    customerName,
+    address,
+    items: orderDoc.items?.map(it => ({
+      name: it.name,
+      qty: it.quantity,
+      price: it.price,
+    })) || [],
   };
+
+  // ✅ Send notification to all FCM tokens
   const tokens = Array.isArray(shop.fcmTokens) ? shop.fcmTokens.filter(Boolean) : [];
   if (tokens.length) {
     await sendToManyTokens(tokens, { title, body, data }, shopId);
   } else if (shop.fcmToken) {
     await sendToToken(shop.fcmToken, { title, body, data });
   } else {
-    console.warn('[FCM] no tokens for shop', String(shopId));
+    console.warn('[FCM] ⚠ No tokens found for shop', String(shopId));
   }
 };
+
 
 module.exports = {
   sendNotificationToDriver,
