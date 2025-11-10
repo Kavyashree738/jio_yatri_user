@@ -169,46 +169,50 @@ const notifyShopNewOrder = async (shopId, orderDoc) => {
   const shop = await Shop.findById(shopId).lean();
   if (!shop) return;
 
-  // ✅ Extract order details
+  // ✅ Safely extract order fields
   const customerName = orderDoc.customer?.name || 'Customer';
   const orderCode = orderDoc.orderCode || '';
-  const address = orderDoc.address?.line || 'Unknown address';
+  const address = orderDoc.customer?.address?.line || 'Unknown address';
 
-  // ✅ Prepare a short summary of items
-  let itemList = '';
-  if (Array.isArray(orderDoc.items) && orderDoc.items.length) {
+  // ✅ Build item summary text
+  let itemList = 'No items listed';
+  if (Array.isArray(orderDoc.items) && orderDoc.items.length > 0) {
     const names = orderDoc.items.map(it => `${it.name} ×${it.quantity || 1}`);
-    // show only first 3 to keep message short
     itemList = names.slice(0, 3).join(', ');
     if (names.length > 3) itemList += ` +${names.length - 3} more`;
-  } else {
-    itemList = 'No items listed';
   }
 
   // ✅ Notification content
   const title = '🛍️ New Order Received';
   const body = `${customerName} placed order ${orderCode}\n📍 ${address}\n🧾 ${itemList}`;
 
-  // ✅ Data payload for FCM
+  // ✅ Stringify EVERYTHING to be safe
   const data = {
-  type: 'NEW_ORDER',
-  orderId: String(orderDoc._id),
-  orderCode: String(orderDoc.orderCode || ''),
-  shopId: String(shopId),
-  customerName: String(customerName),
-  address: String(address),
-  // 👇 Convert array to JSON string
-  items: JSON.stringify(orderDoc.items?.map(it => ({
-    name: it.name,
-    qty: String(it.quantity || 1),
-    price: String(it.price || 0),
-  })) || []),
-};
+    type: 'NEW_ORDER',
+    orderId: String(orderDoc._id || ''),
+    orderCode: String(orderDoc.orderCode || ''),
+    shopId: String(shopId || ''),
+    customerName: String(customerName || ''),
+    address: String(address || ''),
+    itemCount: String(orderDoc.items?.length || 0),
+    // ✅ Stringify array safely
+    items: JSON.stringify(
+      (orderDoc.items || []).map(it => ({
+        name: String(it.name || ''),
+        qty: String(it.quantity || '1'),
+        price: String(it.price || '0'),
+      }))
+    ),
+  };
 
+  // ✅ Double-check: convert any leftover non-strings
+  Object.keys(data).forEach(k => {
+    if (typeof data[k] !== 'string') data[k] = String(data[k]);
+  });
 
-  // ✅ Send notification to all FCM tokens
+  // ✅ Send notification
   const tokens = Array.isArray(shop.fcmTokens) ? shop.fcmTokens.filter(Boolean) : [];
-  if (tokens.length) {
+  if (tokens.length > 0) {
     await sendToManyTokens(tokens, { title, body, data }, shopId);
   } else if (shop.fcmToken) {
     await sendToToken(shop.fcmToken, { title, body, data });
