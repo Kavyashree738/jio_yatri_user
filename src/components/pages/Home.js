@@ -170,11 +170,15 @@ const Home = () => {
         {/* Show ShopOrderTrackingCard if an awaiting_payment shop order exists */}
         {/* Always show ShipmentPage by default */}
         {/* Only show one at a time */}
-{user && !loading && (
-  shopOrderAwaiting ? (
-    <ShopOrderTrackingCard order={shopOrderAwaiting} />
+{user && (
+  loading ? (
+    <ShipmentPage />  // show ShipmentPage by default even during loading
   ) : (
-    <ShipmentPage />
+    shopOrderAwaiting ? (
+      <ShopOrderTrackingCard order={shopOrderAwaiting} />
+    ) : (
+      <ShipmentPage />
+    )
   )
 )}
 
