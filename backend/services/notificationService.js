@@ -16,25 +16,14 @@ if (!admin.apps.length) {
 const sendToToken = async (token, { title, body, data = {} }) => {
   const message = {
     token,
-     
-    // For web you should prefer the webpush envelope
-    webpush: {
-      notification: {
-        title,
-        body,
-        icon: '/logo.jpg',
-      },
-
-   
-      fcmOptions: {
-        link: '/business-orders', // where you want to land when user clicks
-      },
-    },
+    // ✅ Only send data payload, remove webpush.notification completely
     data: {
+      title,
+      body,
       ...data,
-      // keep data values as strings
       link: '/business-orders',
     },
+    android: { priority: 'high' },
   };
 
   try {
@@ -46,6 +35,7 @@ const sendToToken = async (token, { title, body, data = {} }) => {
     return { ok: false, err };
   }
 };
+
 // Update to only use the array approach
 const sendToManyTokens = async (tokens, payload, shopId) => {
   if (!tokens || tokens.length === 0) return;
@@ -101,7 +91,7 @@ const sendNotificationToDriver = async (driverId, title, body, data = {}) => {
     console.log('[SEND] FCM token found:', driver.fcmToken);
 
     const message = {
-      notification: { title, body },
+    
       data: {
         ...data,
         click_action: 'FLUTTER_NOTIFICATION_CLICK'
@@ -149,13 +139,24 @@ const notifyNewShipment = async (driverId, shipment) => {
     vehicleType: shipment.vehicleType
   });
   const title = 'JioYatri Driver — New shipment';
-  const body = `A ${shipment.vehicleType} shipment available. Accept it now!`;
+  const pickup = shipment.sender?.address?.addressLine1 || 'Unknown pickup';
+  const drop = shipment.receiver?.address?.addressLine1 || 'Unknown drop';
+const cost = shipment.cost ? `₹${shipment.cost.toFixed(2)}` : 'N/A';
+const vehicleType = shipment.vehicleType || '—';
+
+const body = `Pickup: ${pickup}\nDrop: ${drop}\nAmount: ${cost}\nVehicle: ${vehicleType}`;
+
   try {
     const result = await sendNotificationToDriver(driverId, title, body, {
-      shipmentId: shipment._id.toString(),
-      type: 'NEW_SHIPMENT',
-      icon: '/logo.jpg', // Add this line
-    });
+  shipmentId: shipment._id.toString(),
+  type: 'NEW_SHIPMENT',
+  pickup,
+  drop,
+  cost: shipment.cost ? shipment.cost.toFixed(2) : '',
+  vehicleType,
+  icon: '/logo.jpg',
+});
+
     console.log('[NOTIFY] Notification result:', result);
     return result;
   } catch (err) {
@@ -167,23 +168,59 @@ const notifyNewShipment = async (driverId, shipment) => {
 const notifyShopNewOrder = async (shopId, orderDoc) => {
   const shop = await Shop.findById(shopId).lean();
   if (!shop) return;
-  const title = ' New Order Received';
-  const body = `${orderDoc.customer?.name || 'Customer'} placed order ${orderDoc.orderCode}`;
+
+  // ✅ Safely extract order fields
+  const customerName = orderDoc.customer?.name || 'Customer';
+  const orderCode = orderDoc.orderCode || '';
+  const address = orderDoc.customer?.address?.line || 'Unknown address';
+
+  // ✅ Build item summary text
+  let itemList = 'No items listed';
+  if (Array.isArray(orderDoc.items) && orderDoc.items.length > 0) {
+    const names = orderDoc.items.map(it => `${it.name} ×${it.quantity || 1}`);
+    itemList = names.slice(0, 3).join(', ');
+    if (names.length > 3) itemList += ` +${names.length - 3} more`;
+  }
+
+  // ✅ Notification content
+  const title = '🛍️ New Order Received';
+  const body = `${customerName} placed order ${orderCode}\n📍 ${address}\n🧾 ${itemList}`;
+
+  // ✅ Stringify EVERYTHING to be safe
   const data = {
     type: 'NEW_ORDER',
-    orderId: String(orderDoc._id),
-    orderCode: orderDoc.orderCode || '',
-    shopId: String(shopId),
+    orderId: String(orderDoc._id || ''),
+    orderCode: String(orderDoc.orderCode || ''),
+    shopId: String(shopId || ''),
+    customerName: String(customerName || ''),
+    address: String(address || ''),
+    itemCount: String(orderDoc.items?.length || 0),
+    // ✅ Stringify array safely
+    items: JSON.stringify(
+      (orderDoc.items || []).map(it => ({
+        name: String(it.name || ''),
+        qty: String(it.quantity || '1'),
+        price: String(it.price || '0'),
+      }))
+    ),
   };
+
+  // ✅ Double-check: convert any leftover non-strings
+  Object.keys(data).forEach(k => {
+    if (typeof data[k] !== 'string') data[k] = String(data[k]);
+  });
+
+  // ✅ Send notification
   const tokens = Array.isArray(shop.fcmTokens) ? shop.fcmTokens.filter(Boolean) : [];
-  if (tokens.length) {
+  if (tokens.length > 0) {
     await sendToManyTokens(tokens, { title, body, data }, shopId);
   } else if (shop.fcmToken) {
     await sendToToken(shop.fcmToken, { title, body, data });
   } else {
-    console.warn('[FCM] no tokens for shop', String(shopId));
+    console.warn('[FCM] ⚠ No tokens found for shop', String(shopId));
   }
 };
+
 
 module.exports = {
   sendNotificationToDriver,
