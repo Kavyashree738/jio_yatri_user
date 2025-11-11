@@ -715,17 +715,40 @@ function ShipmentPage() {
     window.open(`tel:${cleaned}`, '_self');
   };
 
-  const handleInputChange = (e, type) => {
-    setShouldAutoProgress(true);
-    const { name, value } = e.target;
-    setShipmentData(prev => ({
+ const handleInputChange = (e, type) => {
+  const { name, value } = e.target;
+
+  if (name === "phone") {
+    // 1️⃣ Remove everything except digits
+    let cleaned = value.replace(/\D/g, "");
+
+    // 2️⃣ Keep only the last 10 digits (ignore +91, 91, 0, etc.)
+    if (cleaned.length > 10) {
+      cleaned = cleaned.slice(-10);
+    }
+
+    // 3️⃣ Update state
+    setShipmentData((prev) => ({
       ...prev,
       [type]: {
         ...prev[type],
-        [name]: value
-      }
+        [name]: cleaned,
+      },
     }));
-  };
+
+    return;
+  }
+
+  // For other fields (name, email, etc.)
+  setShipmentData((prev) => ({
+    ...prev,
+    [type]: {
+      ...prev[type],
+      [name]: value,
+    },
+  }));
+};
+
 
   const validateStep1 = () => {
     return (
