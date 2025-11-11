@@ -310,7 +310,82 @@ const LocationTracker = ({ shipment: initialShipment }) => {
   const directionsServiceRef = useRef(null);
   const googleMapsScriptRef = useRef(null);
 
-  const API_BASE_URL = 'http://localhost:5000';
+  const API_BASE_URL = 'https://jio-yatri-user.onrender.com';
+
+
+    const updateRoute = useCallback(() => {
+    // console.group("%c[Route Update]", "color: teal; font-weight: bold;");
+
+    if (!mapRef.current || !window.google || !shipment) {
+      // console.warn("⚠️ Map or shipment not ready yet.");
+      // console.groupEnd();
+      return;
+    }
+
+    const driverLatLng = normalizeToLatLng(shipment?.driverLocation?.coordinates);
+    const senderLatLng = normalizeToLatLng(shipment?.sender?.address?.coordinates);
+    const receiverLatLng = normalizeToLatLng(shipment?.receiver?.address?.coordinates);
+
+    // console.log("📍 Normalized Points →", { driverLatLng, senderLatLng, receiverLatLng });
+
+    if (!isValidLatLng(driverLatLng) || !isValidLatLng(senderLatLng) || !isValidLatLng(receiverLatLng)) {
+      setRouteError('Invalid coordinates detected');
+      // console.error("❌ Invalid Coordinates →", { driverLatLng, senderLatLng, receiverLatLng });
+      // console.groupEnd();
+      return;
+    }
+
+    if (!senderMarkerRef.current) {
+      senderMarkerRef.current = new window.google.maps.Marker({
+        position: senderLatLng,
+        map: mapRef.current,
+        label: { text: 'S', color: '#FFFFFF' },
+        icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+      });
+      // console.log("🟢 Sender Marker Added");
+    }
+
+    if (!receiverMarkerRef.current) {
+      receiverMarkerRef.current = new window.google.maps.Marker({
+        position: receiverLatLng,
+        map: mapRef.current,
+        label: { text: 'R', color: '#FFFFFF' },
+        icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+      });
+      // console.log("🔴 Receiver Marker Added");
+    }
+
+    directionsServiceRef.current.route(
+      {
+        origin: driverLatLng,
+        destination: receiverLatLng,
+        waypoints: [{ location: senderLatLng, stopover: true }],
+        travelMode: window.google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        // console.log("📡 Directions Service Status →", status);
+        if (status === 'OK') {
+          directionsRendererRef.current.setDirections({ routes: [] });
+          directionsRendererRef.current.setDirections(result);
+          setRouteError(null);
+
+          const legs = result.routes[0].legs;
+          if (legs.length === 2) {
+            setDistanceToSender(legs[0].distance.text);
+            setEtaToSender(legs[0].duration.text);
+            setDistanceToReceiver(legs[1].distance.text);
+            setEtaToReceiver(legs[1].duration.text);
+            // console.log("✅ Route distances/ETA updated successfully");
+          }
+        } else {
+          // console.error("❌ Route Calculation Failed:", status);
+          setRouteError(`Route error: ${status}`);
+        }
+      }
+    );
+
+    // console.groupEnd();
+  }, [shipment]);
 
   /* ------------------------------- Firebase Listener ------------------------------- */
   /* ------------------------------- Firebase Listener ------------------------------- */
@@ -456,79 +531,7 @@ useEffect(() => {
 
 
   /* ----------------------------- Update Route ---------------------------- */
-  const updateRoute = useCallback(() => {
-    // console.group("%c[Route Update]", "color: teal; font-weight: bold;");
 
-    if (!mapRef.current || !window.google || !shipment) {
-      // console.warn("⚠️ Map or shipment not ready yet.");
-      // console.groupEnd();
-      return;
-    }
-
-    const driverLatLng = normalizeToLatLng(shipment?.driverLocation?.coordinates);
-    const senderLatLng = normalizeToLatLng(shipment?.sender?.address?.coordinates);
-    const receiverLatLng = normalizeToLatLng(shipment?.receiver?.address?.coordinates);
-
-    // console.log("📍 Normalized Points →", { driverLatLng, senderLatLng, receiverLatLng });
-
-    if (!isValidLatLng(driverLatLng) || !isValidLatLng(senderLatLng) || !isValidLatLng(receiverLatLng)) {
-      setRouteError('Invalid coordinates detected');
-      // console.error("❌ Invalid Coordinates →", { driverLatLng, senderLatLng, receiverLatLng });
-      // console.groupEnd();
-      return;
-    }
-
-    if (!senderMarkerRef.current) {
-      senderMarkerRef.current = new window.google.maps.Marker({
-        position: senderLatLng,
-        map: mapRef.current,
-        label: { text: 'S', color: '#FFFFFF' },
-        icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-      });
-      // console.log("🟢 Sender Marker Added");
-    }
-
-    if (!receiverMarkerRef.current) {
-      receiverMarkerRef.current = new window.google.maps.Marker({
-        position: receiverLatLng,
-        map: mapRef.current,
-        label: { text: 'R', color: '#FFFFFF' },
-        icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-      });
-      // console.log("🔴 Receiver Marker Added");
-    }
-
-    directionsServiceRef.current.route(
-      {
-        origin: driverLatLng,
-        destination: receiverLatLng,
-        waypoints: [{ location: senderLatLng, stopover: true }],
-        travelMode: window.google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        // console.log("📡 Directions Service Status →", status);
-        if (status === 'OK') {
-          directionsRendererRef.current.setDirections({ routes: [] });
-          directionsRendererRef.current.setDirections(result);
-          setRouteError(null);
-
-          const legs = result.routes[0].legs;
-          if (legs.length === 2) {
-            setDistanceToSender(legs[0].distance.text);
-            setEtaToSender(legs[0].duration.text);
-            setDistanceToReceiver(legs[1].distance.text);
-            setEtaToReceiver(legs[1].duration.text);
-            // console.log("✅ Route distances/ETA updated successfully");
-          }
-        } else {
-          // console.error("❌ Route Calculation Failed:", status);
-          setRouteError(`Route error: ${status}`);
-        }
-      }
-    );
-
-    // console.groupEnd();
-  }, [shipment]);
 
   /* -------------------------- Load Google Maps --------------------------- */
   useEffect(() => {
@@ -604,6 +607,7 @@ useEffect(() => {
 };
 
 export default LocationTracker;
+
 
 
 
