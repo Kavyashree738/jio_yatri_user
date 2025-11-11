@@ -169,12 +169,18 @@ const Home = () => {
       <div className="front-shipment-wrapper">
         {/* Show ShopOrderTrackingCard if an awaiting_payment shop order exists */}
         {/* Always show ShipmentPage by default */}
-        {user && <ShipmentPage />}
+        {/* Only show one at a time */}
+{user && !loading && (
+  shopOrderAwaiting ? (
+    <ShopOrderTrackingCard order={shopOrderAwaiting} />
+  ) : (
+    <ShipmentPage />
+  )
+)}
+
 
         {/* Then, if a shop order is detected, show the card (replaces or overlays it) */}
-       {user && !loading && shopOrderAwaiting && (
-  <ShopOrderTrackingCard order={shopOrderAwaiting} />
-)}
+       
 
 
 
