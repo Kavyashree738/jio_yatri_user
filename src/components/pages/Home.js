@@ -56,7 +56,7 @@ const Home = () => {
       const token = await auth.currentUser.getIdToken(true);
       // dbg("Token (first 20 chars):", token.substring(0, 20) + "…");
 
-      const url = "http://localhost:5000/api/shipments/my-shipments";
+      const url = "https://jio-yatri-user.onrender.com/api/shipments/my-shipments";
       // dbg("GET", url);
 
       const response = await axios.get(url, {
