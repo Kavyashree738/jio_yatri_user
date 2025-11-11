@@ -25,52 +25,15 @@ const loadRazorpay = () => {
   });
 };
 
-function ShopOrderTrackingCard() {
+function ShopOrderTrackingCard({ order }) {
   const { user } = useAuth();
-  const [order, setOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
+
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
 
-  useEffect(() => {
-    if (!user) return;
 
-    const fetchShopOrder = async () => {
-      try {
-        const token = await user.getIdToken();
-        const res = await axios.get(`${API_BASE}/api/shipments/my-latest`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (
-          res.data &&
-          (
-            // ✅ awaiting_payment → show always
-            res.data.status === "awaiting_payment" ||
-            // ✅ picked_up → show only if payment not yet paid
-            (res.data.status === "picked_up" && res.data.payment?.status !== "paid")
-          )
-        ) {
-          setOrder(res.data); // ✅ show card
-        } else {
-          setOrder(null); // ❌ hide once picked_up + paid or delivered
-        }
-
-
-
-
-      } catch (err) {
-        console.error("Failed to fetch shop order:", err.message);
-        setError("No active shop order awaiting payment.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchShopOrder();
-  }, [user]);
 
   const processRazorpayPayment = async (shipmentId) => {
     if (!shipmentId || !user) return;
@@ -143,8 +106,7 @@ function ShopOrderTrackingCard() {
     }
   };
 
-  if (loading) return null;
-  if (!order) return null;
+
 
   const driver = order.assignedDriver;
   const otp = order.pickupOtp || "----";
