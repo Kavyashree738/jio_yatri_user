@@ -103,6 +103,8 @@ mongoose.connect(process.env.MONGO_URI, {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.json());
+
+
 // Use it in your routes
 
 app.use('/api', partnerRoutes);
@@ -121,6 +123,11 @@ app.use('/api/shipment-images', shipmentImageRoutes);
 app.use('/api/settlement', settlementRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
+
+app.get('/ping', (req, res) => {
+  res.status(200).send('OK');
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
