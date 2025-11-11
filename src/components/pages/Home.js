@@ -172,7 +172,10 @@ const Home = () => {
         {user && <ShipmentPage />}
 
         {/* Then, if a shop order is detected, show the card (replaces or overlays it) */}
-        {user && !loading && shopOrderAwaiting && <ShopOrderTrackingCard />}
+       {user && !loading && shopOrderAwaiting && (
+  <ShopOrderTrackingCard order={shopOrderAwaiting} />
+)}
+
 
 
         {/* Rating Reminder */}
