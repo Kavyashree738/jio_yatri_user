@@ -1442,3 +1442,49 @@ exports.getShopShipments = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch shop shipments' });
   }
 };
+exports.getShipmentByTrackingNumber = async (req, res) => {
+  try {
+    console.log("📩 [getShipmentByTrackingNumber] API hit");
+    console.log("🧭 Request params:", req.params);
+
+    const { trackingNumber } = req.params;
+    if (!trackingNumber) {
+      console.error("❌ Missing tracking number in params");
+      return res.status(400).json({ error: "Tracking number is required" });
+    }
+
+    const shipment = await Shipment.findOne({ trackingNumber })
+      .populate("assignedDriver", "name phone vehicleNumber vehicleType userId")
+      .lean();
+
+    if (!shipment) {
+      console.warn("⚠️ No shipment found for trackingNumber:", trackingNumber);
+      return res.status(404).json({ error: "Shipment not found" });
+    }
+
+    console.log("✅ Shipment found with driverLocation:", shipment.driverLocation);
+    res.json(shipment);
+
+  } catch (err) {
+    console.error("💥 Error fetching shipment by tracking number:", err.message);
+    res.status(500).json({ error: "Failed to fetch shipment", details: err.message });
+  }
+};
+
+
+exports.getPaidShipmentCount = async (req, res) => {
+  try {
+    const userId = req.user.uid;
+
+    // Built-in mongoose function → count documents where userId matches and payment.status = "paid"
+    const count = await Shipment.countDocuments({
+      userId,
+      "payment.status": "paid"
+    });
+
+    res.status(200).json({ completedCount: count });
+  } catch (error) {
+    console.error("Error counting paid shipments:", error);
+    res.status(500).json({ error: "Failed to count paid shipments" });
+  }
+};

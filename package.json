@@ -24,6 +24,7 @@
     "firebase": "^11.8.1",
     "framer-motion": "^12.12.1",
     "leaflet": "^1.9.4",
+    "lottie-react": "^2.4.1",
     "mongoose": "^8.15.1",
     "react": "^19.1.0",
     "react-device-detect": "^2.2.3",

@@ -20,6 +20,7 @@ const hotelShipmentRouter = require('./routes/hotelShipmentRoutes');
 const shopRoutes=require('./routes/shopRoutes')
 const shipmentImageRoutes = require('./routes/shipmentImageRoutes');
 const settlementRoutes=require('./routes/settlementRoutes')
+const uploadRoutes = require('./routes/uploadRoutes');
 const orderRoutes=require('./routes/orders')
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 if (!admin.apps.length) {
@@ -119,6 +120,7 @@ app.use('/api/shops', shopRoutes);
 app.use('/api/shipment-images', shipmentImageRoutes);
 app.use('/api/settlement', settlementRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

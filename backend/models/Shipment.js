@@ -52,13 +52,29 @@ const shipmentSchema = new mongoose.Schema({
       coordinates: { type: Object }
     }
   },
+  driverToPickupKm: {
+    type: Number,
+    default: 0
+  },
+  pickupToDropKm: {
+    type: Number,
+    default: 0
+  },
+  totalDistanceKm: {
+    type: Number,
+    default: 0
+  },
+  baseFare: { type: Number, default: 0 },       // fare for pickup → drop
+distanceFare: { type: Number, default: 0 },   // fare for driver → pickup
+
   vehicleType: { type: String, required: true },
   distance: { type: Number, required: true },
   cost: { type: Number, required: true },
   trackingNumber: { type: String, required: true, unique: true },
   status: {
     type: String,
-    enum: ['pending', 'assigned', 'picked_up','delivered', 'cancelled'],
+    enum: ['pending', 'assigned', 'picked_up','delivered', 'cancelled', 'awaiting_payment', // driver accepted, waiting for payment
+    'driver_on_the_way'],
     default: 'pending'
   },
   rating: {
@@ -123,7 +139,9 @@ deliveryOtpVerified: {
   isShopOrder: {
     type: Boolean,
     default: false
-  }
+  },
+   recreatedFrom: { type: mongoose.Schema.Types.ObjectId, ref: 'Shipment', default: null },
+  recreatedTo:   { type: mongoose.Schema.Types.ObjectId, ref: 'Shipment', default: null },
 }, { timestamps: true });
 
 shipmentSchema.index({ 'payment.status': 1 });

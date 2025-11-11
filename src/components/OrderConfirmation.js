@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/OrderConfirmation.css';
+import { useNavigate } from 'react-router-dom';
 
 const apiBase = 'https://jio-yatri-user.onrender.com';
 
@@ -12,6 +13,7 @@ const fmt = (v) => num(v).toFixed(2);
 
 const Confetti = () => {
   const boxRef = useRef(null);
+
 
   useEffect(() => {
     const colors = ['#ff5773', '#ff884b', '#ffd384', '#a6e3e9', '#4CAF50'];
@@ -42,6 +44,7 @@ export default function OrderConfirmation() {
   const [err, setErr] = useState(null);
   const [showTick, setShowTick] = useState(false);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -61,6 +64,15 @@ export default function OrderConfirmation() {
       }
     })();
   }, [orderId]);
+
+  useEffect(() => {
+  if (showTick) {
+    const timer = setTimeout(() => {
+      navigate('/home');
+    }, 5000); // 5 seconds delay
+    return () => clearTimeout(timer);
+  }
+}, [showTick, navigate]);
 
   if (loading) return <div className="oc-loading">Loading...</div>;
   if (err) return <div className="oc-loading">Error: {err}</div>;
