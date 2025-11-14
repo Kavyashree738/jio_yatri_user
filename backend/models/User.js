@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const UserSchema = new mongoose.Schema({
   uid: { type: String, required: true, unique: true, index: true },
   name: { type: String, default: '' },
- email: { type: String, unique: true, sparse: true } ,
+ email: { type: String } ,
   phone: { type: String, default: '' },
   photo: { type: String, default: '' },
   referralCode: { 
@@ -47,5 +47,6 @@ UserSchema.pre('save', async function() {
 
 
 module.exports = mongoose.model('User', UserSchema);
+
 
 
