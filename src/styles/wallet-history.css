@@ -1,0 +1,70 @@
+/* ================================
+   WALLET HISTORY PAGE CONTAINER
+=================================== */
+.wallet-history-container {
+  padding: 16px;
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: "Inter", sans-serif;
+}
+
+/* ================================
+   HEADER
+=================================== */
+.wallet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.wallet-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ================================
+   HISTORY LIST ITEM
+=================================== */
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  background: #f8f8f8;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  border: 1px solid #eee;
+}
+
+/* Left side: title + time */
+.history-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: #333;
+}
+
+.history-date {
+  font-size: 12px;
+  color: #777;
+}
+
+/* Right side: amount */
+.history-amount {
+  font-size: 17px;
+  font-weight: 700;
+  color: #00a859; /* Green like the screenshot */
+}
+
+/* ================================
+   EMPTY HISTORY TEXT
+=================================== */
+.empty-text {
+  text-align: center;
+  padding: 30px;
+  color: #888;
+  font-size: 15px;
+}

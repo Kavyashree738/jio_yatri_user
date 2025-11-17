@@ -33,6 +33,12 @@ import CartProvider from './context/CartContext';
 import CartPage from './components/Cart';
 import OrderConfirmation from './components/OrderConfirmation';
 import ComingSoon from './components/pages/ComingSoon'
+import WalletPage from './components/pages/WalletPage';
+import WalletHistoryPage from './components/pages/WalletHistoryPage';
+import ShipmentOrders from './components/ShipmentDetails'
+import Shoporderdelivery from './components/pages/Shoporderdelivery'
+import HelpCenter from './components/HelpCenter';
+import ChatBot from "./components/ChatBot";
 
 import { Provider } from 'react-redux';
 import store from './redux/store';
@@ -69,6 +75,14 @@ function AppWrapper() {
           <Route path="/refferal" element={<ReferralShare />} />
           <Route path="/cart/:shopId" element={<CartPage />} />
            <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+
+           <Route path="/wallet" element={<WalletPage />} />
+          <Route path="/wallet-history" element={<WalletHistoryPage />} />
+          <Route path="/my-shipments" element={<ShipmentOrders />} />
+<Route path="/my-orders" element={<Shoporderdelivery />} />
+ <Route path="/help" element={<HelpCenter />} />
+          <Route path="/chat/:id" element={<ChatBot />} />
+
         </Routes>
       </CartProvider>
       {/* Add CallOwner here to appear on all routes */}

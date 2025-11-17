@@ -1,826 +1,310 @@
-/* ---------- Container ---------- */
-.user-profile-modern-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 1rem;
-  background: #f9fafb;
-  min-height: 80vh;
-  box-sizing: border-box;
-  margin-top:80px;
+/* ======================================
+   GLOBAL WRAPPER
+====================================== */
+.profile-container {
+  background: #f8f9fb;
+  min-height: 100vh;
+  padding-bottom: 30px;
+  font-family: "Inter", sans-serif;
 }
 
-/* ---------- Card ---------- */
-.user-profile-modern-card {
+/* ======================================
+   PROFILE HEADER
+====================================== */
+.profile-header {
+  display: flex;
+  align-items: center;
+  padding: 0px 18px;
+  background: #ffffff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.back-arrow {
+  font-size: 20px;
+  margin-right: 14px;
+  cursor: pointer;
+  margin-top:-15px;
+}
+
+.profile-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top:10px;
+}
+
+/* ======================================
+   PROFILE PHOTO SECTION
+====================================== */
+.profile-photo-section {
+  text-align: center;
+  /* padding: 20px 0; */
+  margin-bottom:10px;
+}
+
+.profile-photo {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #eee;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.10);
+}
+
+.profile-photo-icon {
+  font-size: 115px;
+  color: #c9c9c9;
+}
+
+.change-photo-btn {
+  margin-top: 10px;
+  padding: 8px 20px;
+  background: #1a73e8;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ======================================
+   PROFILE DETAILS
+====================================== */
+.profile-info-section {
   background: #fff;
-  border-radius: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  max-width: 450px;
-  width: 100%;
-  padding: 2rem 1.5rem;
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.user-profile-modern-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  margin: 0 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  box-shadow: 0px 3px 14px rgba(0,0,0,0.1);
 }
 
-/* ---------- Avatar ---------- */
-.user-profile-modern-avatar-container {
-  position: relative;
-  display: inline-block;
-  margin-bottom: 1rem;
-}
-.user-profile-modern-avatar {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 4px solid #e5e7eb;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-.user-profile-modern-default-avatar {
-  width: 120px;
-  height: 120px;
-  background: #f3f4f6;
-  border-radius: 50%;
+.profile-row {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 2.5rem;
-  color: #9ca3af;
-  border: 4px solid #e5e7eb;
-}
-.user-profile-modern-avatar-upload {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: #3b82f6;
-  color: #fff;
-  padding: 0.5rem;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.3s ease;
-}
-.user-profile-modern-avatar-upload:hover {
-  background: #2563eb;
-}
-.camera-icon {
-  font-size: 1rem;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #efefef;
 }
 
-/* ---------- Header ---------- */
-.user-profile-modern-name {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0.5rem 0 1rem 0;
-  color: #111827;
-}
-.user-profile-modern-edit-btn {
-  background: #10b981;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.3s ease, transform 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-.user-profile-modern-edit-btn:hover {
-  background: #059669;
-  transform: translateY(-2px);
+.profile-row:last-child {
+  border-bottom: none;
 }
 
-/* ---------- Form ---------- */
-.user-profile-modern-form {
-  text-align: left;
-  margin-top: 1.5rem;
-}
-.user-profile-modern-form-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  text-align: center;
-  color: #1f2937;
-}
-.user-profile-modern-form-group {
-  margin-bottom: 1rem;
-}
-.user-profile-modern-form-group label {
-  display: block;
-  font-size: 0.85rem;
-  color: #374151;
-  margin-bottom: 0.3rem;
-  font-weight: 500;
-}
-.user-profile-modern-form-group input {
-  width: 100%;
-  padding: 0.6rem 0.8rem;
-  font-size: 0.9rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  outline: none;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
-}
-.user-profile-modern-form-group input:focus {
-  border: 1px solid #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-/* ---------- Form Buttons ---------- */
-.user-profile-modern-form-actions {
-  display: flex;
-  justify-content: center;
-  gap: 0.8rem;
-  margin-top: 1.2rem;
-}
-.user-profile-modern-save-btn {
-  background: #3b82f6;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-.user-profile-modern-save-btn:hover {
-  background: #2563eb;
-}
-.user-profile-modern-cancel-btn {
-  background: #f87171;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-.user-profile-modern-cancel-btn:hover {
-  background: #dc2626;
-}
-
-/* ---------- Details Section ---------- */
-.user-profile-modern-details {
-  margin-top: 2rem;
-  text-align: left;
-}
-.user-profile-modern-section-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 1rem;
-}
-.user-profile-modern-details-grid {
-  display: grid;
-  gap: 0.8rem;
-}
-.user-profile-modern-detail-item {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-.user-profile-modern-detail-icon {
-  background: #f3f4f6;
-  padding: 0.4rem;
-  border-radius: 6px;
-  color: #3b82f6;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.user-profile-modern-detail-label {
-  font-size: 0.75rem;
-  color: #6b7280;
-  display: block;
-}
-.user-profile-modern-detail-value {
-  font-size: 0.9rem;
-  color: #111827;
-}
-
-/* ---------- Logout Button ---------- */
-.user-profile-modern-logout-btn {
-  margin-top: 2rem;
-  background: #ef4444;
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-.user-profile-modern-logout-btn:hover {
-  background: #b91c1c;
-  transform: translateY(-2px);
-}
-
-/* ---------- Responsive ---------- */
-@media (max-width: 500px) {
-  .user-profile-modern-card {
-    padding: 1.5rem 1rem;
-  }
-  .user-profile-modern-avatar {
-    width: 100px;
-    height: 100px;
-  }
-  .user-profile-modern-default-avatar {
-    width: 100px;
-    height: 100px;
-    font-size: 2rem;
-  }
-  .user-profile-modern-name {
-    font-size: 1.3rem;
-  }
-}
-
-
-.user-profile-modern-card {
-  width: 100%;
-  max-width: 450px;
-  margin: 0 auto;
-  box-sizing: border-box;
-}
-
-/* ---------- Tablets (max-width: 768px) ---------- */
-@media (max-width: 768px) {
-  .user-profile-modern-card {
-    padding: 1.5rem;
-    border-radius: 1rem;
-     margin-top:0px;
-    margin-bottom: 45px;
-  }
-  .user-profile-modern-name {
-    font-size: 1.4rem;
-  }
-  .user-profile-modern-form-group input {
-    font-size: 1rem;
-    padding: 0.7rem;
-  }
-  .user-profile-modern-save-btn,
-  .user-profile-modern-cancel-btn,
-  .user-profile-modern-edit-btn,
-  .user-profile-modern-logout-btn {
-    font-size: 0.85rem;
-    padding: 0.5rem 0.9rem;
-  }
-}
-
-/* ---------- Phones (max-width: 500px) ---------- */
-@media (max-width: 500px) {
-  .user-profile-modern-container {
-    padding: 1rem 0.5rem;
-    margin-top: 0px;
-  }
-  .user-profile-modern-card {
-    padding: 1.2rem 0.8rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-  .user-profile-modern-avatar {
-    width: 90px;
-    height: 90px;
-  }
-  .user-profile-modern-default-avatar {
-    width: 90px;
-    height: 90px;
-    font-size: 1.8rem;
-  }
-  .user-profile-modern-name {
-    font-size: 1.2rem;
-  }
-  .user-profile-modern-form-title {
-    font-size: 1rem;
-  }
-  .user-profile-modern-form-group label {
-    font-size: 0.8rem;
-  }
-  .user-profile-modern-form-group input {
-    font-size: 0.85rem;
-    padding: 0.5rem;
-  }
-  .user-profile-modern-details-grid {
-    grid-template-columns: 1fr;
-    gap: 0.6rem;
-  }
-  .user-profile-modern-save-btn,
-  .user-profile-modern-cancel-btn,
-  .user-profile-modern-logout-btn {
-    font-size: 0.8rem;
-    padding: 0.4rem 0.8rem;
-  }
-}
-
-.user-profile-modern-share-btn {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  margin: 20px 0 10px;
-  width: 100%;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  font-size: 1rem;
-}
-
-.user-profile-modern-share-btn:hover {
-  background-color: #3e8e41;
-}
-.user-profile-modern-share-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow: hidden;
-  position: relative;
-}
-
-.ticker-text {
-  display: inline-block;
-  white-space: nowrap;
-  transition: transform 2s ease, opacity 0.5s ease;
-}
-
-.slide-in {
-  animation: tickerSlide 3s ease-in-out;
-}
-
-@keyframes tickerSlide {
-  0% {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  10% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  90% {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-}
-.user-profile-modern-share-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow: hidden;
-  position: relative;
-  white-space: nowrap;
-}
-
-.ticker-container {
-  overflow: hidden;
-  width: 160px; /* Adjust to button space */
-  position: relative;
-}
-
-.ticker-text {
-  display: inline-block;
-  white-space: nowrap;
-  animation: tickerMove 5s linear forwards;
-}
-
-@keyframes tickerMove {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-.user-profile-modern-share-btn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow: hidden;
-  /* Add your other button styles here */
-}
-
-.ticker-container {
-  width: 100%;
-  overflow: hidden;
-  white-space: nowrap;
-}
-
-.ticker-text {
-  display: inline-block;
-  position: relative;
-  animation: tickerMove 10s linear infinite;
-  /* Adjust timing to make it appear every 2 seconds */
-  animation-delay: 2s;
-}
-
-@keyframes tickerMove {
-  0% {
-    transform: translateX(100%);
-  }
-  10% {
-    transform: translateX(0);
-  }
-  90% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-@keyframes tickerMove {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-.ticker-text {
-  display: inline-block;
-  position: relative;
-  animation: tickerMove 10s linear infinite;
-  padding-left: 100%; /* Start off-screen */
-}
-.user-profile-modern-default-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background-color: #6c5ce7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 2rem;
-  font-weight: bold;
-}
-
-.avatar-initials {
-  font-size: 2.5rem;
-}
-
-.avatar-icon {
-  font-size: 3rem;
-}
-
-/* Default Avatar Styles */
-.user-profile-modern-default-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background-color: #6c5ce7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 2.5rem;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.avatar-icon {
-  font-size: 3rem;
-}
-
-/* Existing Avatar Styles */
-.user-profile-modern-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.user-profile-modern-avatar-container {
-  position: relative;
-  margin: 0 auto 20px;
-  width: 120px;
-  height: 120px;
-}
-
-.user-profile-modern-avatar-upload {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background: #6c5ce7;
-  color: white;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.user-profile-modern-avatar-upload:hover {
-  transform: scale(1.1);
-  background: #5649c0;
-}
-
-.camera-icon {
-  font-size: 1rem;
-}
-
-.user-profile-modern-container{
-  margin-top:60px;
-}
-
-
-.crop-container {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-  backdrop-filter: blur(6px);
-  animation: fadeIn 0.3s ease-in-out;
-  padding: 20px; /* ensure cropper doesn’t touch screen edges */
-}
-
-.cropper {
-  width: 90vw; /* responsive width */
-  max-width: 340px;
-  height: 90vw; /* maintain square aspect ratio */
-  max-height: 340px;
-  background: #1f1f1f;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-  border: 2px solid #333;
-  transition: transform 0.25s ease;
-}
-
-.cropper:hover {
-  transform: scale(1.02);
-}
-
-.controls {
-  margin-top: 24px;
-  display: flex;
-  flex-wrap: wrap; /* wrap buttons on small screens */
-  gap: 14px;
-  align-items: center;
-  justify-content: center;
-  color: #eaeaea;
-  font-family: 'Inter', sans-serif;
-  width: 100%;
-  text-align: center;
-}
-
-.controls button {
-  flex: 1 1 auto;
-  min-width: 110px;
-  padding: 10px 16px;
-  background: linear-gradient(135deg, #3399cc, #0077b6);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+.profile-label {
+  color: #555;
   font-size: 15px;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  transition: all 0.25s ease-in-out;
 }
 
-.controls button:hover {
-  background: linear-gradient(135deg, #0077b6, #005f8a);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(51, 153, 204, 0.4);
-}
-
-.controls button.cancel {
-  background: #444;
-}
-
-.controls button.cancel:hover {
-  background: #555;
-}
-
-/* ✅ RESPONSIVE MEDIA QUERIES */
-@media (max-width: 768px) {
-  .cropper {
-    width: 80vw;
-    height: 80vw;
-    max-width: 300px;
-    max-height: 300px;
-  }
-
-  .controls {
-    margin-top: 18px;
-    gap: 10px;
-  }
-
-  .controls button {
-    font-size: 14px;
-    padding: 8px 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  .cropper {
-    width: 90vw;
-    height: 90vw;
-    max-width: 280px;
-    max-height: 280px;
-  }
-
-  .controls {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .controls button {
-    width: 100%;
-  }
-}
-
-/* Optional fade animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.profile-preview-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(10px);
+.profile-value {
+  font-size: 15px;
+  color: #222;
+  font-weight: 600;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 5000;
-  animation: fadeIn 0.25s ease;
+  gap: 6px;
 }
 
-.profile-preview-circle {
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-  animation: zoomIn 0.25s ease;
-  transition: transform 0.3s ease;
+.edit-icon {
+  color: #1a73e8;
+  cursor: pointer;
 }
 
-.profile-preview-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
+.verified-icon {
+  color: #00c853;
 }
 
-.profile-preview-circle:hover .profile-preview-img {
-  transform: scale(1.05);
+/* ======================================
+   BEAUTIFUL STAT CARDS (ALWAYS 2x2)
+====================================== */
+.profile-stats-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding: 0px 14px;
+  margin-top: 20px;
 }
 
-/* 🔹 Smooth fade-in animation */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.profile-stat-card {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0px 6px 18px rgba(0,0,0,0.12);
+  transition: all 0.3s ease;
+  border: 1px solid #f1f1f1;
 }
 
-/* 🔹 Zoom animation */
-@keyframes zoomIn {
-  from { transform: scale(0.8); opacity: 0.7; }
-  to { transform: scale(1); opacity: 1; }
+.profile-stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 10px 22px rgba(0,0,0,0.20);
 }
 
-/* 📱 Responsive Design */
-@media (max-width: 768px) {
-  .profile-preview-circle {
-    width: 220px;
-    height: 220px;
+.profile-stat-card h4 {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  font-weight: 500;
+}
+
+.profile-stat-card p {
+  margin-top: 10px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #222;
+  letter-spacing: 0.5px;
+}
+
+/* COLOR POP ON HOVER */
+.profile-stat-card:hover p {
+  color: #1a73e8;
+}
+
+/* NEVER COLLAPSE 2x2 EVEN ON SMALL SCREENS */
+@media (max-width: 370px) {
+  .profile-stat-card {
+    padding: 16px;
+  }
+  .profile-stat-card p {
+    font-size: 20px;
   }
 }
 
-@media (max-width: 480px) {
-  .profile-preview-circle {
-    width: 160px;
-    height: 160px;
-  }
-}
-.logout-popup-overlay {
+/* ======================================
+   EDIT SHEET
+====================================== */
+.edit-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  z-index: 999;
+  backdrop-filter: blur(3px);
 }
 
-.logout-popup {
+.edit-sheet {
   width: 100%;
-  max-width: 450px;
-  background: #fff;
+  background: white;
+  padding: 20px;
   border-radius: 20px 20px 0 0;
-  padding: 24px;
-  box-shadow: 0 -3px 20px rgba(0, 0, 0, 0.1);
-  text-align: center;
   animation: slideUp 0.3s ease;
-  position: relative;
-  margin-bottom:2.5rem;
-}
-
-.logout-popup-icon {
-  font-size: 36px;
-  margin-bottom: 10px;
-  color: #ef4444;
-}
-
-.logout-popup h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 6px;
-}
-
-.logout-popup p {
-  font-size: 0.95rem;
-  color: #6b7280;
-  margin-bottom: 20px;
-}
-
-.logout-popup-buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.logout-cancel-btnn,
-.logout-confirm-btn {
-  flex: 1;
-  padding: 12px 0;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: 0.2s ease;
-}
-
-.logout-cancel-btnn {
-  border: 2px solid #2563eb;
-  background: #fff;
-  color: #2563eb;
-}
-
-.logout-cancel-btnn:hover {
-  background: #e8f0ff;
-}
-
-.logout-confirm-btn {
-  background: #eb2525;
-  color: #fff;
-}
-
-.logout-confirm-btn:hover {
-  background: #1d4ed8;
-}
-
-/* Close button (X) */
-.logout-popup-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  font-size: 1.2rem;
-  background: #f3f4f6;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(80px); }
+  to { transform: translateY(0); }
 }
 
+.edit-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.edit-input-field {
+  width: 100%;
+  padding: 12px;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+}
+
+.edit-update-btn {
+  width: 100%;
+  margin-top: 18px;
+  padding: 13px;
+  background: #1a73e8;
+  color: white;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+}
+/* Center entire section */
+.profile-photo-section {
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+/* Wrapper for image + camera icon */
+.photo-wrapper {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+
+/* Profile photo */
+.profile-photo {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Default icon when no photo */
+.profile-photo-icon {
+  font-size: 140px;
+  color: #bfbfbf;
+}
+
+/* Camera overlay button */
+.camera-overlay {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #0023e7;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Camera icon inside overlay */
+.camera-icon {
+  color: white;
+  font-size: 18px;
+}
+
+/* TERMS & PRIVACY SECTION */
+.profile-links-section {
+  margin-top: 25px;
+  padding: 0 20px;
+}
+
+.profile-link-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 15px 18px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.profile-link-row:hover {
+  background: #f7f7f7;
+}
+
+.arrow-icon {
+  font-size: 16px;
+  color: #777;
+}
+
+/* Rotate arrow to right */
+.rotate-arrow {
+  transform: rotate(180deg);
+}

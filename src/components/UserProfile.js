@@ -1,483 +1,829 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+// import React, { useState, useEffect, useMemo, useRef } from "react";
+// import { useAuth } from "../context/AuthContext";
+// import {
+//   FaUser,
+//   FaPhone,
+//   FaEnvelope,
+//   FaSignOutAlt,
+//   FaEdit,
+//   FaCamera,
+//   FaShareAlt,
+// } from "react-icons/fa";
+// import "../styles/UserProfile.css";
+// import { signOut } from "firebase/auth";
+// import { auth } from "../firebase";
+// import Header from "../components/pages/Header";
+// import Footer from "../components/pages/Footer";
+// import { useNavigate } from "react-router-dom";
+// import ImageCropper from "../components/ImageCropper";
+
+// const API_URL = "https://jio-yatri-user.onrender.com/api/users";
+// const DEBUG = true;
+
+// const UserProfile = () => {
+//   const { user, setMessage } = useAuth();
+//   const navigate = useNavigate();
+
+//   const [dbUser, setDbUser] = useState(null);
+//   const [uploadedPhoto, setUploadedPhoto] = useState(null);
+//   const [manualName, setManualName] = useState("");
+//   const [manualEmail, setManualEmail] = useState("");
+//   const [manualPhone, setManualPhone] = useState("");
+//   const [showTicker, setShowTicker] = useState(false);
+//   const [showForm, setShowForm] = useState(false);
+//   const [loading, setLoading] = useState(true);
+//   const [selectedImage, setSelectedImage] = useState(null);
+//   const [cropMode, setCropMode] = useState(false);
+//   const [showPreview, setShowPreview] = useState(false);
+//   const [isUploading, setIsUploading] = useState(false);
+//   const loadedRef = useRef(false);
+//   const pressTimer = useRef(null);
+//   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+
+//   /* ---------------- Provider Info ---------------- */
+//   const providerInfo = useMemo(() => {
+//     if (!user) return { type: "unknown", ids: [] };
+//     const ids = user.providerData.map((p) => p.providerId);
+//     return {
+//       type: ids.includes("phone")
+//         ? "phone"
+//         : ids.includes("google.com")
+//           ? "google"
+//           : ids.includes("password") || ids.includes("apple.com")
+//             ? "email"
+//             : "unknown",
+//       ids,
+//       isPhone: ids.includes("phone"),
+//       isGoogle: ids.includes("google.com"),
+//       isEmailPw: ids.includes("password") || ids.includes("apple.com"),
+//     };
+//   }, [user]);
+
+//   /* ---------------- Helpers ---------------- */
+//   const resolvedName = manualName || dbUser?.name || user?.displayName || "";
+//   const resolvedEmail = manualEmail || dbUser?.email || user?.email || "";
+//   const resolvedPhone = manualPhone || dbUser?.phone || user?.phoneNumber || "";
+//   const resolvedPhoto = uploadedPhoto || dbUser?.photo || user?.photoURL || null;
+
+//   const getUserInitials = () =>
+//     resolvedName
+//       ? resolvedName
+//         .split(" ")
+//         .map((n) => n[0])
+//         .join("")
+//         .toUpperCase()
+//         .substring(0, 2)
+//       : "";
+
+//   /* ---------------- API ---------------- */
+//   const apiCreateOrUpdate = async (payload) => {
+//     try {
+//       const res = await fetch(API_URL, {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload),
+//       });
+//       return await res.json();
+//     } catch (err) {
+//       console.error("API Error:", err);
+//       return null;
+//     }
+//   };
+
+//   const apiGetUser = async (uid) => {
+//     try {
+//       const res = await fetch(`${API_URL}/${uid}`);
+//       if (!res.ok) return null;
+//       return await res.json();
+//     } catch (err) {
+//       console.error("API Error:", err);
+//       return null;
+//     }
+//   };
+
+//   /* ---------------- Handlers ---------------- */
+//   const handlePhotoChange = (e) => {
+//     const file = e.target.files[0];
+//     if (!file) return;
+//     if (!file.type.match("image.*")) {
+//       setMessage?.({ text: "Please select an image file", isError: true });
+//       return;
+//     }
+//     if (file.size > 5 * 1024 * 1024) {
+//       setMessage?.({ text: "Image must be under 5MB", isError: true });
+//       return;
+//     }
+
+//     const previewUrl = URL.createObjectURL(file);
+//     setSelectedImage(previewUrl);
+//     setCropMode(true);
+//   };
+
+//   const handleCropComplete = async (croppedImageUrl) => {
+//     setCropMode(false);
+//     setUploadedPhoto(croppedImageUrl);
+
+//     if (!user) return;
+//     setIsUploading(true);
+
+//     const blob = await fetch(croppedImageUrl).then((r) => r.blob());
+//     const reader = new FileReader();
+//     reader.onloadend = async () => {
+//       const base64 = reader.result;
+//       const payload = {
+//         uid: user.uid,
+//         name: resolvedName,
+//         email: resolvedEmail,
+//         phone: resolvedPhone,
+//         photo: base64,
+//       };
+//       const result = await apiCreateOrUpdate(payload);
+//       if (result?.user) {
+//         setDbUser(result.user);
+//         localStorage.setItem("cachedUser", JSON.stringify(result.user));
+//       }
+//       setMessage?.({ text: "Profile photo updated!", isError: false });
+//       setIsUploading(false);
+//     };
+//     reader.readAsDataURL(blob);
+//   };
+
+//   const handleProfileSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!user) return;
+//     const payload = {
+//       uid: user.uid,
+//       name: manualName || user.displayName || "",
+//       email: manualEmail || user.email || "",
+//       phone: manualPhone || user.phoneNumber || "",
+//       photo: uploadedPhoto || user.photoURL || "",
+//     };
+
+//     const result = await apiCreateOrUpdate(payload);
+//     if (result?.user) {
+//       setDbUser(result.user);
+//       localStorage.setItem("cachedUser", JSON.stringify(result.user));
+//     }
+//     setShowForm(false);
+//     setMessage?.({ text: "Profile updated!", isError: false });
+//   };
+
+//   const beginEdit = () => {
+//     setManualName(resolvedName);
+//     setManualEmail(resolvedEmail);
+//     setManualPhone(resolvedPhone);
+//     setShowForm(true);
+//   };
+
+//   const handleCancel = () => {
+//     setShowForm(false);
+//     setManualName(dbUser?.name || user?.displayName || "");
+//     setManualEmail(dbUser?.email || user?.email || "");
+//     setManualPhone(dbUser?.phone || user?.phoneNumber || "");
+//     setUploadedPhoto(dbUser?.photo || user?.photoURL || null);
+//   };
+
+//   const handleLogout = async () => {
+//     try {
+//       await signOut(auth);
+//       localStorage.removeItem("cachedUser");
+//       navigate("/home");
+//     } catch (err) {
+//       setMessage?.({ text: `Logout failed: ${err.message}`, isError: true });
+//     }
+//   };
+
+//   /* ---------------- Long press for preview ---------------- */
+//   const handleLongPressStart = () => {
+//     pressTimer.current = setTimeout(() => setShowPreview(true), 500);
+//   };
+//   const handleLongPressEnd = () => clearTimeout(pressTimer.current);
+//   const handleClosePreview = () => setShowPreview(false);
+
+//   /* ---------------- Effects ---------------- */
+//   useEffect(() => {
+//     const interval = setInterval(() => setShowTicker((p) => !p), 5000);
+//     return () => clearInterval(interval);
+//   }, []);
+
+//   // Load cached user instantly + sync in background
+//   useEffect(() => {
+//     if (!user || loadedRef.current) return;
+//     loadedRef.current = true;
+
+//     const cached = localStorage.getItem("cachedUser");
+//     if (cached) {
+//       const parsed = JSON.parse(cached);
+//       setDbUser(parsed);
+//       setManualName(parsed.name);
+//       setManualEmail(parsed.email);
+//       setManualPhone(parsed.phone);
+//       setUploadedPhoto(parsed.photo);
+//       setLoading(false);
+//     }
+
+//     const loadUserData = async () => {
+//       try {
+//         const fresh = await apiGetUser(user.uid);
+//         if (!fresh) return;
+//         const cachedUser = cached ? JSON.parse(cached) : null;
+
+//         // update if no cache or newer data
+//         if (
+//           !cachedUser ||
+//           new Date(fresh.updatedAt) > new Date(cachedUser.updatedAt)
+//         ) {
+//           setDbUser(fresh);
+//           localStorage.setItem("cachedUser", JSON.stringify(fresh));
+//         }
+//       } catch (err) {
+//         console.error("Sync error:", err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     loadUserData();
+
+//     // optional: auto-refresh every 5 min
+//     const interval = setInterval(loadUserData, 5 * 60 * 1000);
+//     return () => clearInterval(interval);
+//   }, [user]);
+
+//   if (loading) {
+//     return (
+//       <>
+//         <Header />
+//         <div className="user-profile-modern-container">Loading profile...</div>
+//         <Footer />
+//       </>
+//     );
+//   }
+
+//   /* ---------------- UI ---------------- */
+//   return (
+//     <>
+//       <Header />
+//       <div className="user-profile-modern-container">
+//         <div className="user-profile-modern-card">
+//           <div className="user-profile-modern-content">
+//             <div className="user-profile-modern-header">
+//               <div className="user-profile-modern-avatar-container">
+//                 {resolvedPhoto ? (
+//                   <img
+//                     src={resolvedPhoto}
+//                     alt="Profile"
+//                     className="user-profile-modern-avatar"
+//                     onMouseDown={handleLongPressStart}
+//                     onMouseUp={handleLongPressEnd}
+//                     onMouseLeave={handleLongPressEnd}
+//                     onTouchStart={handleLongPressStart}
+//                     onTouchEnd={handleLongPressEnd}
+//                   />
+//                 ) : (
+//                   <div className="user-profile-modern-default-avatar">
+//                     {getUserInitials() || <FaUser className="avatar-icon" />}
+//                   </div>
+//                 )}
+//                 <label
+//                   htmlFor="upload-photo"
+//                   className="user-profile-modern-avatar-upload"
+//                 >
+//                   <FaCamera className="camera-icon" />
+//                 </label>
+//                 <input
+//                   type="file"
+//                   accept="image/*"
+//                   id="upload-photo"
+//                   onChange={handlePhotoChange}
+//                   style={{ display: "none" }}
+//                 />
+//               </div>
+
+//               <h2 className="user-profile-modern-name">
+//                 {resolvedName || "User"}
+//               </h2>
+
+//               {!showForm && (
+//                 <button
+//                   className="user-profile-modern-edit-btn"
+//                   onClick={beginEdit}
+//                 >
+//                   <FaEdit /> Edit Profile
+//                 </button>
+//               )}
+//             </div>
+
+//             {/* Edit Form */}
+//             {showForm && (
+//               <form
+//                 className="user-profile-modern-form"
+//                 onSubmit={handleProfileSubmit}
+//               >
+//                 <h3 className="user-profile-modern-form-title">
+//                   {providerInfo.isPhone
+//                     ? "Complete Your Profile"
+//                     : "Update Your Profile"}
+//                 </h3>
+
+//                 <div className="user-profile-modern-form-group">
+//                   <label htmlFor="name">Full Name</label>
+//                   <input
+//                     id="name"
+//                     type="text"
+//                     placeholder="Enter your name"
+//                     value={manualName}
+//                     onChange={(e) => setManualName(e.target.value)}
+//                   />
+//                 </div>
+
+//                 <div className="user-profile-modern-form-group">
+//                   <label htmlFor="email">Email</label>
+//                   <input
+//                     id="email"
+//                     type="email"
+//                     placeholder="Enter your email"
+//                     value={manualEmail}
+//                     onChange={(e) => setManualEmail(e.target.value)}
+//                   />
+//                 </div>
+
+//                 <div className="user-profile-modern-form-group">
+//                   <label htmlFor="phone">Phone</label>
+//                   <input
+//                     id="phone"
+//                     type="tel"
+//                     placeholder="Enter your phone number"
+//                     value={manualPhone}
+//                     onChange={(e) => setManualPhone(e.target.value)}
+//                     pattern="[0-9]{10}"
+//                     title="10-digit phone number"
+//                   />
+//                 </div>
+
+//                 <div className="user-profile-modern-form-actions">
+//                   <button
+//                     type="submit"
+//                     className="user-profile-modern-save-btn"
+//                     disabled={isUploading}
+//                   >
+//                     Save Changes
+//                   </button>
+//                   <button
+//                     type="button"
+//                     className="user-profile-modern-cancel-btn"
+//                     onClick={handleCancel}
+//                   >
+//                     Cancel
+//                   </button>
+//                 </div>
+//               </form>
+//             )}
+
+//             {/* Contact Info */}
+//             <div className="user-profile-modern-details">
+//               <div className="user-profile-modern-section">
+//                 <h6 className="user-profile-modern-section-title">
+//                   Contact Information
+//                 </h6>
+//                 <div className="user-profile-modern-details-grid">
+//                   {resolvedPhone && (
+//                     <div className="user-profile-modern-detail-item">
+//                       <FaPhone />
+//                       <span>{resolvedPhone}</span>
+//                     </div>
+//                   )}
+//                   {resolvedEmail && (
+//                     <div className="user-profile-modern-detail-item">
+//                       <FaEnvelope />
+//                       <span>{resolvedEmail}</span>
+//                     </div>
+//                   )}
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* Actions */}
+//             <button
+//               className="user-profile-modern-share-btn"
+//               onClick={() => navigate("/refferal")}
+//             >
+//               <FaShareAlt />
+//               {showTicker ? (
+//                 <div className="ticker-container">
+//                   <div className="ticker-text">Share & Get ₹10 Cashback</div>
+//                 </div>
+//               ) : (
+//                 <span>Share</span>
+//               )}
+//             </button>
+
+//             <button
+//               className="user-profile-modern-logout-btn"
+//               onClick={() => setShowLogoutPopup(true)}
+//             >
+//               <FaSignOutAlt /> Sign Out
+//             </button>
+//             {showLogoutPopup && (
+//               <div className="logout-popup-overlay">
+//                 <div className="logout-popup">
+//                   <div className="logout-popup-icon">⚠️</div>
+//                   <h3>Log out now?</h3>
+//                   <p>You can always log back in whenever you need us.</p>
+//                   <div className="logout-popup-buttons">
+//                     <button
+//                       className="logout-cancel-btnn"
+//                       onClick={() => setShowLogoutPopup(false)}
+//                     >
+//                       Cancel
+//                     </button>
+//                     <button className="logout-confirm-btn" onClick={handleLogout}>
+//                       Log out
+//                     </button>
+//                   </div>
+//                   <button
+//                     className="logout-popup-close"
+//                     onClick={() => setShowLogoutPopup(false)}
+//                   >
+//                     ✕
+//                   </button>
+//                 </div>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Image Cropper */}
+//       {cropMode && (
+//         <ImageCropper
+//           image={selectedImage}
+//           onCropComplete={handleCropComplete}
+//           onCancel={() => setCropMode(false)}
+//         />
+//       )}
+
+//       {/* Long-press preview */}
+//       {showPreview && (
+//         <div className="profile-preview-overlay" onClick={handleClosePreview}>
+//           <div className="profile-preview-circle">
+//             <img
+//               src={resolvedPhoto}
+//               alt="Profile Preview"
+//               className="profile-preview-img"
+//             />
+//           </div>
+//         </div>
+//       )}
+
+//       <Footer />
+//     </>
+//   );
+// };
+
+// export default UserProfile;
+
+
+import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
-  FaUser,
-  FaPhone,
-  FaEnvelope,
-  FaSignOutAlt,
-  FaEdit,
   FaCamera,
-  FaShareAlt,
+  FaUserCircle,
+  FaCheckCircle,
+  FaEdit,
+  FaArrowLeft
 } from "react-icons/fa";
 import "../styles/UserProfile.css";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
-import Header from "../components/pages/Header";
-import Footer from "../components/pages/Footer";
 import { useNavigate } from "react-router-dom";
-import ImageCropper from "../components/ImageCropper";
 
-const API_URL = "https://jio-yatri-user.onrender.com/api/users";
-const DEBUG = true;
+const USER_API = "https://jio-yatri-user.onrender.com/api/users";
+const ORDERS_API = "https://jio-yatri-user.onrender.com/api/orders/user";
 
 const UserProfile = () => {
   const { user, setMessage } = useAuth();
   const navigate = useNavigate();
 
   const [dbUser, setDbUser] = useState(null);
-  const [uploadedPhoto, setUploadedPhoto] = useState(null);
-  const [manualName, setManualName] = useState("");
-  const [manualEmail, setManualEmail] = useState("");
-  const [manualPhone, setManualPhone] = useState("");
-  const [showTicker, setShowTicker] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [cropMode, setCropMode] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const loadedRef = useRef(false);
-  const pressTimer = useRef(null);
-  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [shopOrders, setShopOrders] = useState([]);
 
-  /* ---------------- Provider Info ---------------- */
-  const providerInfo = useMemo(() => {
-    if (!user) return { type: "unknown", ids: [] };
-    const ids = user.providerData.map((p) => p.providerId);
-    return {
-      type: ids.includes("phone")
-        ? "phone"
-        : ids.includes("google.com")
-          ? "google"
-          : ids.includes("password") || ids.includes("apple.com")
-            ? "email"
-            : "unknown",
-      ids,
-      isPhone: ids.includes("phone"),
-      isGoogle: ids.includes("google.com"),
-      isEmailPw: ids.includes("password") || ids.includes("apple.com"),
-    };
+  const [showPhotoSheet, setShowPhotoSheet] = useState(false);
+  const [localPhoto, setLocalPhoto] = useState("");
+  const [localName, setLocalName] = useState("");
+  const [localEmail, setLocalEmail] = useState("");
+  const [localPhone, setLocalPhone] = useState("");
+  const [editing, setEditing] = useState("");
+
+  // =============================
+  // Detect login provider (OTP / Google / Email)
+  // =============================
+  const provider = useMemo(() => {
+    if (!user) return "unknown";
+    const providers = user.providerData.map((p) => p.providerId);
+
+    if (providers.includes("phone")) return "phone";         // OTP login
+    if (providers.includes("google.com")) return "google";   // Google login
+    if (providers.includes("password")) return "emailpw";    // Email+Password
+    return "unknown";
   }, [user]);
 
-  /* ---------------- Helpers ---------------- */
-  const resolvedName = manualName || dbUser?.name || user?.displayName || "";
-  const resolvedEmail = manualEmail || dbUser?.email || user?.email || "";
-  const resolvedPhone = manualPhone || dbUser?.phone || user?.phoneNumber || "";
-  const resolvedPhoto = uploadedPhoto || dbUser?.photo || user?.photoURL || null;
 
-  const getUserInitials = () =>
-    resolvedName
-      ? resolvedName
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .substring(0, 2)
-      : "";
+ const handlePhotoChange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-  /* ---------------- API ---------------- */
-  const apiCreateOrUpdate = async (payload) => {
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+    const base64Img = reader.result;
+
+    // Update preview
+    setLocalPhoto(base64Img);
+
+    // Save to DB immediately
+    await updateUserInDB({
+      uid: user.uid,
+      name: localName,
+      email: localEmail,
+      phone: localPhone,
+      photo: base64Img,
+    });
+
+    localStorage.setItem("dbPhoto", base64Img);
+    localStorage.setItem("dbName", localName);
+    localStorage.setItem("dbEmail", localEmail);
+
+    setMessage?.({ text: "Profile photo updated!", isError: false });
+  };
+
+  reader.readAsDataURL(file);
+};
+
+
+
+  // =============================
+  // Fetch MongoDB User
+  // =============================
+  useEffect(() => {
+    const fetchDbUser = async () => {
+      if (!user?.uid) return;
+
+      try {
+        const res = await fetch(`${USER_API}/${user.uid}`);
+        const data = await res.json();
+
+        if (data.uid) {
+          setDbUser(data);
+          setLocalName(data.name || "");
+          setLocalEmail(data.email || user.email || "");
+          setLocalPhone(data.phone || "");
+          setLocalPhoto(data.photo || user.photoURL || "");
+        }
+      } catch (err) {
+        console.log("❌ Failed to fetch DB user:", err);
+      }
+    };
+
+    fetchDbUser();
+  }, [user]);
+
+  // =============================
+  // Fetch Shop Orders
+  // =============================
+  useEffect(() => {
+    const fetchShopOrders = async () => {
+      if (!user) return;
+
+      try {
+        const token = await user.getIdToken();
+
+        const res = await fetch(ORDERS_API, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setShopOrders(data.data);
+        }
+      } catch (err) {
+        console.log("❌ Failed to fetch shop orders:", err);
+      }
+    };
+
+    fetchShopOrders();
+  }, [user]);
+
+  // =============================
+  // Update user in DB
+  // =============================
+  const updateUserInDB = async (payload) => {
     try {
-      const res = await fetch(API_URL, {
+      const res = await fetch(USER_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      return await res.json();
-    } catch (err) {
-      console.error("API Error:", err);
-      return null;
-    }
-  };
 
-  const apiGetUser = async (uid) => {
-    try {
-      const res = await fetch(`${API_URL}/${uid}`);
-      if (!res.ok) return null;
-      return await res.json();
-    } catch (err) {
-      console.error("API Error:", err);
-      return null;
-    }
-  };
+      const data = await res.json();
 
-  /* ---------------- Handlers ---------------- */
-  const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.type.match("image.*")) {
-      setMessage?.({ text: "Please select an image file", isError: true });
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setMessage?.({ text: "Image must be under 5MB", isError: true });
-      return;
-    }
-
-    const previewUrl = URL.createObjectURL(file);
-    setSelectedImage(previewUrl);
-    setCropMode(true);
-  };
-
-  const handleCropComplete = async (croppedImageUrl) => {
-    setCropMode(false);
-    setUploadedPhoto(croppedImageUrl);
-
-    if (!user) return;
-    setIsUploading(true);
-
-    const blob = await fetch(croppedImageUrl).then((r) => r.blob());
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result;
-      const payload = {
-        uid: user.uid,
-        name: resolvedName,
-        email: resolvedEmail,
-        phone: resolvedPhone,
-        photo: base64,
-      };
-      const result = await apiCreateOrUpdate(payload);
-      if (result?.user) {
-        setDbUser(result.user);
-        localStorage.setItem("cachedUser", JSON.stringify(result.user));
+      if (data.user) {
+        setDbUser(data.user);
+        setMessage?.({ text: "Profile updated!", isError: false });
       }
-      setMessage?.({ text: "Profile photo updated!", isError: false });
-      setIsUploading(false);
-    };
-    reader.readAsDataURL(blob);
+    } catch (error) {
+      setMessage?.({ text: "Update failed!", isError: true });
+    }
   };
 
-  const handleProfileSubmit = async (e) => {
-    e.preventDefault();
-    if (!user) return;
-    const payload = {
+  // =============================
+  // Save Name / Email / Phone
+  // =============================
+  const handleSave = async () => {
+    await updateUserInDB({
       uid: user.uid,
-      name: manualName || user.displayName || "",
-      email: manualEmail || user.email || "",
-      phone: manualPhone || user.phoneNumber || "",
-      photo: uploadedPhoto || user.photoURL || "",
-    };
-
-    const result = await apiCreateOrUpdate(payload);
-    if (result?.user) {
-      setDbUser(result.user);
-      localStorage.setItem("cachedUser", JSON.stringify(result.user));
-    }
-    setShowForm(false);
-    setMessage?.({ text: "Profile updated!", isError: false });
+      name: localName,
+      email: localEmail,
+      phone: localPhone,
+      photo: localPhoto,
+    });
+    setEditing("");
   };
 
-  const beginEdit = () => {
-    setManualName(resolvedName);
-    setManualEmail(resolvedEmail);
-    setManualPhone(resolvedPhone);
-    setShowForm(true);
-  };
+  // =============================
+  // Stats calculations
+  // =============================
+  const totalShopOrders = shopOrders.length;
+  const totalShopSpend = shopOrders.reduce(
+    (sum, o) => sum + (o.pricing?.total || 0),
+    0
+  );
 
-  const handleCancel = () => {
-    setShowForm(false);
-    setManualName(dbUser?.name || user?.displayName || "");
-    setManualEmail(dbUser?.email || user?.email || "");
-    setManualPhone(dbUser?.phone || user?.phoneNumber || "");
-    setUploadedPhoto(dbUser?.photo || user?.photoURL || null);
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      localStorage.removeItem("cachedUser");
-      navigate("/home");
-    } catch (err) {
-      setMessage?.({ text: `Logout failed: ${err.message}`, isError: true });
-    }
-  };
-
-  /* ---------------- Long press for preview ---------------- */
-  const handleLongPressStart = () => {
-    pressTimer.current = setTimeout(() => setShowPreview(true), 500);
-  };
-  const handleLongPressEnd = () => clearTimeout(pressTimer.current);
-  const handleClosePreview = () => setShowPreview(false);
-
-  /* ---------------- Effects ---------------- */
-  useEffect(() => {
-    const interval = setInterval(() => setShowTicker((p) => !p), 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Load cached user instantly + sync in background
-  useEffect(() => {
-    if (!user || loadedRef.current) return;
-    loadedRef.current = true;
-
-    const cached = localStorage.getItem("cachedUser");
-    if (cached) {
-      const parsed = JSON.parse(cached);
-      setDbUser(parsed);
-      setManualName(parsed.name);
-      setManualEmail(parsed.email);
-      setManualPhone(parsed.phone);
-      setUploadedPhoto(parsed.photo);
-      setLoading(false);
-    }
-
-    const loadUserData = async () => {
-      try {
-        const fresh = await apiGetUser(user.uid);
-        if (!fresh) return;
-        const cachedUser = cached ? JSON.parse(cached) : null;
-
-        // update if no cache or newer data
-        if (
-          !cachedUser ||
-          new Date(fresh.updatedAt) > new Date(cachedUser.updatedAt)
-        ) {
-          setDbUser(fresh);
-          localStorage.setItem("cachedUser", JSON.stringify(fresh));
-        }
-      } catch (err) {
-        console.error("Sync error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadUserData();
-
-    // optional: auto-refresh every 5 min
-    const interval = setInterval(loadUserData, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, [user]);
-
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <div className="user-profile-modern-container">Loading profile...</div>
-        <Footer />
-      </>
-    );
-  }
-
-  /* ---------------- UI ---------------- */
   return (
-    <>
-      <Header />
-      <div className="user-profile-modern-container">
-        <div className="user-profile-modern-card">
-          <div className="user-profile-modern-content">
-            <div className="user-profile-modern-header">
-              <div className="user-profile-modern-avatar-container">
-                {resolvedPhoto ? (
-                  <img
-                    src={resolvedPhoto}
-                    alt="Profile"
-                    className="user-profile-modern-avatar"
-                    onMouseDown={handleLongPressStart}
-                    onMouseUp={handleLongPressEnd}
-                    onMouseLeave={handleLongPressEnd}
-                    onTouchStart={handleLongPressStart}
-                    onTouchEnd={handleLongPressEnd}
-                  />
-                ) : (
-                  <div className="user-profile-modern-default-avatar">
-                    {getUserInitials() || <FaUser className="avatar-icon" />}
-                  </div>
-                )}
-                <label
-                  htmlFor="upload-photo"
-                  className="user-profile-modern-avatar-upload"
-                >
-                  <FaCamera className="camera-icon" />
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  id="upload-photo"
-                  onChange={handlePhotoChange}
-                  style={{ display: "none" }}
-                />
-              </div>
+    <div className="profile-container">
 
-              <h2 className="user-profile-modern-name">
-                {resolvedName || "User"}
-              </h2>
+      {/* HEADER */}
+      <div className="profile-header">
+        <FaArrowLeft className="back-arrow" onClick={() => navigate("/home")} />
+        <h2 className="profile-title">Personal Information</h2>
+      </div>
 
-              {!showForm && (
-                <button
-                  className="user-profile-modern-edit-btn"
-                  onClick={beginEdit}
-                >
-                  <FaEdit /> Edit Profile
-                </button>
-              )}
-            </div>
+      {/* PROFILE PHOTO */}
+      <div className="profile-photo-section">
+        <div className="photo-wrapper">
+          {localPhoto ? (
+            <img src={localPhoto} className="profile-photo" alt="Profile" />
+          ) : (
+            <FaUserCircle className="profile-photo-icon" />
+          )}
 
-            {/* Edit Form */}
-            {showForm && (
-              <form
-                className="user-profile-modern-form"
-                onSubmit={handleProfileSubmit}
-              >
-                <h3 className="user-profile-modern-form-title">
-                  {providerInfo.isPhone
-                    ? "Complete Your Profile"
-                    : "Update Your Profile"}
-                </h3>
+          <div
+  className="camera-overlay"
+  onClick={() => document.getElementById("profileFile").click()}
+>
+  <FaCamera className="camera-icon" />
+</div>
 
-                <div className="user-profile-modern-form-group">
-                  <label htmlFor="name">Full Name</label>
-                  <input
-                    id="name"
-                    type="text"
-                    placeholder="Enter your name"
-                    value={manualName}
-                    onChange={(e) => setManualName(e.target.value)}
-                  />
-                </div>
+<input
+  type="file"
+  id="profileFile"
+  style={{ display: "none" }}
+  accept="image/*"
+  onChange={handlePhotoChange}
+/>
 
-                <div className="user-profile-modern-form-group">
-                  <label htmlFor="email">Email</label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={manualEmail}
-                    onChange={(e) => setManualEmail(e.target.value)}
-                  />
-                </div>
 
-                <div className="user-profile-modern-form-group">
-                  <label htmlFor="phone">Phone</label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    placeholder="Enter your phone number"
-                    value={manualPhone}
-                    onChange={(e) => setManualPhone(e.target.value)}
-                    pattern="[0-9]{10}"
-                    title="10-digit phone number"
-                  />
-                </div>
-
-                <div className="user-profile-modern-form-actions">
-                  <button
-                    type="submit"
-                    className="user-profile-modern-save-btn"
-                    disabled={isUploading}
-                  >
-                    Save Changes
-                  </button>
-                  <button
-                    type="button"
-                    className="user-profile-modern-cancel-btn"
-                    onClick={handleCancel}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* Contact Info */}
-            <div className="user-profile-modern-details">
-              <div className="user-profile-modern-section">
-                <h6 className="user-profile-modern-section-title">
-                  Contact Information
-                </h6>
-                <div className="user-profile-modern-details-grid">
-                  {resolvedPhone && (
-                    <div className="user-profile-modern-detail-item">
-                      <FaPhone />
-                      <span>{resolvedPhone}</span>
-                    </div>
-                  )}
-                  {resolvedEmail && (
-                    <div className="user-profile-modern-detail-item">
-                      <FaEnvelope />
-                      <span>{resolvedEmail}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <button
-              className="user-profile-modern-share-btn"
-              onClick={() => navigate("/refferal")}
-            >
-              <FaShareAlt />
-              {showTicker ? (
-                <div className="ticker-container">
-                  <div className="ticker-text">Share & Get ₹10 Cashback</div>
-                </div>
-              ) : (
-                <span>Share</span>
-              )}
-            </button>
-
-            <button
-              className="user-profile-modern-logout-btn"
-              onClick={() => setShowLogoutPopup(true)}
-            >
-              <FaSignOutAlt /> Sign Out
-            </button>
-            {showLogoutPopup && (
-              <div className="logout-popup-overlay">
-                <div className="logout-popup">
-                  <div className="logout-popup-icon">⚠️</div>
-                  <h3>Log out now?</h3>
-                  <p>You can always log back in whenever you need us.</p>
-                  <div className="logout-popup-buttons">
-                    <button
-                      className="logout-cancel-btnn"
-                      onClick={() => setShowLogoutPopup(false)}
-                    >
-                      Cancel
-                    </button>
-                    <button className="logout-confirm-btn" onClick={handleLogout}>
-                      Log out
-                    </button>
-                  </div>
-                  <button
-                    className="logout-popup-close"
-                    onClick={() => setShowLogoutPopup(false)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
-      {/* Image Cropper */}
-      {cropMode && (
-        <ImageCropper
-          image={selectedImage}
-          onCropComplete={handleCropComplete}
-          onCancel={() => setCropMode(false)}
-        />
-      )}
+      {/* USER INFO */}
+      <div className="profile-info-section">
+        
+        {/* NAME */}
+        <div className="profile-row">
+          <span className="profile-label">Name</span>
+          <span className="profile-value">
+            {localName || "Not set"}
+            <FaEdit className="edit-icon" onClick={() => setEditing("name")} />
+          </span>
+        </div>
 
-      {/* Long-press preview */}
-      {showPreview && (
-        <div className="profile-preview-overlay" onClick={handleClosePreview}>
-          <div className="profile-preview-circle">
-            <img
-              src={resolvedPhoto}
-              alt="Profile Preview"
-              className="profile-preview-img"
+        {/* EMAIL */}
+        <div className="profile-row">
+          <span className="profile-label">Email</span>
+          <span className="profile-value">
+            {localEmail || "Not set"}
+
+            {provider === "phone" ? (
+              <FaEdit className="edit-icon" onClick={() => setEditing("email")} />
+            ) : (
+              <FaCheckCircle className="verified-icon" />
+            )}
+          </span>
+        </div>
+
+        {/* PHONE */}
+        {/* PHONE */}
+<div className="profile-row">
+  <span className="profile-label">Phone</span>
+
+  <span className="profile-value">
+
+    {localPhone || "Not set"}
+
+    {provider === "phone" ? (
+      // OTP Login → show green verified badge, no edit icon
+      <FaCheckCircle className="verified-icon" style={{ color: "green", marginLeft: 6 }} />
+    ) : (
+      // Other logins → phone can be edited
+      <FaEdit className="edit-icon" onClick={() => setEditing("phone")} />
+    )}
+
+  </span>
+</div>
+
+      </div>
+
+      {/* STATS CARDS */}
+      <div className="profile-stats-wrapper">
+        <div className="profile-stat-card">
+          <h4>Total Shipments</h4>
+          <p>{dbUser?.totalShipments || 0}</p>
+        </div>
+
+        <div className="profile-stat-card">
+          <h4>Shipment Spend</h4>
+          <p>₹{(dbUser?.totalAmountPaid || 0).toFixed(2)}</p>
+        </div>
+
+        <div className="profile-stat-card">
+          <h4>Total Shop Orders</h4>
+          <p>{totalShopOrders}</p>
+        </div>
+
+        <div className="profile-stat-card">
+          <h4>Shop Order Spend</h4>
+          <p>₹{totalShopSpend.toFixed(2)}</p>
+        </div>
+      </div>
+
+      {/* LINKS */}
+      <div className="profile-links-section">
+        <div
+          className="profile-link-row"
+          onClick={() => navigate("/terms-and-condition")}
+        >
+          <span>📄 Terms & Conditions</span>
+          <FaArrowLeft className="arrow-icon rotate-arrow" />
+        </div>
+
+        <div
+          className="profile-link-row"
+          onClick={() => navigate("/privacy-policy")}
+        >
+          <span>🔒 Privacy Policy</span>
+          <FaArrowLeft className="arrow-icon rotate-arrow" />
+        </div>
+      </div>
+
+      {/* EDIT OVERLAY */}
+      {editing && (
+        <div className="edit-overlay" onClick={() => setEditing("")}>
+          <div className="edit-sheet" onClick={(e) => e.stopPropagation()}>
+            
+            <h3 className="edit-title">
+              {editing === "name" && "Full Name"}
+              {editing === "email" && "Email Address"}
+              {editing === "phone" && "Phone Number"}
+            </h3>
+
+            <input
+              type="text"
+              className="edit-input-field"
+              value={
+                editing === "name"
+                  ? localName
+                  : editing === "email"
+                  ? localEmail
+                  : localPhone
+              }
+              onChange={(e) =>
+                editing === "name"
+                  ? setLocalName(e.target.value)
+                  : editing === "email"
+                  ? setLocalEmail(e.target.value)
+                  : setLocalPhone(e.target.value)
+              }
             />
+
+            <button className="edit-update-btn" onClick={handleSave}>
+              Update
+            </button>
+
           </div>
         </div>
       )}
 
-      <Footer />
-    </>
+    </div>
   );
 };
 
