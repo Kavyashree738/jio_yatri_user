@@ -333,15 +333,56 @@ useEffect(() => {
 //   };
 
 
-  const signInWithGoogle = () => {
-  console.log("📱 Asking Flutter for Google Login");
-  
+const signInWithGoogle = async () => {
+  console.log("🔵 Google Login Triggered");
+
+  // 1️⃣ If inside Flutter WebView → call flutter handler
   if (window.flutter_inappwebview) {
+    console.log("📱 Login requested inside WebView");
     window.flutter_inappwebview.callHandler("googleLogin");
-  } else {
-    console.log("❌ Not running inside Flutter WebView");
+    return;
+  }
+
+  // 2️⃣ Otherwise → normal website Google login
+  try {
+    setIsLoading(true);
+    console.log("🌐 Web browser Google Login");
+
+    // Firebase popup login
+    const result = await signInWithPopup(auth, googleProvider);
+
+    // Firebase token
+    const firebaseToken = await result.user.getIdToken(true);
+
+    // Send to backend
+    const response = await fetch("https://jio-yatri-user.onrender.com/api/auth/google-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firebaseToken,
+        referralCode: referralCode || null,
+      }),
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      setMessage({ text: data.message, isError: true });
+      return;
+    }
+
+    // Backend custom token sign-in
+    await signInWithCustomToken(auth, data.firebaseToken);
+
+    setMessage({ text: "Google Login Successful!", isError: false });
+
+  } catch (error) {
+    console.error("❌ Web Google login error:", error);
+    setMessage({ text: "Google login failed", isError: true });
+  } finally {
+    setIsLoading(false);
   }
 };
+
 
   return (
     <section className="hero-section" id="hero">
