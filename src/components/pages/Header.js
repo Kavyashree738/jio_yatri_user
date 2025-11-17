@@ -113,10 +113,11 @@ const profileEmail =
 
           <nav className="nav-links">
             <Link to="/home">Home</Link>
-            {/* <Link to="/enterprise">Enterprise</Link>
-            <Link to="/partners">Partners</Link>
-            <Link to="/shipment">Shipment</Link>
-            <Link to="/orders">Orders</Link> */}
+             {/* <Link to="/enterprise">Enterprise</Link>
+            <Link to="/partners">Partners</Link> */}
+          
+             <Link to="/orders">Orders</Link> 
+              <Link to="/shipment">Shipment</Link>
 
             {user && (
               <button className="profile-icon" onClick={handleProfileClick}>
