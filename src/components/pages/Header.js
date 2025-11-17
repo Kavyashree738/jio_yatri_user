@@ -49,36 +49,36 @@ const Header = () => {
   }, [user, isGoogleLogin]);
 
   // Read saved Google details (optional)
-// Read saved Google details
-const googlePhoto = localStorage.getItem("googlePhoto");
-const googleName = localStorage.getItem("googleName");
-const googleEmail = localStorage.getItem("googleEmail");
+  // Read saved Google details
+  const googlePhoto = localStorage.getItem("googlePhoto");
+  const googleName = localStorage.getItem("googleName");
+  const googleEmail = localStorage.getItem("googleEmail");
 
-// ⭐ Read DB details
-const dbPhoto = localStorage.getItem("dbPhoto");
-const dbName = localStorage.getItem("dbName");
-const dbEmail = localStorage.getItem("dbEmail");
+  // ⭐ Read DB details
+  const dbPhoto = localStorage.getItem("dbPhoto");
+  const dbName = localStorage.getItem("dbName");
+  const dbEmail = localStorage.getItem("dbEmail");
 
-// ⭐ Updated profile photo priority
-const profilePhoto =
-  dbPhoto ||            // always show DB updated photo first
-  user?.photoURL ||     // firebase/google
-  googlePhoto ||        // stored google
-  null;
+  // ⭐ Updated profile photo priority
+  const profilePhoto =
+    dbPhoto ||            // always show DB updated photo first
+    user?.photoURL ||     // firebase/google
+    googlePhoto ||        // stored google
+    null;
 
-// ⭐ Updated name + email priority
-const profileName =
-  dbName ||
-  user?.displayName ||
-  googleName ||
-  user?.phoneNumber ||
-  "User";
+  // ⭐ Updated name + email priority
+  const profileName =
+    dbName ||
+    user?.displayName ||
+    googleName ||
+    user?.phoneNumber ||
+    "User";
 
-const profileEmail =
-  dbEmail ||
-  user?.email ||
-  googleEmail ||
-  "";
+  const profileEmail =
+    dbEmail ||
+    user?.email ||
+    googleEmail ||
+    "";
 
 
   const handleProfileClick = () => navigate("/profile");
@@ -98,9 +98,12 @@ const profileEmail =
     <>
       {/* 🔵 Top Strip */}
       <div className="top-strip">
-        <div className="hamburger-menu" onClick={() => setSidebarOpen(true)}>
-          <FaBars size={23} />
-        </div>
+        {user && (
+          <div className="hamburger-menu" onClick={() => setSidebarOpen(true)}>
+            <FaBars size={23} />
+          </div>
+        )}
+
         <h1>Mokshambani Tech Services PVT LTD</h1>
       </div>
 
@@ -113,11 +116,11 @@ const profileEmail =
 
           <nav className="nav-links">
             <Link to="/home">Home</Link>
-             {/* <Link to="/enterprise">Enterprise</Link>
+            {/* <Link to="/enterprise">Enterprise</Link>
             <Link to="/partners">Partners</Link> */}
-          
-             <Link to="/orders">Orders</Link> 
-              <Link to="/shipment">Shipment</Link>
+
+            <Link to="/orders">Orders</Link>
+            <Link to="/shipment">Shipment</Link>
 
             {user && (
               <button className="profile-icon" onClick={handleProfileClick}>
@@ -237,7 +240,7 @@ const profileEmail =
           <span>Partners</span>
         </Link> */}
 
-       
+
 
         <Link
           to="/orders"
@@ -248,7 +251,7 @@ const profileEmail =
           <span>Orders</span>
         </Link>
 
-         <Link
+        <Link
           to="/shipment"
           className={`mobile-nav-link ${location.pathname === "/shipment" ? "active" : ""
             }`}
@@ -295,13 +298,13 @@ const profileEmail =
 
               <button
                 className="confirmButton"
-               onClick={async () => {
-  localStorage.clear();
-  await logout();        // ⬅️ wait for auth to update
-  setShowLogoutPopup(false);
-  setSidebarOpen(false); // ⬅️ close sidebar manually
-  navigate("/home");
-}}
+                onClick={async () => {
+                  localStorage.clear();
+                  await logout();        // ⬅️ wait for auth to update
+                  setShowLogoutPopup(false);
+                  setSidebarOpen(false); // ⬅️ close sidebar manually
+                  navigate("/home");
+                }}
 
               >
                 Logout
