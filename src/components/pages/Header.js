@@ -22,6 +22,9 @@ import {
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/images/logo.jpg";
 import { useAuth } from "../../context/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "../../firebase";
+
 
 const Header = () => {
   const { user, logout } = useAuth();
@@ -299,16 +302,17 @@ const Header = () => {
               <button
                 className="confirmButton"
                 onClick={async () => {
-                  localStorage.clear();
-                  await logout();        // ⬅️ wait for auth to update
+                  await signOut(auth);  // 🔥 LOGOUT FIREBASE
+                  localStorage.clear(); // clear UI data
+                  await logout();        // update context
                   setShowLogoutPopup(false);
-                  setSidebarOpen(false); // ⬅️ close sidebar manually
+                  setSidebarOpen(false);
                   navigate("/home");
                 }}
-
               >
                 Logout
               </button>
+
             </div>
           </div>
         </div>
