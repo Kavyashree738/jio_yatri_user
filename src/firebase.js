@@ -9,6 +9,7 @@ import {
   signInWithRedirect,
   getRedirectResult,
   signOut,
+   signInWithCredential 
 } from 'firebase/auth';
 import { getDatabase } from 'firebase/database'; 
 
@@ -36,6 +37,7 @@ export {
   RecaptchaVerifier,
   signInWithRedirect,
   getRedirectResult,
+   signInWithCredential,
   signOut,
    db,
 };

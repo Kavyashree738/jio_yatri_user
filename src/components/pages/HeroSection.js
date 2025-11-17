@@ -5,7 +5,8 @@ import { FcGoogle } from 'react-icons/fc';
 import { FaApple } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
 import PhoneInput from 'react-phone-input-2';
-import { signInWithCustomToken, signInWithPopup } from 'firebase/auth';
+import { signInWithCustomToken, signInWithPopup ,GoogleAuthProvider,
+  signInWithCredential } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 import 'react-phone-input-2/lib/style.css';
 import '../../styles/HeroSection.css';
