@@ -595,7 +595,7 @@ body {
 }
 
 /* Highlight matching text */
-.highlight {
+.highlights {
   background-color: #fffacd;
   font-weight: bold;
   padding: 0 2px;
@@ -1067,7 +1067,7 @@ footer {
 }
 
 /* Highlight for search results */
-.highlight {
+.highlights {
   background-color: yellow;
   font-weight: bold;
 }
@@ -1474,7 +1474,7 @@ footer {
 }
 
 /* Highlight Text */
-.highlight {
+.highlights {
   background-color: #fffacd;
   font-weight: bold;
   padding: 0 2px;

@@ -1049,7 +1049,7 @@ const UserShipments = () => {
     const regex = new RegExp(`(${searchTerm})`, 'gi');
     return text.toString().split(regex).map((part, i) =>
       part.toLowerCase() === searchTerm.toLowerCase() ? (
-        <span key={i} className="highlight">{part}</span>
+        <span key={i} className="highlights">{part}</span>
       ) : (
         part
       )

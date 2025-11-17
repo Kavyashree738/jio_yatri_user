@@ -104,7 +104,7 @@ const ShipmentsDetails = () => {
       .split(regex)
       .map((part, i) =>
         part.toLowerCase() === searchTerm.toLowerCase() ? (
-          <span key={i} className="highlight">
+          <span key={i} className="highlights">
             {part}
           </span>
         ) : (
