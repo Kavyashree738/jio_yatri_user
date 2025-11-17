@@ -20,6 +20,15 @@ import driverWaiting from "../../assets/animations/driver.json"; // your downloa
 
 
 
+import bikeImg from '../../assets/images/vehicles/two-wheeler.png';
+import autoImg from '../../assets/images/vehicles/three-wheeler.png';
+import truckImg from '../../assets/images/vehicles/truck.png';
+import bularaImg from '../../assets/images/vehicles/bulara.png';
+import tata407Img from '../../assets/images/vehicles/tata-407.png';
+import containerImg from '../../assets/images/vehicles/truck.png';
+
+
+
 
 // import { FaPhone } from 'react-icons/fa';
 
@@ -30,7 +39,7 @@ const vehicleTypes = [
     name: 'Bike',
     rate: 30,
     rateFor2Km: 60,
-    emoji: '🛵',
+    image: bikeImg,
     capacity: 'Up to 20kg',
     available: true,
     displayRate: "₹60 per 2 km"
@@ -40,7 +49,7 @@ const vehicleTypes = [
     name: 'Auto',
     rate: 40,
     rateFor2Km: 80,
-    emoji: '🛺',
+    image: autoImg,
     capacity: 'Up to 200kg',
     available: true,
     displayRate: "₹80 per 2 km"
@@ -50,17 +59,17 @@ const vehicleTypes = [
     name: 'Truck',
     rate: 60,
     rateFor2Km: 120,
-    emoji: '🚚',
+    image: truckImg,
     capacity: 'Up to 1200kg',
     available: true,
     displayRate: "₹120 per 2 km"
   },
   {
     type: 'Pickup9ft',
-    name: 'bulara',
+    name: 'Bulara',
     rate: 175,
     rateFor2Km: 350,
-    emoji: '🛻',
+    image: bularaImg,
     capacity: 'Up to 1700kg',
     available: true,
     displayRate: "₹350 per 2 km"
@@ -70,7 +79,7 @@ const vehicleTypes = [
     name: 'Tata 407',
     rate: 300,
     rateFor2Km: 600,
-    emoji: '🚛',
+    image: tata407Img,
     capacity: 'Up to 2500kg',
     available: true,
     displayRate: "₹600 per 2 km"
@@ -80,13 +89,14 @@ const vehicleTypes = [
     name: 'Container Truck',
     rate: 80,
     rateFor2Km: 160,
-    emoji: '🚒',
+    image: containerImg,
     capacity: 'Up to 5000kg',
     available: false,
     comingSoon: true,
     displayRate: "₹700 per 2 km"
   }
 ];
+
 
 const paymentMethods = [
   { id: 'razorpay', name: 'Online', description: 'Secure payment with Razorpay', icon: '💳' },
@@ -2164,7 +2174,7 @@ function ShipmentPage() {
                   className={`vehicle-option ${shipmentData.vehicleType === vehicle.type ? 'selected' : ''} ${!vehicle.available ? 'unavailable' : ''}`}
                   onClick={() => vehicle.available && handleVehicleSelect(vehicle.type)}
                 >
-                  <div className="vehicle-icons">{vehicle.emoji}</div>
+                   <img src={vehicle.image} alt={vehicle.name} className="vehicle-icon" />
                   <div className="vehicle-info">
                     <div className="vehicle-name">{vehicle.name}</div>
                     <div className="vehicle-capacity">{vehicle.capacity}</div>
@@ -2270,7 +2280,7 @@ function ShipmentPage() {
                   className={`vehicle-option ${shipmentData.vehicleType === vehicle.type ? 'selected' : ''} ${!vehicle.available ? 'unavailable' : ''}`}
                   onClick={() => vehicle.available && handleVehicleSelect(vehicle.type)}
                 >
-                  <div className="vehicle-icons">{vehicle.emoji}</div>
+                   <img src={vehicle.image} alt={vehicle.name} className="vehicle-icon" />
                   <div className="vehicle-info">
                     <div className="vehicle-name">{vehicle.name}</div>
                     <div className="vehicle-capacity">{vehicle.capacity}</div>

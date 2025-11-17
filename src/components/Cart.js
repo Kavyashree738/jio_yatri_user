@@ -273,7 +273,7 @@ export default function CartPage() {
     <>
       <Header />
       <div className="cart-page">
-        <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
+        {/* <button className="back-btn" onClick={() => navigate(-1)}>← Back</button> */}
 
         <div className="cart-topbar">
        <h2>Cart · {(completeShopData || bucket.shop)?.shopName}</h2>
@@ -460,7 +460,7 @@ export default function CartPage() {
                     aria-pressed={isSelected}
                   >
                     {v.comingSoon && <div className="coming-soon cart-coming-soon">Coming&nbsp;Soon</div>}
-                    <div className="vehicle-icons cart-vehicle-icons">{v.emoji}</div>
+                   <img src={v.img} alt={v.name} className="vehicle-icon" />
 
                     <div className="vehicle-info cart-vehicle-info">
                       <div className="vehicle-name cart-vehicle-name">{v.name}</div>

@@ -3789,3 +3789,13 @@ margin-left:10px;
   margin-right:10px;
   margin-left:10px;
 }
+
+.vehicle-icon {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+}
+.vehicle-option {
+  display: flex;
+  align-items: center;
+}
