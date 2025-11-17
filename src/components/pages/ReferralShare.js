@@ -188,7 +188,7 @@ const shareViaOther = () => {
           </div>
           <h3>Invite Friends & Earn Together!</h3>
           <p className="subtext">
-            Share your referral code and get <span className="highlight">₹10 cashback</span> when they sign up
+            Share your referral code and get <span className="highlight-text">₹10 cashback</span> when they sign up
           </p>
         </div>
 
