@@ -562,78 +562,115 @@ const UserProfile = () => {
   // =============================
   // Fetch MongoDB User
   // =============================
+
+
+  // Load cached data instantly
+useEffect(() => {
+  const cachedUser = localStorage.getItem("dbUser");
+  const cachedOrders = localStorage.getItem("shopOrders");
+
+  if (cachedUser) {
+    const parsed = JSON.parse(cachedUser);
+    setDbUser(parsed);
+    setLocalName(parsed.name || "");
+    setLocalEmail(parsed.email || user?.email || "");
+    setLocalPhone(parsed.phone || "");
+    setLocalPhoto(parsed.photo || user?.photoURL || "");
+  }
+
+  if (cachedOrders) {
+    setShopOrders(JSON.parse(cachedOrders));
+  }
+}, []);
+
   useEffect(() => {
-    const fetchDbUser = async () => {
-      if (!user?.uid) return;
+  const fetchDbUser = async () => {
+    if (!user?.uid) return;
 
-      try {
-        const res = await fetch(`${USER_API}/${user.uid}`);
-        const data = await res.json();
+    try {
+      const res = await fetch(`${USER_API}/${user.uid}`);
+      const data = await res.json();
 
-        if (data.uid) {
-          setDbUser(data);
-          setLocalName(data.name || "");
-          setLocalEmail(data.email || user.email || "");
-          setLocalPhone(data.phone || "");
-          setLocalPhoto(data.photo || user.photoURL || "");
-        }
-      } catch (err) {
-        // console.log("❌ Failed to fetch DB user:", err);
+      if (!data.uid) return;
+
+      const cachedUser = localStorage.getItem("dbUser");
+      const parsedCache = cachedUser ? JSON.parse(cachedUser) : null;
+
+      if (JSON.stringify(parsedCache) !== JSON.stringify(data)) {
+        setDbUser(data);
+        setLocalName(data.name || "");
+        setLocalEmail(data.email || user.email || "");
+        setLocalPhone(data.phone || "");
+        setLocalPhoto(data.photo || user.photoURL || "");
+
+        localStorage.setItem("dbUser", JSON.stringify(data));
       }
-    };
 
-    fetchDbUser();
-  }, [user]);
+    } catch (err) {
+      console.log("❌ Failed to fetch DB user:", err);
+    }
+  };
+
+  fetchDbUser();
+}, [user]);
+
 
   // =============================
   // Fetch Shop Orders
   // =============================
   useEffect(() => {
-    const fetchShopOrders = async () => {
-      if (!user) return;
+  const fetchShopOrders = async () => {
+    if (!user) return;
 
-      try {
-        const token = await user.getIdToken();
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(ORDERS_API, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-        const res = await fetch(ORDERS_API, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+      const data = await res.json();
+      if (!data.success) return;
 
-        const data = await res.json();
-        if (data.success && Array.isArray(data.data)) {
-          setShopOrders(data.data);
-        }
-      } catch (err) {
-        // console.log("❌ Failed to fetch shop orders:", err);
+      const cachedOrders = localStorage.getItem("shopOrders");
+      const parsedCache = cachedOrders ? JSON.parse(cachedOrders) : [];
+
+      if (JSON.stringify(parsedCache) !== JSON.stringify(data.data)) {
+        setShopOrders(data.data);
+        localStorage.setItem("shopOrders", JSON.stringify(data.data));
       }
-    };
 
-    fetchShopOrders();
-  }, [user]);
+    } catch (err) {
+      console.log("❌ Failed to fetch shop orders:", err);
+    }
+  };
+
+  fetchShopOrders();
+}, [user]);
+
 
   // =============================
   // Update user in DB
   // =============================
   const updateUserInDB = async (payload) => {
-    try {
-      const res = await fetch(USER_API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+  try {
+    const res = await fetch(USER_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (data.user) {
-        setDbUser(data.user);
-        setMessage?.({ text: "Profile updated!", isError: false });
-      }
-    } catch (error) {
-      setMessage?.({ text: "Update failed!", isError: true });
+    if (data.user) {
+      setDbUser(data.user);
+      localStorage.setItem("dbUser", JSON.stringify(data.user)); // ⭐ add this
+      setMessage?.({ text: "Profile updated!", isError: false });
     }
-  };
+  } catch (error) {
+    setMessage?.({ text: "Update failed!", isError: true });
+  }
+};
+
 
   // =============================
   // Save Name / Email / Phone
