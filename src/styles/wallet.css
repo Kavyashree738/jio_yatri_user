@@ -1,0 +1,144 @@
+/* ================================
+   WALLET PAGE CONTAINER
+=================================== */
+.wallet-container {
+  padding: 16px;
+  background: #fff;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+}
+
+/* ================================
+   HEADER
+=================================== */
+.wallet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.wallet-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.wallet-history {
+  color: #00a859; /* green like screenshot */
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ================================
+   BALANCE CARD
+=================================== */
+.balance-card {
+  background: #f8f8f8;
+  padding: 20px;
+  border-radius: 15px;
+  margin-bottom: 22px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.balance-label {
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.balance-amount {
+  font-size: 34px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+}
+
+/* ================================
+   COUPONS ROW
+=================================== */
+.coupon-row {
+  display: flex;
+  align-items: center;
+  padding: 14px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.coupon-row span {
+  margin-left: 12px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.coupon-icon {
+  font-size: 20px;
+  color: #00a859;
+}
+
+/* ================================
+   WALLET HISTORY PAGE
+=================================== */
+.wallet-history-container {
+  padding: 16px;
+  min-height: 100vh;
+  background: #fff;
+  font-family: "Inter", sans-serif;
+}
+
+/* ================================
+   HISTORY LIST ITEM
+=================================== */
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.history-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.history-date {
+  font-size: 12px;
+  color: #777;
+}
+
+.history-amount {
+  font-size: 16px;
+  font-weight: 700;
+  color: #00a859;
+}
+
+/* ================================
+   EMPTY HISTORY TEXT
+=================================== */
+.empty-text {
+  text-align: center;
+  padding: 30px;
+  color: #777;
+  font-size: 15px;
+}
+.wallet-lottie-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.wallet-lottie {
+  width: 260px;
+  height: auto;
+}

@@ -1,0 +1,256 @@
+/* ============================
+   Page Container
+=============================== */
+.shop-orders-page {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  font-family: "Poppins", sans-serif;
+  margin-top:40px;
+  margin-bottom:40px;
+}
+
+/* Title */
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #111;
+  text-align: center;
+}
+
+/* ============================
+   Search Box
+=============================== */
+.search-box {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #dce1e7;
+  border-radius: 12px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s ease;
+  margin-bottom: 18px;
+  background: #f9fafc;
+}
+
+.search-box:focus {
+  border-color: #5a8fff;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(90, 143, 255, 0.15);
+}
+
+/* Highlighted text */
+.highlight {
+  background: #ffeb3b;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+/* ============================
+   Order List
+=============================== */
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ============================
+   Order Card
+=============================== */
+.order-card-ui {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  transition: 0.25s ease;
+  border: 1px solid #f1f1f1;
+}
+
+.order-card-ui:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* ============================
+   Header Row
+=============================== */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #444;
+}
+
+.order-id {
+  font-weight: 600;
+  color: #222;
+  font-size: 15px;
+}
+
+.order-date {
+  color: #777;
+}
+
+/* ============================
+   Shop Info
+=============================== */
+.shop-info {
+  background: #f7f9ff;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  border-left: 4px solid #4e73df;
+}
+
+.shop-info p {
+  margin: 3px 0;
+  font-size: 14px;
+}
+
+/* ============================
+   Items Section
+=============================== */
+.items-container h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.item-row {
+  display: grid;
+  grid-template-columns: 1.5fr 0.5fr 1fr 1fr;
+  align-items: center;
+  background: #fafafa;
+  margin-bottom: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.item-name {
+  font-weight: 500;
+}
+
+.item-total {
+  font-weight: 700;
+  color: #111;
+}
+
+/* ============================
+   Total Row
+=============================== */
+.order-total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fdf4e3;
+  border-left: 4px solid #ffb300;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ============================
+   Status Row
+=============================== */
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.status-row p {
+  margin: 0;
+}
+
+.status-row p strong {
+  color: #444;
+}
+
+/* Status badge colors */
+.status-row p:nth-child(1) span {
+  color: #2b7a0b !important; /* delivered */
+}
+
+.status-row p:nth-child(1) span.pending {
+  color: #f57c00 !important; /* pending */
+}
+
+.status-row p:nth-child(1) span.cancelled {
+  color: #d32f2f !important; /* cancelled */
+}
+
+/* Payment badge */
+.status-row p:nth-child(2) span {
+  color: #1a73e8;
+}
+
+/* ============================
+   Cancel button
+=============================== */
+.cancel-btn {
+  width: 100%;
+  padding: 10px;
+  background: #ff5252;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  margin-top: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: #e53835;
+}
+
+/* ============================
+   No Orders Section
+=============================== */
+.no-orders-wrapper {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.no-orders-img {
+  width: 200px;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+.no-orders-wrapper p {
+  color: #555;
+  font-size: 15px;
+}
+
+/* ============================
+   Responsiveness
+=============================== */
+@media (max-width: 600px) {
+  .item-row {
+    grid-template-columns: 1fr 0.4fr 0.7fr 1fr;
+    font-size: 13px;
+  }
+  .order-card-ui {
+    padding: 15px;
+  }
+  .title {
+    font-size: 18px;
+  }
+}
+.no-orders-animation {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.no-orders-text {
+  font-size: 18px;
+  margin-top: -10px;
+  color: #777;
+}

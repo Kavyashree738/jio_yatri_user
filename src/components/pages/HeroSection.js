@@ -29,6 +29,9 @@ const HeroSection = () => {
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
    const [acceptedTerms, setAcceptedTerms] = useState(false);
 
+     const TEST_GOOGLE_PHONE = "7777777777"; // only your test number
+  const isGoogleTester = phoneNumber.endsWith(TEST_GOOGLE_PHONE);
+
   const TEST_PHONE = "+911234567898";
   const TEST_OTP = "1234";
 
@@ -216,16 +219,13 @@ useEffect(() => {
     return /wv|WebView|iPhone|iPod|iPad|Android.*Version\/[\d.]+.*Chrome/.test(ua);
   };
 
-  const signInWithGoogle = async () => {
+const signInWithGoogle = async () => {
     if (isWebView()) {
-      // Set flag for app context
       sessionStorage.setItem('fromApp', 'true');
 
-      // Android native bridge
       if (window.AndroidApp?.openBrowser) {
         window.AndroidApp.openBrowser(`${window.location.origin}/google-login?source=app`);
       } else {
-        // Fallback for WebView without bridge
         window.location.href = `${window.location.origin}/google-login?source=app`;
       }
       return;
@@ -233,41 +233,47 @@ useEffect(() => {
 
     try {
       setIsLoading(true);
+
+      // 1️⃣ Sign in with Google via Firebase
       const result = await signInWithPopup(auth, googleProvider);
 
-      if (referralCode) {
-        // console.log('Applying referral code:', referralCode);
-        try {
-          const token = await result.user.getIdToken();
-          // console.log('User token:', token);
-          
-          const referralResponse = await handleApiRequest(
-            `https://jio-yatri-user.onrender.com/api/users/apply-referral`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({ referralCode }),
-            }
-          );
-          
-          // console.log('Referral application response:', referralResponse);
-        } catch (referralError) {
-          // console.error('Referral application failed:', referralError);
-          throw referralError;
-        }
-      } else {
-        // console.log('No referral code provided');
-      }
-      setMessage({ text: 'Google sign-in successful!', isError: false });
-      setReferralCode('');
-    } catch (error) {
-      setMessage({
-        text: `Google sign-in failed: ${error.message}`,
-        isError: true
+      // 2️⃣ Get Firebase token
+      const token = await result.user.getIdToken(true);
+
+      // 3️⃣ CREATE USER IN MONGODB (this was missing!!)
+      await handleApiRequest("https://jio-yatri-user.onrender.com/api/users", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          uid: result.user.uid,
+          name: result.user.displayName,
+          email: result.user.email,
+          photo: result.user.photoURL,
+          referralCodeEntered: referralCode || null
+        })
       });
+
+      // 4️⃣ If referral exists, apply it
+      // if (referralCode) {
+      //   await handleApiRequest("http://localhost:5000/api/users/apply-referral", {
+      //     method: "POST",
+      //     headers: {
+      //       "Authorization": `Bearer ${token}`,
+      //       "Content-Type": "application/json"
+      //     },
+      //     body: JSON.stringify({ referralCode })
+      //   });
+      // }
+
+      setMessage({ text: "Google Login Successful!", isError: false });
+      setReferralCode("");
+
+    } catch (error) {
+      console.error("Google login error:", error);
+      setMessage({ text: "Google login failed: " + error.message, isError: true });
     } finally {
       setIsLoading(false);
     }
@@ -358,6 +364,33 @@ useEffect(() => {
               >
                 {isLoading ? 'Sending...' : 'Send Verification Code'}
               </button>
+
+
+              <div className="divider">or</div>
+
+              <div className="social-buttons">
+                {isGoogleTester && (
+                  <button
+                    type="button"
+                    className={`google-btn ${acceptedTerms ? "enabled" : "disabled"}`}
+                    onClick={acceptedTerms ? signInWithGoogle : null}
+                    disabled={!acceptedTerms || isLoading}
+                  >
+                    <FcGoogle className="social-icon" />
+                    <span>{isLoading ? "Signing in..." : "Continue with Google"}</span>
+                  </button>
+                )}
+
+
+                {/* <button type="button" className="apple-btn" disabled={isLoading}>
+                  <FaApple className="social-icon" size={20} />
+                  <span>Continue with Apple</span>
+                </button>
+                <button type="button" className="email-btn" disabled={isLoading}>
+                  <MdEmail className="social-icon" size={20} />
+                  <span>Continue with Email</span>
+                </button> */}
+              </div>
 
               
 

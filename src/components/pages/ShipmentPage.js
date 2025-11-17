@@ -2053,10 +2053,22 @@ function ShipmentPage() {
               <div className="image-upload-section">
                 {/* When clicked, open the bottom-sheet options */}
                 <label
-                  className="image-upload-label"
+                  className="image-upload"
                   onClick={() => setShowUploadOptions(true)}
                 >
-                  📷
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </svg>
                 </label>
 
                 {/* Hidden inputs for Camera and Gallery */}
