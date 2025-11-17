@@ -600,8 +600,62 @@ const verifyOtp = async (req, res) => {
 };
 
 
+const googleLogin = async (req, res) => {
+  try {
+    const { firebaseToken } = req.body;
 
-module.exports = { sendOtp, verifyOtp };
+    if (!firebaseToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing firebaseToken"
+      });
+    }
+
+    // 1️⃣ Verify Google Firebase token
+    const decoded = await admin.auth().verifyIdToken(firebaseToken);
+    const uid = decoded.uid;
+    const name = decoded.name || "";
+    const email = decoded.email || "";
+    const photo = decoded.picture || "";
+
+    console.log("Google Login Verified:", uid);
+
+    // 2️⃣ Find or Create User
+    let user = await User.findOne({ uid });
+
+    if (!user) {
+      user = await User.create({
+        uid,
+        name,
+        email,
+        photo
+      });
+
+      console.log("New user created:", uid);
+    }
+
+    // 3️⃣ Create Firebase Custom Token for login
+    const customToken = await admin.auth().createCustomToken(uid);
+
+    return res.json({
+      success: true,
+      message: "Google login successful",
+      firebaseToken: customToken,
+      user
+    });
+
+  } catch (error) {
+    console.error("Google Login Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Google login failed",
+      error: error.message
+    });
+  }
+};
+
+
+module.exports = { sendOtp, verifyOtp,googleLogin };
 
 
 

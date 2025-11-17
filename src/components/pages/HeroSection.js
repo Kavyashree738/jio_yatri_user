@@ -46,6 +46,17 @@ const HeroSection = () => {
     visible: { opacity: 1, y: 0 },
   };
 
+
+   useEffect(() => {
+  // Flutter sends Google ID token here
+  window.onGoogleLogin = async (googleIdToken) => {
+    console.log("🟢 WebView: Received Google Token:", googleIdToken);
+    await handleGoogleToken(googleIdToken);   // call handler function
+  };
+
+  console.log("📌 window.onGoogleLogin registered");
+}, []);
+
   useEffect(() => {
     let timer;
     if (user) {
@@ -199,6 +210,47 @@ const handleApiRequest = async (url, options = {}) => {
     }
   };
 
+
+  const handleGoogleToken = async (googleIdToken) => {
+  try {
+    setIsLoading(true);
+
+    // 1️⃣ Convert Google token → Firebase credential
+    const credential = GoogleAuthProvider.credential(googleIdToken);
+    const userCred = await signInWithCredential(auth, credential);
+
+    // 2️⃣ Get Firebase Token
+    const firebaseToken = await userCred.user.getIdToken(true);
+
+    // 3️⃣ Send to backend for user creation + custom token
+    const response = await fetch("https://jio-yatri-user.onrender.com/api/auth/google-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firebaseToken,
+        referralCode: referralCode || null
+      }),
+    });
+
+    const data = await response.json();
+    if (!data.success) {
+      setMessage({ text: data.message, isError: true });
+      return;
+    }
+
+    // 4️⃣ Replace session with backend custom Firebase token
+    await signInWithCustomToken(auth, data.firebaseToken);
+
+    setMessage({ text: "Google Login Successful!", isError: false });
+
+  } catch (error) {
+    console.error("Google login WebView error:", error);
+    setMessage({ text: "Google login failed", isError: true });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
   // ✅ Auto-verify when OTP is fully entered or auto-filled
 useEffect(() => {
   // Run only if 4 digits entered, not already loading, and OTP screen is visible
@@ -219,66 +271,76 @@ useEffect(() => {
     return /wv|WebView|iPhone|iPod|iPad|Android.*Version\/[\d.]+.*Chrome/.test(ua);
   };
 
-const signInWithGoogle = async () => {
-    if (isWebView()) {
-      sessionStorage.setItem('fromApp', 'true');
+// const signInWithGoogle = async () => {
+//     if (isWebView()) {
+//       sessionStorage.setItem('fromApp', 'true');
 
-      if (window.AndroidApp?.openBrowser) {
-        window.AndroidApp.openBrowser(`${window.location.origin}/google-login?source=app`);
-      } else {
-        window.location.href = `${window.location.origin}/google-login?source=app`;
-      }
-      return;
-    }
+//       if (window.AndroidApp?.openBrowser) {
+//         window.AndroidApp.openBrowser(`${window.location.origin}/google-login?source=app`);
+//       } else {
+//         window.location.href = `${window.location.origin}/google-login?source=app`;
+//       }
+//       return;
+//     }
 
-    try {
-      setIsLoading(true);
+//     try {
+//       setIsLoading(true);
 
-      // 1️⃣ Sign in with Google via Firebase
-      const result = await signInWithPopup(auth, googleProvider);
+//       // 1️⃣ Sign in with Google via Firebase
+//       const result = await signInWithPopup(auth, googleProvider);
 
-      // 2️⃣ Get Firebase token
-      const token = await result.user.getIdToken(true);
+//       // 2️⃣ Get Firebase token
+//       const token = await result.user.getIdToken(true);
 
-      // 3️⃣ CREATE USER IN MONGODB (this was missing!!)
-      await handleApiRequest("https://jio-yatri-user.onrender.com/api/users", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          uid: result.user.uid,
-          name: result.user.displayName,
-          email: result.user.email,
-          photo: result.user.photoURL,
-          referralCodeEntered: referralCode || null
-        })
-      });
+//       // 3️⃣ CREATE USER IN MONGODB (this was missing!!)
+//       await handleApiRequest("https://jio-yatri-user.onrender.com/api/users", {
+//         method: "POST",
+//         headers: {
+//           "Authorization": `Bearer ${token}`,
+//           "Content-Type": "application/json"
+//         },
+//         body: JSON.stringify({
+//           uid: result.user.uid,
+//           name: result.user.displayName,
+//           email: result.user.email,
+//           photo: result.user.photoURL,
+//           referralCodeEntered: referralCode || null
+//         })
+//       });
 
-      // 4️⃣ If referral exists, apply it
-      // if (referralCode) {
-      //   await handleApiRequest("http://localhost:5000/api/users/apply-referral", {
-      //     method: "POST",
-      //     headers: {
-      //       "Authorization": `Bearer ${token}`,
-      //       "Content-Type": "application/json"
-      //     },
-      //     body: JSON.stringify({ referralCode })
-      //   });
-      // }
+//       // 4️⃣ If referral exists, apply it
+//       // if (referralCode) {
+//       //   await handleApiRequest("http://localhost:5000/api/users/apply-referral", {
+//       //     method: "POST",
+//       //     headers: {
+//       //       "Authorization": `Bearer ${token}`,
+//       //       "Content-Type": "application/json"
+//       //     },
+//       //     body: JSON.stringify({ referralCode })
+//       //   });
+//       // }
 
-      setMessage({ text: "Google Login Successful!", isError: false });
-      setReferralCode("");
+//       setMessage({ text: "Google Login Successful!", isError: false });
+//       setReferralCode("");
 
-    } catch (error) {
-      console.error("Google login error:", error);
-      setMessage({ text: "Google login failed: " + error.message, isError: true });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+//     } catch (error) {
+//       console.error("Google login error:", error);
+//       setMessage({ text: "Google login failed: " + error.message, isError: true });
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
 
+
+  const signInWithGoogle = () => {
+  console.log("📱 Asking Flutter for Google Login");
+  
+  if (window.flutter_inappwebview) {
+    window.flutter_inappwebview.callHandler("googleLogin");
+  } else {
+    console.log("❌ Not running inside Flutter WebView");
+  }
+};
 
   return (
     <section className="hero-section" id="hero">
