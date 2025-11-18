@@ -227,7 +227,7 @@ const sendOtp = async (req, res) => {
     // Check for recent OTP
      const recentOtp = await admin.firestore().collection('otps').doc(phoneNumber).get();
      const lastSentAt = recentOtp.exists ? recentOtp.data().lastSentAt?.toMillis?.() : 0;
-   if (lastSentAt && lastSentAt > Date.now() - 300_000) {
+   if (lastSentAt && lastSentAt > Date.now() - 30_000) {
       return res.status(429).json({
         success: false,
         error: 'otp_already_sent',
@@ -656,6 +656,7 @@ const googleLogin = async (req, res) => {
 
 
 module.exports = { sendOtp, verifyOtp,googleLogin };
+
 
 
 
