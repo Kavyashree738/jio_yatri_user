@@ -48,6 +48,14 @@ const HeroSection = () => {
   };
 
 
+  useEffect(() => {
+  window.fillOtpFromNative = (otp) => {
+    console.log("📩 Auto OTP from mobile:", otp);
+    setOtp(otp);
+  };
+}, []);
+
+
    useEffect(() => {
   // Flutter sends Google ID token here
   window.onGoogleLogin = async (googleIdToken) => {
