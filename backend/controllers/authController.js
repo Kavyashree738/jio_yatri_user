@@ -248,7 +248,19 @@ const sendOtp = async (req, res) => {
     });
 
     // Custom SMS message format
-    const smsMessage = `Hello ${phoneNumber}, Please find your OTP ${otp} for Jioyatri. Thanks, AmbaniYatri`;
+let smsMessage;
+
+// TEST NUMBER → Auto OTP format
+if (phoneNumber === "+917975539085") {
+  smsMessage = `<#> Hello ${phoneNumber}, Please find your OTP ${otp} for Jioyatri. Thanks, AmbaniYatri
+qD3yJ8oMuUN`;
+}
+
+// ALL OTHER USERS → Normal format (no auto-fill)
+else {
+  smsMessage = `Hello ${phoneNumber}, Please find your OTP ${otp} for Jioyatri. Thanks, AmbaniYatri`;
+}
+
 
     // Send SMS
     await sendSms(phoneNumber, smsMessage);
@@ -656,6 +668,7 @@ const googleLogin = async (req, res) => {
 
 
 module.exports = { sendOtp, verifyOtp,googleLogin };
+
 
 
 
