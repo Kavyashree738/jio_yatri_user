@@ -28,22 +28,22 @@ const secondaryNavItems = [
 const SecondaryNav = () => {
   return (
     <>
-    <div className="mobile-category-bar custom-mobile-nav">
-      {secondaryNavItems.map((item) => (
-        <div className="mobile-category-item" key={item.path}>
-          <img src={item.icon} className="category-icon-img" />
-          <span>
-            {item.name.en}
-            <br />
-            <small>{item.name.kn}</small>
-          </span>
-        </div>
-      ))}
+      <div className="mobile-category-bar custom-mobile-nav">
+        {secondaryNavItems.map((item) => (
+          <Link to={item.path} className="mobile-category-item" key={item.path}>
+            <img src={item.icon} className="category-icon-img" />
+            <span>
+              {item.name.en}
+              <br />
+              <small>{item.name.kn}</small>
+            </span>
+          </Link>
+        ))}
 
-    </div>
-    <div className="delivery-text">
-      <p>City to City. Door-to-Door Delivery.</p>
-    </div>
+      </div>
+      <div className="delivery-text">
+        <p>City to City. Door-to-Door Delivery.</p>
+      </div>
     </>
 
   );
