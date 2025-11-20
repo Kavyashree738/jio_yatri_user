@@ -9,7 +9,7 @@
   scrollbar-width: none;
   scroll-behavior: smooth;
   scroll-padding-left: 10px;
-  padding-top:80px;
+  padding-top:50px;
 }
 
 .custom-mobile-nav::-webkit-scrollbar {
@@ -53,6 +53,10 @@
   background-color: transparent !important;
 }
 
+.mobile-category-item small{
+  color:#0073ff;
+  font-weight:bolder;
+}
 /* 🖥️ For laptops and large screens - center items (no scroll needed) */
 @media (min-width: 769px) {
   .custom-mobile-nav {
@@ -61,3 +65,20 @@
     margin-top: 40px;
   }
 }
+
+.delivery-text {
+  text-align: center;
+  /* margin: 15px 0; */
+  background-color:  #0073ff;
+  padding:2px;
+  border-radius:10px;
+  box-shadow: #0073ff62 0px 5px 15px;
+}
+
+.delivery-text p {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
