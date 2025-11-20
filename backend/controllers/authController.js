@@ -227,7 +227,7 @@ const sendOtp = async (req, res) => {
     // Check for recent OTP
      const recentOtp = await admin.firestore().collection('otps').doc(phoneNumber).get();
      const lastSentAt = recentOtp.exists ? recentOtp.data().lastSentAt?.toMillis?.() : 0;
-   if (lastSentAt && lastSentAt > Date.now() - 300_000) {
+   if (lastSentAt && lastSentAt > Date.now() - 30_000) {
       return res.status(429).json({
         success: false,
         error: 'otp_already_sent',
@@ -248,7 +248,19 @@ const sendOtp = async (req, res) => {
     });
 
     // Custom SMS message format
-    const smsMessage = `Hello ${phoneNumber}, Please find your OTP ${otp} for Jioyatri. Thanks, AmbaniYatri`;
+let smsMessage;
+
+// TEST NUMBER → Auto OTP format
+if (phoneNumber === "+917975539085") {
+  smsMessage = `<#> Hello ${phoneNumber}, Please find your OTP ${otp} for Jioyatri. Thanks, AmbaniYatri
+qD3yJ8oMuUN`;
+}
+
+// ALL OTHER USERS → Normal format (no auto-fill)
+else {
+  smsMessage = `Hello ${phoneNumber}, Please find your OTP ${otp} for Jioyatri. Thanks, AmbaniYatri`;
+}
+
 
     // Send SMS
     await sendSms(phoneNumber, smsMessage);
@@ -656,6 +668,8 @@ const googleLogin = async (req, res) => {
 
 
 module.exports = { sendOtp, verifyOtp,googleLogin };
+
+
 
 
 

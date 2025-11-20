@@ -5,7 +5,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { FaApple } from 'react-icons/fa';
 import { MdEmail } from 'react-icons/md';
 import PhoneInput from 'react-phone-input-2';
-import { signInWithCustomToken, signInWithPopup ,GoogleAuthProvider,
+import { signInWithCustomToken ,GoogleAuthProvider,signInWithPopup,
   signInWithCredential } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 import 'react-phone-input-2/lib/style.css';
@@ -46,6 +46,14 @@ const HeroSection = () => {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0 },
   };
+
+
+  useEffect(() => {
+  window.fillOtpFromNative = (otp) => {
+    console.log("📩 Auto OTP from mobile:", otp);
+    setOtp(otp);
+  };
+}, []);
 
 
    useEffect(() => {
@@ -348,8 +356,9 @@ const signInWithGoogle = async () => {
     setIsLoading(true);
     console.log("🌐 Web browser Google Login");
 
-    // Firebase popup login
-    const result = await signInWithPopup(auth, googleProvider);
+    // Correct popup login
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
 
     // Firebase token
     const firebaseToken = await result.user.getIdToken(true);
@@ -382,6 +391,7 @@ const signInWithGoogle = async () => {
     setIsLoading(false);
   }
 };
+
 
 
   return (
