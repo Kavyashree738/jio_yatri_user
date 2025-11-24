@@ -12,13 +12,16 @@ import "../styles/UserShipments.css";
 import img from "../assets/images/login-message.png";
 import { FaPhone } from "react-icons/fa";
 import Lottie from "lottie-react";
-import emptyAnimation from "../assets/animations/empty.json"; 
+import emptyAnimation from "../assets/animations/empty.json";
+import { useTranslation } from "react-i18next";
 
 
 const ShipmentsDetails = () => {
   const { user, token } = useAuth();
   const dispatch = useDispatch();
   const pollingRef = useRef(null);
+
+  const { t } = useTranslation();
 
   const { list: shipments, loading, error } = useSelector(
     (state) => state.shipments
@@ -28,11 +31,11 @@ const ShipmentsDetails = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const [confirmModal, setConfirmModal] = useState({
-      visible: false,
-      type: null, // "shipment" or "order"
-      id: null,
-    });
-    const handleOpenRatingModal = (shipment) => {
+    visible: false,
+    type: null, // "shipment" or "order"
+    id: null,
+  });
+  const handleOpenRatingModal = (shipment) => {
     setCurrentShipmentForRating(shipment);
     setRatingModalOpen(true);
   };
@@ -172,7 +175,7 @@ const ShipmentsDetails = () => {
         <div className="shipments-container-login">
           <div className="no-shipments">
             <img src={img} className="img" />
-            <p>Please login to view shipments</p>
+            <p>{t("login_to_view")}</p>
           </div>
         </div>
         <Footer />
@@ -184,27 +187,27 @@ const ShipmentsDetails = () => {
     <>
       <Header />
       <div className="shipments-container">
-        <h4>Your Shipments</h4>
+        <h4>{t("your_shipments")}</h4>
 
         <div className="search-container">
           <input
             value={searchTerm}
             onChange={(e) => handleSearch(e.target.value)}
             className="search-input"
-            placeholder="Search shipments..."
+            placeholder={t("search_shipments")}
           />
         </div>
 
         {filteredShipments.length === 0 && (
-  <div className="no-shipments-animation">
-    <Lottie
-      animationData={emptyAnimation}
-      loop
-      style={{ width: 250, margin: "0 auto" }}
-    />
-   
-  </div>
-)}
+          <div className="no-shipments-animation">
+            <Lottie
+              animationData={emptyAnimation}
+              loop
+              style={{ width: 250, margin: "0 auto" }}
+            />
+
+          </div>
+        )}
 
 
         {trackingShipment ? (
@@ -215,140 +218,140 @@ const ShipmentsDetails = () => {
             <LocationTracker shipment={trackingShipment} />
           </div>
         ) : (
-          
-
-              <div className="shipments-list">
-                {filteredShipments.map((shipment) => (
-                  <div key={shipment._id} className="shipment-card">
-                    <div className="shipment-header">
-                      <h3>Tracking #: {highlightText(shipment.trackingNumber)}</h3>
-                      <span className="created-date">
-                        {new Date(shipment.createdAt).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    </div>
-
-                    <div className="shipment-details-grid">
-                      <div className="sender-details">
-                        <h4>Sender</h4>
-                        <p><strong>Name:</strong> {highlightText(shipment.sender.name)}</p>
-                        <p><strong>Phone:</strong> {shipment.sender.phone}</p>
-                        {shipment.sender.email && <p><strong>Email:</strong> {shipment.sender.email}</p>}
-                        <p><strong>Address:</strong> {shipment.sender.address?.addressLine1 || 'N/A'}</p>
-                      </div>
-
-                      <div className="receiver-details">
-                        <h4>Receiver</h4>
-                        <p><strong>Name:</strong> {highlightText(shipment.receiver.name)}</p>
-                        <p><strong>Phone:</strong> {shipment.receiver.phone}</p>
-                        {shipment.receiver.email && <p><strong>Email:</strong> {shipment.receiver.email}</p>}
-                        <p><strong>Address:</strong> {shipment.receiver.address?.addressLine1 || 'N/A'}</p>
-                      </div>
-
-                      <div className="shipment-meta">
-                        <h4>Shipment Details</h4>
-                        <p><strong>Vehicle Type:</strong> {highlightText(shipment.vehicleType)}</p>
-                        <p><strong>Distance:</strong> {shipment.distance} km</p>
-                        <p><strong>Cost:</strong> ₹{shipment.cost?.toFixed(2) || '0.00'}</p>
-                        <p><strong>Status:</strong> {highlightText(shipment.status)}</p>
-                        {shipment.isShopOrder && shipment.recreatedFrom && shipment.status !== 'delivered' && shipment.status !== 'picked_up' && (
-                          <p className="shipment-recreated-info">
-                            The driver cancelled your previous delivery. Don’t worry — another driver will deliver your parcel shortly.
-                          </p>
-                        )}
 
 
+          <div className="shipments-list">
+            {filteredShipments.map((shipment) => (
+              <div key={shipment._id} className="shipment-card">
+                <div className="shipment-header">
+                  <h3>{t("tracking_number")}: {highlightText(shipment.trackingNumber)}</h3>
+                  <span className="created-date">
+                    {new Date(shipment.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
 
-                        {shipment.status === 'cancelled' && shipment.cancellationReason && (
-                          <p><strong>Cancellation Reason:</strong> {shipment.cancellationReason}</p>
-                        )}
-                        {shipment.assignedDriver && (
-                          <p><strong>Driver:</strong> {highlightText(shipment.assignedDriver.name)} ({shipment.assignedDriver.vehicleNumber})</p>
-                        )}
-                        {shipment.status !== 'delivered' &&
-                          shipment.status !== 'cancelled' &&
-                          shipment.assignedDriver?.phone && (   // ✅ this extra check prevents undefined error
-                            <p>
-                              <strong>To know where your parcel is, give call</strong>{' '}
-                              {shipment.assignedDriver.phone.replace(/^\+91/, '')}
-                              <a
-                                href={`tel:${shipment.assignedDriver.phone.replace(/^\+?91/, '')}`}
-                                onClick={(e) => e.stopPropagation()}
-                                style={{
-                                  marginLeft: '8px',
-                                  color: '#ffffff',
-                                  backgroundColor: '#09d670',
-                                  padding: '0.5rem',
-                                  borderRadius: '50%',
-                                  textDecoration: 'none',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                }}
-                              >
-                                <FaPhone style={{ marginRight: '4px' }} />
-                              </a>
-                            </p>
-                          )}
+                <div className="shipment-details-grid">
+                  <div className="sender-details">
+                    <h4>{t("sender")}</h4>
+                    <p><strong>{t("field_name")}:</strong> {highlightText(shipment.sender.name)}</p>
+                    <p><strong>{t("field_phone")}:</strong> {shipment.sender.phone}</p>
+                    {shipment.sender.email && <p><strong>{t("field_email")}:</strong> {shipment.sender.email}</p>}
+                    <p><strong>{t("contact_address")}:</strong> {shipment.sender.address?.addressLine1 || 'N/A'}</p>
+                  </div>
+
+                  <div className="receiver-details">
+                    <h4>{t("receiver")}</h4>
+                    <p><strong>{t("field_name")}:</strong> {highlightText(shipment.receiver.name)}</p>
+                    <p><strong>{t("field_phone")}:</strong> {shipment.receiver.phone}</p>
+                    {shipment.receiver.email && <p><strong>Email:</strong> {shipment.receiver.email}</p>}
+                    <p><strong>{t("contact_address")}:</strong> {shipment.receiver.address?.addressLine1 || 'N/A'}</p>
+                  </div>
+
+                  <div className="shipment-meta">
+                    <h4>{t("shipment_details")}</h4>
+                    <p><strong>{t("vehicle_type")}:</strong> {highlightText(shipment.vehicleType)}</p>
+                    <p><strong>{t("distance")}:</strong> {shipment.distance} km</p>
+                    <p><strong>{t("cost")}</strong> ₹{shipment.cost?.toFixed(2) || '0.00'}</p>
+                    <p><strong>{t("status")}</strong> {highlightText(shipment.status)}</p>
+                    {shipment.isShopOrder && shipment.recreatedFrom && shipment.status !== 'delivered' && shipment.status !== 'picked_up' && (
+                      <p className="shipment-recreated-info">
+                        t("delivery_cancelled_info")
+                      </p>
+                    )}
 
 
 
-
-                        {shipment.status === 'assigned' && shipment.pickupOtp && (
-                          <div className="otp-box">
-                            <h4>Your Pickup OTP</h4>
-                            <div className="otp-digits">
-                              {shipment.pickupOtp.split('').map((digit, index) => (
-                                <div key={index} className="otp-digit">{digit}</div>
-                              ))}
-                            </div>
-                            <p>Share this code with the driver to confirm pickup.</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="shipment-actions">
-                      {(
-                        // ✅ Regular shipment: show when pending or assigned
-                        (!shipment.isShopOrder && (shipment.status === 'pending' || shipment.status === 'assigned')) ||
-
-                        // ✅ Shop shipment: show only when pending (hide after assigned)
-                        (shipment.isShopOrder && shipment.status === 'pending')
-                      ) && (
-                          <button
-                            onClick={() =>
-                              setConfirmModal({ visible: true, type: "shipment", id: shipment._id })
-                            }
-                            className="cancel-btnnn"
+                    {shipment.status === 'cancelled' && shipment.cancellationReason && (
+                      <p><strong>Cancellation Reason:</strong> {shipment.cancellationReason}</p>
+                    )}
+                    {shipment.assignedDriver && (
+                      <p><strong>t("label_driver")</strong> {highlightText(shipment.assignedDriver.name)} ({shipment.assignedDriver.vehicleNumber})</p>
+                    )}
+                    {shipment.status !== 'delivered' &&
+                      shipment.status !== 'cancelled' &&
+                      shipment.assignedDriver?.phone && (   // ✅ this extra check prevents undefined error
+                        <p>
+                          <strong>t("label_call_driver")</strong>{' '}
+                          {shipment.assignedDriver.phone.replace(/^\+91/, '')}
+                          <a
+                            href={`tel:${shipment.assignedDriver.phone.replace(/^\+?91/, '')}`}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              marginLeft: '8px',
+                              color: '#ffffff',
+                              backgroundColor: '#09d670',
+                              padding: '0.5rem',
+                              borderRadius: '50%',
+                              textDecoration: 'none',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                            }}
                           >
-                            Cancel Shipment
-                          </button>
-                        )}
-
-
-
-                      {shipment.status === 'assigned' && (
-                        <button onClick={() => handleTrackShipment(shipment)} className="track-shipment-btn">
-                          Track Shipment
-                        </button>
+                            <FaPhone style={{ marginRight: '4px' }} />
+                          </a>
+                        </p>
                       )}
 
-                      {shipment.status === 'picked_up' && shipment.payment?.status === 'pending' && (
-                        <button onClick={() => openPaymentModal(shipment)} className="pay-now-btn">
-                          Complete Payment
-                        </button>
-                      )}
 
-                      {shipment.status === 'delivered' && shipment.payment?.status === 'paid' && (
+
+
+                    {shipment.status === 'assigned' && shipment.pickupOtp && (
+                      <div className="otp-box">
+                        <h4>Your Pickup OTP</h4>
+                        <div className="otp-digits">
+                          {shipment.pickupOtp.split('').map((digit, index) => (
+                            <div key={index} className="otp-digit">{digit}</div>
+                          ))}
+                        </div>
+                        <p>Share this code with the driver to confirm pickup.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="shipment-actions">
+                  {(
+                    // ✅ Regular shipment: show when pending or assigned
+                    (!shipment.isShopOrder && (shipment.status === 'pending' || shipment.status === 'assigned')) ||
+
+                    // ✅ Shop shipment: show only when pending (hide after assigned)
+                    (shipment.isShopOrder && shipment.status === 'pending')
+                  ) && (
+                      <button
+                        onClick={() =>
+                          setConfirmModal({ visible: true, type: "shipment", id: shipment._id })
+                        }
+                        className="cancel-btnnn"
+                      >
+                        {t("cancel_shipment")}
+                      </button>
+                    )}
+
+
+
+                  {shipment.status === 'assigned' && (
+                    <button onClick={() => handleTrackShipment(shipment)} className="track-shipment-btn">
+                      t("track_shipment")
+                    </button>
+                  )}
+
+                  {shipment.status === 'picked_up' && shipment.payment?.status === 'pending' && (
+                    <button onClick={() => openPaymentModal(shipment)} className="pay-now-btn">
+                      t("complete_payment")
+                    </button>
+                  )}
+
+                  {/* {shipment.status === 'delivered' && shipment.payment?.status === 'paid' && (
                         <div className="shipment-rating-section">
                           {shipment.rating ? (
                             <div className="rating-submitted">
-                              <span>Your rating: {shipment.rating.value} ★</span>
+                              <span>t("your_rating"): {shipment.rating.value} ★</span>
                               {shipment.rating.feedback && (
                                 <p className="rating-feedback-text">"{shipment.rating.feedback}"</p>
                               )}
@@ -358,16 +361,47 @@ const ShipmentsDetails = () => {
                               className="rate-driver-btn"
                               onClick={() => handleOpenRatingModal(shipment)}
                             >
-                              Rate This Driver
+                              t("rate_driver")
                             </button>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                      )} */}
+                </div>
               </div>
+            ))}
+          </div>
         )}
+
+        {confirmModal.visible && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h3>{t("confirm_cancel_title")}</h3>
+              <p>{t("confirm_cancel_message")}</p>
+
+              <div className="modal-buttons">
+                <button
+                  className="confirming-btn"
+                  onClick={async () => {
+                    await handleCancelShipment(confirmModal.id);
+                    setConfirmModal({ visible: false, id: null });
+                  }}
+                >
+                  {t("yes_cancel")}
+                </button>
+
+                <button
+                  className="cancelling-btn"
+                  onClick={() => setConfirmModal({ visible: false, id: null })}
+                >
+                  {t("no_go_back")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+
+
 
         {paymentModalOpen && (
           <PaymentModal
@@ -377,10 +411,10 @@ const ShipmentsDetails = () => {
           />
         )}
 
-        {ratingModalOpen && (
+        {/* {ratingModalOpen && (
           <div className="rating-modal-overlay">
             <div className="rating-modal">
-              <h3>Rate Driver</h3>
+              <h3>t("rate_driver")</h3>
               <div className="rating-stars">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <span
@@ -404,7 +438,7 @@ const ShipmentsDetails = () => {
               </button>
             </div>
           </div>
-        )}
+        )} */}
       </div>
 
       <ToastContainer />
