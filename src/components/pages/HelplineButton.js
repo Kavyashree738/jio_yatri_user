@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { FaPhone } from "react-icons/fa";
 import "../../styles/HelplineButton.css";
+import { useTranslation } from "react-i18next";
 
 const HelplineButton = () => {
   const [showPopup, setShowPopup] = useState(false);
-  const helplineNumber = "+919876543210";
+  const { t } = useTranslation();
+  const helplineNumber = "+919844559599";
 
   const [position, setPosition] = useState({
     x: 20,
@@ -129,10 +131,10 @@ const HelplineButton = () => {
               <FaPhone className="call-icon" />
             </div>
 
-            <h3>Mokshambani Tech Services Pvt. Ltd.</h3>
-            <p>Need assistance? We're here to help you.</p>
+            <h3>{t("header_company_name")}</h3>
+            <p>{t("help_need_assistance")}</p>
             <a href={`tel:${helplineNumber}`} className="helpline-callnow-btn">
-              Call Now
+              {t("help_call_now")}
             </a>
           </div>
         </div>

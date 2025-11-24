@@ -201,13 +201,13 @@ const Home = () => {
       {/* <CallOwner /> */}
       <HelplineButton />
       <WelcomeSection />
-      <HelpCenter />
+      {/* <HelpCenter /> */}
       <WhyChoosePorter />
       {/* <PorterPromo /> */}
       {/* <BookingPorterSection /> */}
       <TestimonialsSection />
       <NetworkSection />
-      <HouseShiftingFeatures />
+      {/* <HouseShiftingFeatures /> */}
       <Contact />
       {/* <FAQSection /> */}
       <Footer />

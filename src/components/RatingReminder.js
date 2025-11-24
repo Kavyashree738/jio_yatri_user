@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import '../styles/RatingReminder.css';
-import { auth } from '../firebase'; // ✅ make sure this path is correct
+import { auth } from '../firebase';
+import { useTranslation } from "react-i18next"; // ✅ Added
 
 const RatingReminder = ({ pendingRatings = [], token, refreshShipments }) => {
   const [visible, setVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [selectedRating, setSelectedRating] = useState(0); // ⭐ for visual stars
+  const [selectedRating, setSelectedRating] = useState(0);
 
-  // 🧪 Test mode for faster popup (10 sec instead of 5 hrs)
+  const { t } = useTranslation(); // ✅ Hook for translations
+
   const TEST_MODE = false;
 
   useEffect(() => {
@@ -26,16 +28,15 @@ const RatingReminder = ({ pendingRatings = [], token, refreshShipments }) => {
     }
   }, [pendingRatings]);
 
-  // ⭐ Submit rating instantly
+
   const handleRating = async (shipmentId, value) => {
     if (submitting) return;
     setSubmitting(true);
     setSelectedRating(value);
 
     try {
-      // ✅ Always get a fresh Firebase token safely
       if (!auth.currentUser) {
-        toast.error('Please sign in again to rate.');
+        toast.error(t("rating_signin_again"));
         setSubmitting(false);
         return;
       }
@@ -50,14 +51,13 @@ const RatingReminder = ({ pendingRatings = [], token, refreshShipments }) => {
         }
       );
 
-      toast.success(`Rated ${value}★ successfully!`);
+      toast.success(t("rating_success", { value }));
       refreshShipments();
 
-      // ⏳ Keep popup open for 1 sec after rating
       setTimeout(() => setVisible(false), 1000);
     } catch (err) {
       console.error('❌ Rating error:', err);
-      toast.error('Failed to submit rating.');
+      toast.error(t("rating_failed"));
     } finally {
       setSubmitting(false);
     }
@@ -70,10 +70,11 @@ const RatingReminder = ({ pendingRatings = [], token, refreshShipments }) => {
   return (
     <div className="rating-reminder-overlay">
       <div className="rating-reminder-card">
-        <h3>⭐ Rate Your Driver</h3>
+        <h3>{t("rate_your_driver_title")}</h3>
+
         <p>
-          Please rate your recent delivery for <br />
-          <strong>{shipment.assignedDriver?.name || 'Driver'}</strong>
+          {t("rate_your_driver_subtitle")} <br />
+          <strong>{shipment.assignedDriver?.name || t("driver_fallback")}</strong>
         </p>
 
         <div className="rating-stars">

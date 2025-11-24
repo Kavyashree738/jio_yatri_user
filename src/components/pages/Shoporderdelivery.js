@@ -1,3 +1,5 @@
+// src/components/Shoporderdelivery.jsx
+
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import Header from "../pages/Header";
@@ -7,18 +9,31 @@ import { fetchUserOrders } from "../../redux/ordersSlice";
 import img from "../../assets/images/login-message.png";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
-import "../../styles/ShopOrderStyles.css"; // <-- IMPORTANT
+import "../../styles/ShopOrderStyles.css";
 import Lottie from "lottie-react";
-import emptyAnimation from "../../assets/animations/empty.json"; 
+import emptyAnimation from "../../assets/animations/empty.json";
+import { useTranslation } from "react-i18next";
+
+const API_BASE =
+ "https://jio-yatri-user.onrender.com";
 
 const Shoporderdelivery = () => {
   const dispatch = useDispatch();
   const { user, token } = useAuth();
+  const { t } = useTranslation();
 
-  const { list: orders } = useSelector((state) => state.orders);
+  const { list: orders, loading, error } = useSelector(
+    (state) => state.orders
+  );
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredOrders, setFilteredOrders] = useState([]);
+
+  // Confirmation Modal State
+  const [confirmModal, setConfirmModal] = useState({
+    visible: false,
+    id: null,
+  });
 
   const loadOrders = () => dispatch(fetchUserOrders());
 
@@ -63,10 +78,38 @@ const Shoporderdelivery = () => {
         o.status,
         o.shop?.name,
         o.shop?.category,
+        o.sender?.name,
+        o.receiver?.name,
       ].some((x) => x?.toLowerCase().includes(text))
     );
 
     setFilteredOrders(result);
+  };
+
+  // ===== Cancel Order Request =====
+  const confirmCancelOrder = async () => {
+    if (!confirmModal.id) return;
+
+    try {
+      await axios.patch(
+        `${API_BASE}/api/orders/${confirmModal.id}/status`,
+        { status: "cancelled" },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+     toast.success(t("order_cancel_success"));
+
+      loadOrders();
+    } catch (err) {
+      toast.error(err?.response?.data?.error || t("order_cancel_fail"));
+    }
+
+    // close modal
+    setConfirmModal({ visible: false, id: null });
   };
 
   if (!user)
@@ -75,7 +118,7 @@ const Shoporderdelivery = () => {
         <Header />
         <div className="no-orders-wrapper">
           <img src={img} className="no-orders-img" />
-          <p>Please login to see your orders</p>
+          <p>{t("login_to_view")}</p>
         </div>
         <Footer />
       </>
@@ -86,48 +129,51 @@ const Shoporderdelivery = () => {
       <Header />
 
       <div className="shop-orders-page">
-        <h3 className="title">Your Shop Orders</h3>
+        <h3 className="title">{t("header_shop_orders")}</h3>
 
-        {/* Search Box */}
         <input
           className="search-box"
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search by shop, code, category..."
+          placeholder={t("search_placeholder")}
         />
 
         {filteredOrders.length === 0 ? (
-  <div className="no-orders-animation">
-    <Lottie 
-      animationData={emptyAnimation} 
-      loop 
-      style={{ width: 250, margin: "0 auto" }}
-    />
-  </div>
-): (
+          <div className="no-orders-animation">
+            <Lottie animationData={emptyAnimation} loop style={{ width: 250 }} />
+            <p>{t("orders_none")}</p>
+          </div>
+        ) : (
           <div className="order-list">
             {filteredOrders.map((o) => (
               <div key={o._id} className="order-card-ui">
 
-                {/* Header */}
                 <div className="card-header">
                   <div className="order-id">
-                    Order: {highlightText(o.orderCode)}
+                    {t("order_label")}: {highlightText(o.orderCode)}
                   </div>
                   <div className="order-date">{formatDateTime(o.createdAt)}</div>
                 </div>
 
-                {/* Shop Section */}
                 <div className="shop-info">
-                  <p><strong>Shop:</strong> {highlightText(o.shop?.name)}</p>
-                  <p><strong>Category:</strong> {o.shop?.category}</p>
-                  {o.shop?.phone && <p><strong>Phone:</strong> {o.shop.phone}</p>}
-                  <p><strong>Vehicle:</strong> {o.vehicleType}</p>
+                  <p><strong>{t("shop_label")}:</strong> {o.shop?.name} ({o.shop?.category})</p>
+
+                  {o.sender?.name && (
+                    <p><strong>{t("sender")}:</strong> {o.sender.name}</p>
+                  )}
+                  {o.receiver?.name && (
+                    <p><strong>{t("receiver")}:</strong> {o.receiver.name}</p>
+                  )}
+
+                  {o.shop?.phone && (
+                    <p><strong>{t("shop_phone")}:</strong> {o.shop.phone}</p>
+                  )}
+
+                  <p><strong>{t("vehicle_type")}:</strong> {o.vehicleType}</p>
                 </div>
 
-                {/* Items */}
                 <div className="items-container">
-                  <h4>Items</h4>
+                  <h4>{t("services")}</h4>
                   {o.items.map((it, idx) => (
                     <div key={idx} className="item-row">
                       <div className="item-name">{highlightText(it.name)}</div>
@@ -140,27 +186,51 @@ const Shoporderdelivery = () => {
                   ))}
                 </div>
 
-                {/* Total */}
                 <div className="order-total-row">
-                  <strong>Total</strong>
+                  <strong>{t("total_cost")}</strong>
                   <span>{formatCurrency(o.pricing?.total)}</span>
                 </div>
 
-                {/* Status */}
                 <div className="status-row">
-                  <p><strong>Status:</strong> {highlightText(o.status)}</p>
-                  <p><strong>Payment:</strong> {highlightText(o.payment?.status)}</p>
+                  <p><strong>{t("status")}:</strong> {highlightText(o.status)}</p>
+                  <p><strong>{t("payment_online")}:</strong> {highlightText(o.payment?.status)}</p>
                 </div>
 
-                {/* Action */}
                 {o.status.toLowerCase() === "pending" && (
-                  <button className="cancel-btn">Cancel Order</button>
+                  <button
+                    className="cancel-btn"
+                    onClick={() => setConfirmModal({ visible: true, id: o._id })}
+                  >
+                    {t("cancel_booking")}
+                  </button>
                 )}
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* ===== Confirm Cancel Popup ===== */}
+      {confirmModal.visible && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>{t("confirm_cancel_title") || "Cancel Order?"}</h3>
+            <p>{t("confirm_cancel_order_message") || "Are you sure you want to cancel this order?"}</p>
+
+            <div className="modal-buttons">
+              <button className="confirming-btn" onClick={confirmCancelOrder}>
+                {t("yes_cancel")}
+              </button>
+              <button
+                className="cancelling-btn"
+                onClick={() => setConfirmModal({ visible: false, id: null })}
+              >
+                {t("no_go_back")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ToastContainer />
       <Footer />

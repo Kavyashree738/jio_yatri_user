@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import LocationTracker from "../components/LocationTracker";
@@ -6,11 +6,11 @@ import defaultDriverImg from "../assets/images/profile.png";
 import { FaPhone } from "react-icons/fa";
 import "../styles/ShopOrderTrackingCard.css";
 import { useNavigate } from "react-router-dom";
-
+import { useTranslation } from "react-i18next";
 
 const API_BASE = "https://jio-yatri-user.onrender.com";
 
-/* ✅ Load Razorpay Script Helper */
+/* ✅ Razorpay Script Loader */
 const loadRazorpay = () => {
   return new Promise((resolve) => {
     if (window.Razorpay) {
@@ -27,16 +27,17 @@ const loadRazorpay = () => {
 
 function ShopOrderTrackingCard({ order }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
-
-
-
 
   const processRazorpayPayment = async (shipmentId) => {
-    if (!shipmentId || !user) return;
+    if (!shipmentId || !user) {
+      alert(t("login_required"));
+      return;
+    }
 
     setPaymentProcessing(true);
     setError("");
@@ -63,6 +64,7 @@ function ShopOrderTrackingCard({ order }) {
         name: "AmbaniYatri Logistics",
         description: `Payment for Shipment #${order.trackingNumber}`,
         order_id: paymentData.id,
+
         handler: async function (response) {
           try {
             await axios.post(
@@ -84,11 +86,13 @@ function ShopOrderTrackingCard({ order }) {
             setPaymentProcessing(false);
           }
         },
+
         prefill: {
           name: user.displayName || "Customer",
           email: user.email || "",
           contact: order?.sender?.phone || "",
         },
+
         theme: { color: "#3399cc" },
         modal: { ondismiss: () => setPaymentProcessing(false) },
       };
@@ -98,6 +102,7 @@ function ShopOrderTrackingCard({ order }) {
         alert(`❌ Payment failed: ${res.error.description}`);
         setPaymentProcessing(false);
       });
+
       rzp.open();
     } catch (err) {
       console.error("Payment initiation failed:", err);
@@ -106,24 +111,22 @@ function ShopOrderTrackingCard({ order }) {
     }
   };
 
-
-
   const driver = order.assignedDriver;
   const otp = order.pickupOtp || "----";
 
   return (
     <div className="shoporder-tracking-card">
-      {/* 🗺️ Top map (60%) */}
+
+      {/* 🗺 MAP SECTION */}
       <div className="shoporder-map">
         <LocationTracker shipment={order} />
       </div>
 
-      {/* 📦 Bottom info (40%) */}
+      {/* 📦 INFO SECTION */}
       <div className="shoporder-info">
         <div className="shoporder-status">
-          <h3>Receiver OTP</h3>
+          <h3>{t("receiver_otp")}</h3>
           <div className="price">₹{Number(order?.cost || 0).toFixed(2)}</div>
-
         </div>
 
         <div className="shoporder-otp">
@@ -134,21 +137,22 @@ function ShopOrderTrackingCard({ order }) {
           ))}
         </div>
 
+        {/* 🚗 DRIVER DETAILS */}
         {driver && (
           <div className="shoporder-driver">
             <div className="shoporder-driver-details">
               <img
                 src={`${API_BASE}/api/upload/selfie/${driver.userId}?ts=${Date.now()}`}
-                alt="Driver"
+                alt={t("driver")}
                 className="shoporder-driver-photo"
                 onError={(e) => (e.currentTarget.src = defaultDriverImg)}
               />
               <div>
                 <h4 className="shoporder-driver-name">
-                  {driver.name || "Driver"}
+                  {driver.name || t("driver")}
                 </h4>
                 <p className="shoporder-driver-vehicle">
-                  {driver.vehicleNumber || "N/A"}
+                  {driver.vehicleNumber || t("vehicle_number")}
                 </p>
               </div>
             </div>
@@ -162,7 +166,7 @@ function ShopOrderTrackingCard({ order }) {
           </div>
         )}
 
-        {/* ✅ Show payment button only if payment is not yet paid */}
+        {/* 💳 PAYMENT BUTTON */}
         {order?.payment?.status !== "paid" && (
           <button
             className="shoporder-pay-btn"
@@ -170,8 +174,8 @@ function ShopOrderTrackingCard({ order }) {
             disabled={paymentProcessing}
           >
             {paymentProcessing
-              ? "Processing..."
-              : `Pay ₹${Number(order?.cost || 0).toFixed(2)}`}
+              ? t("processing")
+              : `${t("pay")} ₹${Number(order?.cost || 0).toFixed(2)}`}
           </button>
         )}
 

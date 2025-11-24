@@ -2,18 +2,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import { useTranslation } from "react-i18next";
 import '../styles/OrderConfirmation.css';
 import { useNavigate } from 'react-router-dom';
 
-const apiBase = 'https://jio-yatri-user.onrender.com';
 
+const apiBase = 'https://jio-yatri-user.onrender.com';
 // Small helper to safely format money
 const num = (v) => Number(v ?? 0);
 const fmt = (v) => num(v).toFixed(2);
 
+
 const Confetti = () => {
   const boxRef = useRef(null);
-
 
   useEffect(() => {
     const colors = ['#ff5773', '#ff884b', '#ffd384', '#a6e3e9', '#4CAF50'];
@@ -44,6 +45,7 @@ export default function OrderConfirmation() {
   const [err, setErr] = useState(null);
   const [showTick, setShowTick] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function OrderConfirmation() {
     })();
   }, [orderId]);
 
-  useEffect(() => {
+   useEffect(() => {
   if (showTick) {
     const timer = setTimeout(() => {
       navigate('/home');
@@ -74,7 +76,8 @@ export default function OrderConfirmation() {
   }
 }, [showTick, navigate]);
 
-  if (loading) return <div className="oc-loading">Loading...</div>;
+
+  if (loading) return <div className="oc-loading">{("loading")}</div>;
   if (err) return <div className="oc-loading">Error: {err}</div>;
   if (!order) return <div className="oc-loading">Order not found.</div>;
 
@@ -92,15 +95,15 @@ export default function OrderConfirmation() {
           </svg>
         </div>
 
-        <h2>Order Confirmed</h2>
+        <h2>{t("order_confirmed")}</h2>
 
         <p className="oc-order-code">
-          Order Code: <strong>{order.orderCode}</strong>
+          {t("order_code")}: <strong>{order.orderCode}</strong>
         </p>
-        <p className="oc-shop-name">Shop: {order.shop?.name}</p>
+        <p className="oc-shop-name">{t("shop")}: {order.shop?.name}</p>
 
         <div className="oc-section">
-          <h3>Items</h3>
+          <h3>{t("items")}</h3>
           <ul className="oc-items">
             {order.items?.map((it, i) => (
               <li key={i}>
@@ -112,15 +115,15 @@ export default function OrderConfirmation() {
         </div>
 
         <div className="oc-section">
-          <h3>Amount</h3>
+          <h3>{t("amount")}</h3>
           <div className="oc-amount-row">
-            <span>Subtotal:</span>
+            <span>{t("subtotal")}:</span>
             <span>₹{fmt(pricing.subtotal)}</span>
           </div>
 
           {showTax && (
             <div className="oc-amount-row">
-              <span>Tax:</span>
+              <span>{("tax")}:</span>
               <span>₹{fmt(pricing.tax)}</span>
             </div>
           )}
@@ -132,20 +135,22 @@ export default function OrderConfirmation() {
 
           {num(pricing.discount) > 0 && (
             <div className="oc-amount-row">
-              <span>Discount:</span>
+              <span>{t("discount")}:</span>
               <span>−₹{fmt(pricing.discount)}</span>
             </div>
           )}
         
 
           <div className="oc-amount-row total">
-            <span>Total:</span>
+            <span>{t("total")}:</span>
             <span>₹{fmt(pricing.total)}</span>
           </div>
         </div>
 
-        <Link to="/home" className="oc-home-btn">Go Home</Link>
+        <Link to="/home" className="oc-home-btn">{t("go_home")}</Link>
       </div>
     </div>
   );
 }
+
+

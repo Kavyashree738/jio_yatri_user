@@ -1,16 +1,21 @@
 import React from 'react';
-import { Link } from 'react-router-dom';  // if you use React Router
+import { Link } from 'react-router-dom';
 import '../../styles/HelpCenter.css';
+import { useTranslation } from "react-i18next";
 
 const HelpCenter = () => {
+  const { t } = useTranslation();
+
   return (
     <section className="help-center-section" id="help">
-      <h2 className="title">Help Center</h2>
+      <h2 className="title">{t("help_center_title")}</h2>
+
       <p className="subtitle">
-        Need assistance? We’re happy to help. Click below to see all support options.
+        {t("help_center_subtitle")}
       </p>
+
       <Link to="/help-details" className="know-more-btn">
-        Know More
+        {t("help_center_button")}
       </Link>
     </section>
   );

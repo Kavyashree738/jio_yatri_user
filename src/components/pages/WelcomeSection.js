@@ -1,10 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import '../../styles/WelcomeSection.css';
 import courierImage from '../../assets/images/hero-image.jpg';
+import '../../styles/global.css'
+import { useTranslation } from "react-i18next";
 
 const WelcomeSection = () => {
   const textRef = useRef(null);
   const imageRef = useRef(null);
+  const { t } = useTranslation();
+
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -32,33 +36,31 @@ const WelcomeSection = () => {
           className="text-side animate-on-scroll animate-left"
         >
           <h1>
-            Welcome to <span className="brand">JIOYATRI</span>
+           <span className="brand">JIOYATRI</span> {t("welcome_title")} 
           </h1>
-          <h2>Your Trusted Intercity Courier Partner</h2>
+
+          <h2>{t("welcome_subtitle")}</h2>
           <p>
-            Experience fast, safe, and reliable courier delivery from Bangalore
-            to across India. Whether it's a small parcel or a large shipment,
-            we deliver via <strong>bike, van, and truck</strong>—tailored to
-            your needs.
+            {t("welcome_description")}
           </p>
-          <button className="book-button">Book a Delivery</button>
+          <button className="book-button">{t("book_delivery")}</button>
 
           <div className="stats">
             <div className="stat">
               <h3>300+</h3>
-              <p>Bike Deliveries</p>
+              <p>{t("stat_bike")}</p>
             </div>
             <div className="stat">
               <h3>150+</h3>
-              <p>Van Shipments</p>
+              <p>{t("stat_van")}</p>
             </div>
             <div className="stat">
               <h3>100+</h3>
-              <p>Truck Loads</p>
+              <p>{t("stat_truck")}</p>
             </div>
             <div className="stat">
               <h3>5000+</h3>
-              <p>Parcels Delivered</p>
+              <p>{t("stat_parcels")}</p>
             </div>
           </div>
         </div>

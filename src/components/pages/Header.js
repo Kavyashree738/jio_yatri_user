@@ -1,92 +1,66 @@
 // src/components/layout/Header.js
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaUserCircle,
   FaHome,
-  FaBuilding,
-  FaTruck,
   FaBoxes,
   FaShoppingCart,
   FaBars,
   FaWallet,
   FaGift,
   FaQuestionCircle,
-  FaCog,
   FaChevronRight,
   FaSignOutAlt,
-  FaFileAlt,
-  FaShieldAlt
 } from "react-icons/fa";
+import { LuPackage2 } from "react-icons/lu";
+
 
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import logo from "../../assets/images/logo.jpg";
 import { useAuth } from "../../context/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
-
+import { useTranslation } from "react-i18next";
 
 const Header = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t, i18n } = useTranslation();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
-  // 🔥 Detect login type
+  // Detect provider
   const provider = user?.providerData?.[0]?.providerId;
+  const isGoogleLogin = provider === "google.com";
 
-  const isPhoneLogin = provider === "phone";       // OTP login
-  const isGoogleLogin = provider === "google.com"; // Google login
-
-  // ⬇️ Save Google data ONLY for Google login
+  // Save Google details
   useEffect(() => {
-    if (user) {
-      if (isGoogleLogin) {
-        if (user.photoURL) localStorage.setItem("googlePhoto", user.photoURL);
-        if (user.displayName) localStorage.setItem("googleName", user.displayName);
-        if (user.email) localStorage.setItem("googleEmail", user.email);
-      }
+    if (user && isGoogleLogin) {
+      if (user.photoURL) localStorage.setItem("googlePhoto", user.photoURL);
+      if (user.displayName) localStorage.setItem("googleName", user.displayName);
+      if (user.email) localStorage.setItem("googleEmail", user.email);
     }
-  }, [user, isGoogleLogin]);
+  }, [user]);
 
-  // Read saved Google details (optional)
-  // Read saved Google details
   const googlePhoto = localStorage.getItem("googlePhoto");
   const googleName = localStorage.getItem("googleName");
   const googleEmail = localStorage.getItem("googleEmail");
 
-  // ⭐ Read DB details
   const dbPhoto = localStorage.getItem("dbPhoto");
   const dbName = localStorage.getItem("dbName");
   const dbEmail = localStorage.getItem("dbEmail");
 
-  // ⭐ Updated profile photo priority
-  const profilePhoto =
-    dbPhoto ||            // always show DB updated photo first
-    user?.photoURL ||     // firebase/google
-    googlePhoto ||        // stored google
-    null;
-
-  // ⭐ Updated name + email priority
-  const profileName =
-    dbName ||
-    user?.displayName ||
-    googleName ||
-    user?.phoneNumber ||
-    "User";
-
-  const profileEmail =
-    dbEmail ||
-    user?.email ||
-    googleEmail ||
-    "";
-
+  // Final profile priority
+  const profilePhoto = dbPhoto || user?.photoURL || googlePhoto || null;
+  const profileName = dbName || user?.displayName || googleName || user?.phoneNumber || "User";
+  const profileEmail = dbEmail || user?.email || googleEmail || "";
 
   const handleProfileClick = () => navigate("/profile");
 
-  // Mobile nav active highlight
+  // Mobile nav highlight
   useEffect(() => {
     const activeLink = document.querySelector(".mobile-nav-link.active");
     if (activeLink) {
@@ -101,13 +75,36 @@ const Header = () => {
     <>
       {/* 🔵 Top Strip */}
       <div className="top-strip">
+
+        {/* 🌍 Language Switch */}
+        {/* <button onClick={() => {
+          i18n.changeLanguage("en");
+          document.documentElement.setAttribute("lang", "en");
+        }}>EN</button>
+
+        <button onClick={() => {
+          i18n.changeLanguage("hi");
+          document.documentElement.setAttribute("lang", "hi");
+        }}>हिंदी</button>
+
+        <button onClick={() => {
+          i18n.changeLanguage("kn");
+          document.documentElement.setAttribute("lang", "kn");
+        }}>ಕನ್ನಡ</button>
+
+        <button onClick={() => {
+          i18n.changeLanguage("te");
+          document.documentElement.setAttribute("lang", "te");
+        }}>తెలుగు</button> */}
+
+
         {user && (
           <div className="hamburger-menu" onClick={() => setSidebarOpen(true)}>
             <FaBars size={23} />
           </div>
         )}
 
-        <h1>Mokshambani Tech Services PVT LTD</h1>
+        <h1>{t("header_company_name")}</h1>
       </div>
 
       {/* 🟢 Desktop Header */}
@@ -118,12 +115,9 @@ const Header = () => {
           </div>
 
           <nav className="nav-links">
-            <Link to="/home">Home</Link>
-            {/* <Link to="/enterprise">Enterprise</Link>
-            <Link to="/partners">Partners</Link> */}
-
-            <Link to="/orders">Orders</Link>
-            <Link to="/shipment">Shipment</Link>
+            <Link to="/home">{t("header_home")}</Link>
+            <Link to="/orders">{t("header_orders")}</Link>
+            <Link to="/shipment">{t("header_shipments")}</Link>
 
             {user && (
               <button className="profile-icon" onClick={handleProfileClick}>
@@ -151,7 +145,6 @@ const Header = () => {
 
       {/* 🔥 Sidebar Drawer */}
       <div className={`sidebar-drawer ${sidebarOpen ? "open" : ""}`}>
-        {/* Sidebar Header */}
         <div className="sidebar-header">
           {profilePhoto ? (
             <img
@@ -169,104 +162,66 @@ const Header = () => {
             <span className="user-email">{profileEmail}</span>
           </div>
 
-          <FaChevronRight
-            className="arrow-icon"
-            onClick={() => navigate("/profile")}
-            style={{ cursor: "pointer" }}
-          />
+          <FaChevronRight className="arrow-icon" onClick={handleProfileClick} />
         </div>
 
         {/* Sidebar Links */}
         <div className="sidebar-links">
           <Link to="/my-shipments" onClick={() => setSidebarOpen(false)}>
-            <FaBoxes /> Parcel-Orders
+            <LuPackage2 /> {t("header_parcel_orders")}
           </Link>
 
           <Link to="/my-orders" onClick={() => setSidebarOpen(false)}>
-            <FaBoxes /> Shops-Orders
+            <LuPackage2 /> {t("header_shop_orders")}
           </Link>
 
           <Link to="/wallet" onClick={() => setSidebarOpen(false)}>
-            <FaWallet /> Wallet
+            <FaWallet /> {t("header_wallet")}
           </Link>
 
           <Link to="/refferal" onClick={() => setSidebarOpen(false)}>
-            <FaGift /> Refer a Friend
+            <FaGift /> {t("header_refer")}
           </Link>
 
           <Link to="/help" onClick={() => setSidebarOpen(false)}>
-            <FaQuestionCircle /> Help Center
+            <FaQuestionCircle /> {t("header_help")}
           </Link>
 
-          {/* <Link to="/terms-and-condition" onClick={() => setSidebarOpen(false)}>
-            <FaFileAlt /> Terms & Conditions
-          </Link>
-
-          <Link to="/privacy-policy" onClick={() => setSidebarOpen(false)}>
-            <FaShieldAlt /> Privacy Policy
-          </Link> */}
-
-
-
-          {/* 🔴 Logout */}
           <button className="logout-btn" onClick={() => setShowLogoutPopup(true)}>
-            <FaSignOutAlt /> Logout
+            <FaSignOutAlt /> {t("header_logout")}
           </button>
         </div>
       </div>
 
-      {/* 🟣 Mobile Bottom Navigation */}
+      {/* 🟣 Mobile Bottom Navigation (KEPT) */}
       <div className="mobile-bottom-nav">
         <Link
           to="/home"
           className={`mobile-nav-link ${location.pathname === "/home" ? "active" : ""}`}
         >
           <FaHome className="mobile-nav-icon" />
-          <span>Home</span>
+          <span>{t("header_home")}</span>
         </Link>
-
-        {/* <Link
-          to="/enterprise"
-          className={`mobile-nav-link ${location.pathname === "/enterprise" ? "active" : ""
-            }`}
-        >
-          <FaBuilding className="mobile-nav-icon" />
-          <span>Enterprise</span>
-        </Link> */}
-
-        {/* <Link
-          to="/partners"
-          className={`mobile-nav-link ${location.pathname === "/partners" ? "active" : ""
-            }`}
-        >
-          <FaTruck className="mobile-nav-icon" />
-          <span>Partners</span>
-        </Link> */}
-
-
 
         <Link
           to="/orders"
-          className={`mobile-nav-link ${location.pathname === "/orders" ? "active" : ""
-            }`}
+          className={`mobile-nav-link ${location.pathname === "/orders" ? "active" : ""}`}
         >
           <FaShoppingCart className="mobile-nav-icon" />
-          <span>Orders</span>
+          <span>{t("header_orders")}</span>
         </Link>
 
         <Link
           to="/shipment"
-          className={`mobile-nav-link ${location.pathname === "/shipment" ? "active" : ""
-            }`}
+          className={`mobile-nav-link ${location.pathname === "/shipment" ? "active" : ""}`}
         >
           <FaBoxes className="mobile-nav-icon" />
-          <span>Shipment</span>
+          <span>{t("header_shipments")}</span>
         </Link>
 
         {user && (
           <button
-            className={`mobile-nav-link ${location.pathname === "/profile" ? "active" : ""
-              }`}
+            className={`mobile-nav-link ${location.pathname === "/profile" ? "active" : ""}`}
             onClick={handleProfileClick}
           >
             {profilePhoto ? (
@@ -279,40 +234,36 @@ const Header = () => {
             ) : (
               <FaUserCircle className="mobile-nav-icon" />
             )}
-            <span>Profile</span>
+            <span>{t("header_profile")}</span>
           </button>
         )}
       </div>
 
-      {/* 🔴 Logout Popup Modal */}
+      {/* 🔴 Logout Popup */}
       {showLogoutPopup && (
         <div className="logout-overlay">
           <div className="logout-modal">
-            <h3>Logout?</h3>
-            <p>Your details will not be deleted. You can log in anytime.</p>
+            <h3>{t("header_logout_title")}</h3>
+            <p>{t("header_logout_info")}</p>
 
             <div className="logout-actions">
-              <button
-                className="cancelButton"
-                onClick={() => setShowLogoutPopup(false)}
-              >
-                Cancel
+              <button className="cancelButton" onClick={() => setShowLogoutPopup(false)}>
+                {t("header_logout_cancel")}
               </button>
 
               <button
                 className="confirmButton"
                 onClick={async () => {
-                  await signOut(auth);  // 🔥 LOGOUT FIREBASE
-                  localStorage.clear(); // clear UI data
-                  await logout();        // update context
+                  await signOut(auth);
+                  localStorage.clear();
+                  logout();
                   setShowLogoutPopup(false);
                   setSidebarOpen(false);
                   navigate("/home");
                 }}
               >
-                Logout
+                {t("header_logout_confirm")}
               </button>
-
             </div>
           </div>
         </div>

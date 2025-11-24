@@ -2,80 +2,79 @@
 export const helpTopics = [
   {
     id: 1,
-    main: "Know how to book a vehicle?",
+    main: "help_topic_book_vehicle",
     related: [
-      { q: "How to select pickup and drop location?", a: "Open the JioYatri app, enter pickup and drop addresses manually or use current location." },
-      { q: "How to choose vehicle type?", a: "You can select from Auto, Two Wheeler, Pickup9ft, or Truck based on your parcel size." },
-      { q: "How to confirm booking?", a: "After selecting locations and vehicle, click on 'Book Now' to confirm." },
-      { q: "Can I cancel a ride?", a: "Yes, you can cancel before and after the driver accepts the ride without any charges." },
-      { q: "How to contact driver?", a: "Once booking is accepted, you can call your driver from the app." },
+      { q: "help_q_pick_drop", a: "help_a_pick_drop" },
+      { q: "help_q_choose_vehicle", a: "help_a_choose_vehicle" },
+      { q: "help_q_confirm_booking", a: "help_a_confirm_booking" },
+      { q: "help_q_cancel_ride", a: "help_a_cancel_ride" },
+      { q: "help_q_contact_driver", a: "help_a_contact_driver" }
     ],
   },
   {
     id: 2,
-    main: " Know how to book a shop order?",
+    main: "help_topic_shop_order",
     related: [
-      { q: "How to find shops?", a: "Go to 'Shops' tab to browse nearby registered shops like groceries, hotels, or bakeries." },
-      { q: "How to add items?", a: "Select the shop, choose items, and add them to cart." },
-      { q: "How to pay the shop?", a: "Payments go directly to the shop’s UPI ID saved during registration." },
-      { q: "Who delivers the items?", a: "Our verified drivers will pick up your order and deliver to your address." },
-      { q: "How to track order?", a: "You can track the live location of the driver using the location provided in the map" },
+      { q: "help_q_find_shops", a: "help_a_find_shops" },
+      { q: "help_q_add_items", a: "help_a_add_items" },
+      { q: "help_q_shop_payment", a: "help_a_shop_payment" },
+      { q: "help_q_who_delivers", a: "help_a_who_delivers" },
+      { q: "help_q_track_order", a: "help_a_track_order" }
     ],
   },
   {
     id: 3,
-    main: " Know about payment process?",
+    main: "help_topic_payment_process",
     related: [
-      { q: "How to pay driver?", a: "Delivery fee is paid directly to the driver via the app or cash on delivery." },
-      { q: "How shop payments work?", a: "You pay the shop owner’s UPI directly for the item amount.and the delivery amount pay to the driver" },
-      { q: "Do you support Razorpay?", a: "Yes, Razorpay handles our online secure payments." },
-      { q: "Is there any hidden charge?", a: "Yes, along with the delivery fees based on the distance from the sender’s location to the delivery location, the amount the driver should receive will come from your sender location." },
+      { q: "help_q_pay_driver", a: "help_a_pay_driver" },
+      { q: "help_q_shop_upi", a: "help_a_shop_upi" },
+      { q: "help_q_razorpay", a: "help_a_razorpay" },
+      { q: "help_q_any_hidden_charge", a: "help_a_any_hidden_charge" }
     ],
   },
   {
     id: 4,
-    main: " Know how parcel delivery works?",
+    main: "help_topic_parcel_delivery",
     related: [
-      { q: "How driver collects parcel?", a: "Driver receives pickup OTP from sender before collecting the parcel." },
-      { q: "How receiver confirms delivery?", a: "Receiver shares OTP with driver after receiving the parcel." },
-      { q: "What if driver delays?", a: "You can track live status or report delay from the help section." },
-      { q: "Can I send fragile items?", a: "Yes, but please ensure safe packaging to avoid damage." },
+      { q: "help_q_driver_collect_parcel", a: "help_a_driver_collect_parcel" },
+      { q: "help_q_receiver_confirm", a: "help_a_receiver_confirm" },
+      { q: "help_q_driver_delay", a: "help_a_driver_delay" },
+      { q: "help_q_fragile_items", a: "help_a_fragile_items" }
     ],
   },
- 
   {
     id: 5,
-    main: "Know how delivery charges are calculated?",
+    main: "help_topic_delivery_charges",
     related: [
-      { q: "What factors affect cost?", a: "Charges depend on distance, vehicle type, and weight of goods." },
-      { q: "Do you charge extra for waiting?", a: "No, as of now we are not charging for that" },
-      { q: "Can I get estimated fare?", a: "Yes, estimated fare appears before confirming the booking." },
+      { q: "help_q_cost_factors", a: "help_a_cost_factors" },
+      { q: "help_q_waiting_charge", a: "help_a_waiting_charge" },
+      { q: "help_q_estimate_fare", a: "help_a_estimate_fare" }
     ],
   },
   {
     id: 6,
-    main: "Know how to register your shop or business?",
+    main: "help_topic_register_shop",
     related: [
-      { q: "Where to register?", a: "Open Partner App, select 'Register as Business'." },
-      { q: "What details are needed?", a: "Provide shop name, category, address, UPI ID, and photos." },
-      { q: "Can I edit shop details?", a: "Yes, go to Profile → Edit Shop Info." },
+      { q: "help_q_where_register", a: "help_a_where_register" },
+      { q: "help_q_required_details", a: "help_a_required_details" },
+      { q: "help_q_edit_shop", a: "help_a_edit_shop" }
     ],
   },
   {
     id: 7,
-    main: "Know what to do if your delivery is delayed?",
+    main: "help_topic_delivery_delayed",
     related: [
-      { q: "Why delay happens?", a: "Delays can occur due to traffic or weather conditions." },
-      { q: "How to report delay?", a: "you can call to helpline number displayed in our app" },
-      { q: "Will I get refund?", a: "Refund depends on case review if the order was prepaid." },
+      { q: "help_q_delay_reason", a: "help_a_delay_reason" },
+      { q: "help_q_report_delay", a: "help_a_report_delay" },
+      { q: "help_q_refund_policy", a: "help_a_refund_policy" }
     ],
   },
   {
     id: 8,
-    main: " Need help or want to contact support?",
+    main: "help_topic_support",
     related: [
-      { q: "How to contact support?", a: "Email us at helpjioyatri@gmail.com or call 9844559599." },
-      { q: "Support hours?", a: "Available Mon–Fri, 9:00 AM – 6:00 PM." },
+      { q: "help_q_contact_support", a: "help_a_contact_support" },
+      { q: "help_q_support_hours", a: "help_a_support_hours" }
     ],
   },
 ];

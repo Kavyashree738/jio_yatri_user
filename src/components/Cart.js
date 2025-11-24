@@ -12,7 +12,9 @@ import { signInAnonymously } from 'firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/pages/Header';
 import Footer from '../components/pages/Footer';
-const apiBase ='https://jio-yatri-user.onrender.com';
+import { useTranslation } from "react-i18next";
+
+const apiBase = 'https://jio-yatri-user.onrender.com';
 
 /* -------------------- UPI / PhonePe helpers -------------------- */
 function cleanMsisdn(n) {
@@ -68,6 +70,7 @@ export default function CartPage() {
 
   const [placing, setPlacing] = useState(false);
   const { token: ctxToken } = useAuth();
+  const { t } = useTranslation();
 
   // Delivery/pricing
   const [shopCoords, setShopCoords] = useState(null); // {lat,lng}
@@ -121,8 +124,6 @@ export default function CartPage() {
     }
   }, [shopId, bucket?.shop?.address?.coordinates, bucket?.shop]);
 
-
-
   // ---- compute distance & prices ----
   useEffect(() => {
     async function calc() {
@@ -164,7 +165,10 @@ export default function CartPage() {
   // ---- items pricing (delivery separate) ----
   const pricing = useMemo(() => {
     if (!bucket) return { subtotal: 0, tax: 0, deliveryFee: 0, total: 0 };
-    const subtotal = bucket.items.reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
+    const subtotal = bucket.items.reduce(
+      (s, i) => s + (Number(i.price) || 0) * (Number(i.quantity) || 1),
+      0
+    );
     const tax = 0;
     const deliveryFee = 0;
     const total = +(subtotal + tax + deliveryFee).toFixed(2);
@@ -191,8 +195,6 @@ export default function CartPage() {
     const amount = Number(pricing.total || 0);
     const note = `Order at ${shopName}`;
 
-    
-
     if (!vpa || amount <= 0) {
       return { ready: false };
     }
@@ -215,23 +217,28 @@ export default function CartPage() {
       shopName,
       phonePeNumber: shop.phonePeNumber
     };
-  }, [completeShopData, bucket, pricing.total]); // Add completeShopData to dependencies
+  }, [completeShopData, bucket, pricing.total]);
 
-
-
+  /* ---- Empty cart ---- */
   if (!bucket || bucket.items.length === 0) {
     return (
-      <div className="cart-empty">
-        <p>Your cart is empty.</p>
-        <button onClick={() => navigate(-1)}>Go back</button>
-      </div>
+      <>
+        <Header />
+        <div className="cart-empty">
+          <p>{t("cart_empty")}</p>
+          <button onClick={() => navigate(-1)}>
+            {t("cart_go_back")}
+          </button>
+        </div>
+        <Footer />
+      </>
     );
   }
 
   // ---- place order ----
   const placeOrder = async () => {
     if (!form.name || !form.phone || !form.address) {
-      alert('Please fill your name, phone and address.');
+      alert(t("cart_error_fill_details"));
       return;
     }
     try {
@@ -240,7 +247,8 @@ export default function CartPage() {
       if (!auth.currentUser) {
         await signInAnonymously(auth);
       }
-      const idToken = (auth.currentUser && await auth.currentUser.getIdToken()) || ctxToken;
+      const idToken =
+        (auth.currentUser && (await auth.currentUser.getIdToken())) || ctxToken;
 
       const payload = {
         shopId,
@@ -262,8 +270,12 @@ export default function CartPage() {
       clearShopCart(shopId);
       navigate(`/order-confirmation/${res.data.data._id}`);
     } catch (e) {
-      console.error('[Cart] placeOrder error:', e?.response?.status, e?.response?.data || e.message);
-      alert(e.response?.data?.error || 'Failed to place order');
+      console.error(
+        '[Cart] placeOrder error:',
+        e?.response?.status,
+        e?.response?.data || e.message
+      );
+      alert(e.response?.data?.error || t("cart_place_order_failed"));
     } finally {
       setPlacing(false);
     }
@@ -273,12 +285,14 @@ export default function CartPage() {
     <>
       <Header />
       <div className="cart-page">
-        {/* <button className="back-btn" onClick={() => navigate(-1)}>← Back</button> */}
-
+        {/* Top bar */}
         <div className="cart-topbar">
-       <h2>Cart · {(completeShopData || bucket.shop)?.shopName}</h2>
+          <h2>
+            {t("cart_title")} · {(completeShopData || bucket.shop)?.shopName}
+          </h2>
         </div>
 
+        {/* === Cart items === */}
         <div className="cart-items">
           {bucket.items.map(it => (
             <div className="cart-row" key={it.itemId}>
@@ -287,59 +301,88 @@ export default function CartPage() {
               <div className="price">₹{it.price}</div>
               {bucket.shop?.category === 'hotel' && it.veg != null && (
                 <div className={`veg-tag ${it.veg ? 'veg' : 'nonveg'}`}>
-                  {it.veg ? 'Veg' : 'Non-Veg'}
+                  {it.veg ? t("cart_veg") : t("cart_non_veg")}
                 </div>
               )}
               <div className="qty">
-                <button onClick={() => setQty(shopId, it.itemId, Math.max(1, it.quantity - 1))}>−</button>
+                <button
+                  onClick={() =>
+                    setQty(shopId, it.itemId, Math.max(1, it.quantity - 1))
+                  }
+                >
+                  −
+                </button>
                 <span>{it.quantity}</span>
-                <button onClick={() => setQty(shopId, it.itemId, it.quantity + 1)}>+</button>
+                <button
+                  onClick={() => setQty(shopId, it.itemId, it.quantity + 1)}
+                >
+                  +
+                </button>
               </div>
-              <button className="remove" onClick={() => removeItem(shopId, it.itemId)}><MdDelete /></button>
+              <button
+                className="remove"
+                onClick={() => removeItem(shopId, it.itemId)}
+              >
+                <MdDelete />
+              </button>
             </div>
           ))}
         </div>
 
-        {/* === Delivery estimator === */}
+        {/* === Delivery estimator / summary === */}
         <div className="cart-summary">
-          <div className="row"><span>Subtotal</span><span>₹{pricing.subtotal.toFixed(2)}</span></div>
+          <div className="row">
+            <span>{t("cart_subtotal")}</span>
+            <span>₹{pricing.subtotal.toFixed(2)}</span>
+          </div>
           {Number(pricing.tax) > 0 && (
-            <div className="row"><span>Tax</span><span>₹{Number(pricing.tax).toFixed(2)}</span></div>
+            <div className="row">
+              <span>{t("cart_tax")}</span>
+              <span>₹{Number(pricing.tax).toFixed(2)}</span>
+            </div>
           )}
-          <div className="row"><span>Delivery (to shop)</span><span>₹{pricing.deliveryFee.toFixed(2)}</span></div>
-          <div className="row total"><span>Total (shop items)</span><span>₹{pricing.total.toFixed(2)}</span></div>
+          <div className="row">
+            <span>{t("cart_delivery_to_shop")}</span>
+            <span>₹{pricing.deliveryFee.toFixed(2)}</span>
+          </div>
+          <div className="row total">
+            <span>{t("cart_total_shop_items")}</span>
+            <span>₹{pricing.total.toFixed(2)}</span>
+          </div>
         </div>
 
         {/* ======= PAY FOR ITEMS (PhonePe / UPI) ======= */}
         <div className="checkout" style={{ marginTop: 16 }}>
-          <h3>Pay for Items</h3>
+          <h3>{t("cart_pay_items_title")}</h3>
 
           <div className="field" style={{ marginBottom: 8 }}>
             <small style={{ opacity: 0.8 }}>
-              You’ll pay the <b>shop owner</b> for the items. Delivery fee is paid to the driver on delivery.
+              {t("cart_pay_items_note_start")}{" "}
+              <b>{t("cart_pay_items_note_bold")}</b>{" "}
+              {t("cart_pay_items_note_end")}
             </small>
           </div>
 
           {!upiUi.ready ? (
             <div className="field">
               <small style={{ color: '#b91c1c' }}>
-                Payment unavailable — shop UPI not set or total is ₹0.
+                {t("cart_payment_unavailable")}
               </small>
             </div>
           ) : (
             <>
-              <div className="field" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div
+                className="field"
+                style={{
+                  display: 'flex',
+                  gap: 12,
+                  alignItems: 'center',
+                  flexWrap: 'wrap'
+                }}
+              >
                 {isAndroid() ? (
                   <>
-                    {/* Direct to PhonePe */}
-                    {/* <a
-                      href={upiUi.phonePeIntent}
-                      className="btn-primary"
-                      rel="noopener noreferrer"
-                    >
-                      Pay in PhonePe (₹{upiUi.amount.toFixed(2)})
-                    </a> */}
-
+                    {/* 👇 hand pointer  */}
                     <div className="payment-hand-pointer">
                       <span className="emoji">👇</span>
                     </div>
@@ -350,7 +393,7 @@ export default function CartPage() {
                       className="btn-outline"
                       rel="noopener noreferrer"
                     >
-                      Pay in any UPI app
+                      {t("cart_pay_any_upi")}
                     </a>
                   </>
                 ) : (
@@ -361,7 +404,7 @@ export default function CartPage() {
                       className="btn-primary"
                       rel="noopener noreferrer"
                     >
-                      Open UPI app (₹{upiUi.amount.toFixed(2)})
+                      {t("cart_open_upi_app")} (₹{upiUi.amount.toFixed(2)})
                     </a>
 
                     <button
@@ -370,15 +413,21 @@ export default function CartPage() {
                       onClick={async () => {
                         try {
                           await navigator.clipboard.writeText(
-                            `VPA: ${upiUi.vpa}\nAmount: ₹${upiUi.amount.toFixed(2)}\nNote: Order at ${upiUi.shopName}`
+                            `VPA: ${upiUi.vpa}\nAmount: ₹${upiUi.amount.toFixed(
+                              2
+                            )}\nNote: Order at ${upiUi.shopName}`
                           );
-                          alert('UPI details copied. Open your UPI app and paste.');
+                          alert(t("cart_copy_upi_toast"));
                         } catch {
-                          alert(`VPA: ${upiUi.vpa}\nAmount: ₹${upiUi.amount.toFixed(2)}\nNote: Order at ${upiUi.shopName}`);
+                          alert(
+                            `VPA: ${upiUi.vpa}\nAmount: ₹${upiUi.amount.toFixed(
+                              2
+                            )}\nNote: Order at ${upiUi.shopName}`
+                          );
                         }
                       }}
                     >
-                      Copy UPI details
+                      {t("cart_copy_upi_details")}
                     </button>
                   </>
                 )}
@@ -387,7 +436,7 @@ export default function CartPage() {
               {!isMobile() && (
                 <div className="field" style={{ marginTop: 6 }}>
                   <small style={{ opacity: 0.8 }}>
-                    Tip: open this page on your phone to pay via UPI. Desktop browsers can’t handle UPI links.
+                    {t("cart_desktop_tip")}
                   </small>
                 </div>
               )}
@@ -395,9 +444,19 @@ export default function CartPage() {
               {(bucket?.shop?.phonePeNumber || upiUi.vpa) && (
                 <div className="field" style={{ marginTop: 6 }}>
                   <small style={{ opacity: 0.8 }}>
-                    Payee: <b>{upiUi.shopName}</b>
-                    {upiUi.phonePeNumber && <> · PhonePe #: {upiUi.phonePeNumber}</>}
-                    {upiUi.vpa && <> · UPI: <code>{upiUi.vpa}</code></>}
+                    {t("cart_payee")}: <b>{upiUi.shopName}</b>
+                    {upiUi.phonePeNumber && (
+                      <>
+                        {" "}
+                        · {t("cart_payee_phonepe")} {upiUi.phonePeNumber}
+                      </>
+                    )}
+                    {upiUi.vpa && (
+                      <>
+                        {" "}
+                        · {t("cart_payee_upi")} <code>{upiUi.vpa}</code>
+                      </>
+                    )}
                   </small>
                 </div>
               )}
@@ -407,32 +466,39 @@ export default function CartPage() {
 
         {/* ======= ORDER (delivery) ======= */}
         <div className="checkout">
-          <h3>Order Now</h3>
+          <h3>{t("cart_order_now_title")}</h3>
 
           <div className="field">
-            <label>Name</label>
+            <label>{t("cart_label_name")}</label>
             <input
               value={form.name}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder="Your full name"
+              onChange={e =>
+                setForm(f => ({ ...f, name: e.target.value }))
+              }
+              placeholder={t("cart_placeholder_name")}
             />
           </div>
 
           <div className="field">
-            <label>Phone</label>
+            <label>{t("cart_label_phone")}</label>
             <input
               value={form.phone}
-              onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-              placeholder="10-digit mobile number"
+              onChange={e =>
+                setForm(f => ({ ...f, phone: e.target.value }))
+              }
+              placeholder={t("cart_placeholder_phone")}
             />
           </div>
 
           <div className="delivery-estimator">
-            <h3>Delivery</h3>
+            <h3>{t("cart_delivery_title")}</h3>
 
             <div className="field">
-              <label>Drop-off Address</label>
-              <AddressAutocomplete initialValue={form.address} onSelect={onAddressSelect} />
+              <label>{t("cart_label_drop_address")}</label>
+              <AddressAutocomplete
+                initialValue={form.address}
+                onSelect={onAddressSelect}
+              />
             </div>
 
             {/* Vehicle cards */}
@@ -444,7 +510,9 @@ export default function CartPage() {
                   'vehicle-options cart-vehicle-option',
                   isSelected ? 'selected' : '',
                   isUnavailable ? 'unavailable' : ''
-                ].join(' ').trim();
+                ]
+                  .join(' ')
+                  .trim();
 
                 return (
                   <button
@@ -454,23 +522,43 @@ export default function CartPage() {
                     onClick={() => {
                       if (!isUnavailable) {
                         setVehicleType(v.type);
-                        if (distanceKm > 0) setEstimatedDelivery(+(distanceKm * v.rate).toFixed(2));
+                        if (distanceKm > 0)
+                          setEstimatedDelivery(
+                            +(distanceKm * v.rate).toFixed(2)
+                          );
                       }
                     }}
                     aria-pressed={isSelected}
                   >
-                    {v.comingSoon && <div className="coming-soon cart-coming-soon">Coming&nbsp;Soon</div>}
-                   <img src={v.img} alt={v.name} className="vehicle-icon" />
+                    {v.comingSoon && (
+                      <div className="coming-soon cart-coming-soon">
+                        {t("coming_soon")}
+                      </div>
+                    )}
+                    <img
+                      src={v.img}
+                      alt={t(v.nameKey)}
+                      className="vehicle-icon"
+                    />
 
                     <div className="vehicle-info cart-vehicle-info">
-                      <div className="vehicle-name cart-vehicle-name">{v.name}</div>
-                      <div className="vehicle-capacity cart-vehicle-capacity">{v.capacity}</div>
+                      <div className="vehicle-name cart-vehicle-name">
+                       {t(v.nameKey)}
+
+                      </div>
+                      <div className="vehicle-capacity cart-vehicle-capacity">
+                        {t(v.capacityKey)}
+                      </div>
                     </div>
 
                     <div className="vehicle-meta cart-vehicle-meta">
-                      <div className="vehicle-rate cart-vehicle-rate">{v.displayRate}</div>
+                      <div className="vehicle-rate cart-vehicle-rate">
+                        {t(v.rateKey)}
+                      </div>
                       {distanceKm > 0 && (
-                        <div className="vehicle-price cart-vehicle-price">₹{v.price?.toFixed(2)}</div>
+                        <div className="vehicle-price cart-vehicle-price">
+                          ₹{v.price?.toFixed(2)}
+                        </div>
                       )}
                     </div>
                   </button>
@@ -479,17 +567,29 @@ export default function CartPage() {
             </div>
 
             <div className="est-lines">
-              <div>Distance: <b>{distanceKm ? distanceKm.toFixed(2) : '—'} km</b></div>
               <div>
-                Estimated delivery charge:{' '}
-                <b>₹{estimatedDelivery ? estimatedDelivery.toFixed(2) : '—'}</b>{' '}
-                <small style={{ opacity: .7 }}>(paid to driver on delivery)</small>
+                {t("cart_distance_label")}:{" "}
+                <b>
+                  {distanceKm ? distanceKm.toFixed(2) : "—"} km
+                </b>
+              </div>
+              <div>
+                {t("cart_estimated_charge_label")}:{" "}
+                <b>
+                  ₹
+                  {estimatedDelivery
+                    ? estimatedDelivery.toFixed(2)
+                    : "—"}
+                </b>{" "}
+                <small style={{ opacity: 0.7 }}>
+                  {t("cart_estimated_charge_note")}
+                </small>
               </div>
             </div>
           </div>
 
           <button disabled={placing} onClick={placeOrder}>
-            {placing ? 'Placing...' : 'Confirm Order'}
+            {placing ? t("cart_placing") : t("cart_confirm_order")}
           </button>
         </div>
       </div>

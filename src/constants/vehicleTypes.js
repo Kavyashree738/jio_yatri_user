@@ -5,78 +5,75 @@ import bularaImg from '../assets/images/vehicles/bulara.png';
 import tata407Img from '../assets/images/vehicles/tata-407.png';
 import containerImg from '../assets/images/vehicles/truck.png';
 
-
-
 export const VEHICLE_TYPES = [
   { 
     type: 'TwoWheeler',
-    name: 'Bike',
+    nameKey: 'vehicle_bike',
+    capacityKey: 'capacity_20kg',
+    rateKey: 'rate_60_2km',
     img: bikeImg,
-    capacity: 'Up to 15 kg',
     rate: 10,
     rateFor2Km: 20,
-    displayRate: '₹20 per 2 km',
     available: true,
     comingSoon: false 
   },
 
   { 
     type: 'ThreeWheeler',
-    name: 'Auto',
+    nameKey: 'vehicle_auto',
+    capacityKey: 'capacity_200kg',
+    rateKey: 'rate_80_2km',
     img: autoImg,
-    capacity: 'Up to 250 kg',
     rate: 20,
     rateFor2Km: 40,
-    displayRate: '₹40 per 2 km',
     available: true,
     comingSoon: false 
   },
 
   { 
     type: 'Truck',
-    name: 'Truck',
+    nameKey: 'vehicle_truck',
+    capacityKey: 'capacity_1200kg',
+    rateKey: 'rate_120_2km',
     img: truckImg,
-    capacity: 'Up to 2 tons',
     rate: 40,
     rateFor2Km: 80,
-    displayRate: '₹80 per 2 km',
     available: true,
     comingSoon: false 
   },
 
   { 
     type: 'Pickup9ft',
-    name: 'Bulara',
+    nameKey: 'vehicle_bulara',
+    capacityKey: 'capacity_1700kg',
+    rateKey: 'rate_350_2km',
     img: bularaImg,
-    capacity: '9 ft bed',
     rate: 175,
     rateFor2Km: 350,
-    displayRate: '₹350 per 2 km',
     available: true,
     comingSoon: false 
   },
 
   { 
     type: 'Tata407',
-    name: 'Tata 407',
+    nameKey: 'vehicle_tata407',
+    capacityKey: 'capacity_2500kg',
+    rateKey: 'rate_600_2km',
     img: tata407Img,
-    capacity: 'Up to 2.5 t',
     rate: 300,
     rateFor2Km: 600,
-    displayRate: '₹600 per 2 km',
     available: true,
     comingSoon: false 
   },
 
-  // Add container when the image is ready
   {
     type: 'ContainerTruck',
-    name: 'Container Truck',
+    nameKey: 'vehicle_container',
+    capacityKey: 'capacity_5000kg',
+    rateKey: 'rate_700_2km',
     img: containerImg,  
-    capacity: '—',
     rate: 80,
     rateFor2Km: 160,
-    displayRate: '₹160 per 2 km',
     available: false,
     comingSoon: true
   },

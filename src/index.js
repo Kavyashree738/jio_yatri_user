@@ -4,6 +4,7 @@ import './index.css';
 import App from './App';
 // import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
+import "./i18n";
 
 window.addEventListener('push', (e) => {
   const { data, fromTap } = e.detail || {};

@@ -27,75 +27,12 @@ import bularaImg from '../../assets/images/vehicles/bulara.png';
 import tata407Img from '../../assets/images/vehicles/tata-407.png';
 import containerImg from '../../assets/images/vehicles/truck.png';
 
-
+import { useTranslation } from "react-i18next";
 
 
 // import { FaPhone } from 'react-icons/fa';
 
 
-const vehicleTypes = [
-  {
-    type: 'TwoWheeler',
-    name: 'Bike',
-    rate: 30,
-    rateFor2Km: 60,
-    image: bikeImg,
-    capacity: 'Up to 20kg',
-    available: true,
-    displayRate: "₹60 per 2 km"
-  },
-  {
-    type: 'ThreeWheeler',
-    name: 'Auto',
-    rate: 40,
-    rateFor2Km: 80,
-    image: autoImg,
-    capacity: 'Up to 200kg',
-    available: true,
-    displayRate: "₹80 per 2 km"
-  },
-  {
-    type: 'Truck',
-    name: 'Truck',
-    rate: 60,
-    rateFor2Km: 120,
-    image: truckImg,
-    capacity: 'Up to 1200kg',
-    available: true,
-    displayRate: "₹120 per 2 km"
-  },
-  {
-    type: 'Pickup9ft',
-    name: 'Bulara',
-    rate: 175,
-    rateFor2Km: 350,
-    image: bularaImg,
-    capacity: 'Up to 1700kg',
-    available: true,
-    displayRate: "₹350 per 2 km"
-  },
-  {
-    type: 'Tata407',
-    name: 'Tata 407',
-    rate: 300,
-    rateFor2Km: 600,
-    image: tata407Img,
-    capacity: 'Up to 2500kg',
-    available: true,
-    displayRate: "₹600 per 2 km"
-  },
-  {
-    type: 'ContainerTruck',
-    name: 'Container Truck',
-    rate: 80,
-    rateFor2Km: 160,
-    image: containerImg,
-    capacity: 'Up to 5000kg',
-    available: false,
-    comingSoon: true,
-    displayRate: "₹700 per 2 km"
-  }
-];
 
 
 const paymentMethods = [
@@ -155,6 +92,71 @@ function ShipmentPage() {
   const [showUploadOptions, setShowUploadOptions] = useState(false);
   const [currentDocType, setCurrentDocType] = useState(null); // optional, for future
 
+  const { t, i18n } = useTranslation();
+
+  const vehicleTypes = [
+    {
+      type: "TwoWheeler",
+      name: t("vehicle_bike"),
+      rate: 30,
+      rateFor2Km: 60,
+      image: bikeImg,
+      capacity: t("capacity_20kg"),
+      available: true,
+      displayRate: t("rate_60_2km")
+    },
+    {
+      type: "ThreeWheeler",
+      name: t("vehicle_auto"),
+      rate: 40,
+      rateFor2Km: 80,
+      image: autoImg,
+      capacity: t("capacity_200kg"),
+      available: true,
+      displayRate: t("rate_80_2km")
+    },
+    {
+      type: "Truck",
+      name: t("vehicle_truck"),
+      rate: 60,
+      rateFor2Km: 120,
+      image: truckImg,
+      capacity: t("capacity_1200kg"),
+      available: true,
+      displayRate: t("rate_120_2km")
+    },
+    {
+      type: "Pickup9ft",
+      name: t("vehicle_bulara"),
+      rate: 175,
+      rateFor2Km: 350,
+      image: bularaImg,
+      capacity: t("capacity_1700kg"),
+      available: true,
+      displayRate: t("rate_350_2km")
+    },
+    {
+      type: "Tata407",
+      name: t("vehicle_tata407"),
+      rate: 300,
+      rateFor2Km: 600,
+      image: tata407Img,
+      capacity: t("capacity_2500kg"),
+      available: true,
+      displayRate: t("rate_600_2km")
+    },
+    {
+      type: "ContainerTruck",
+      name: t("vehicle_container"),
+      rate: 80,
+      rateFor2Km: 160,
+      image: containerImg,
+      capacity: t("capacity_5000kg"),
+      available: false,
+      comingSoon: true,
+      displayRate: t("rate_700_2km")
+    }
+  ];
 
 
 
@@ -531,35 +533,35 @@ function ShipmentPage() {
   }, [assignedShipment?.status, navigate]);
 
 
-//   useEffect(() => {
-//   const fetchSelfie = async () => {
-//     try {
-//       if (!user?.uid) return;
+  //   useEffect(() => {
+  //   const fetchSelfie = async () => {
+  //     try {
+  //       if (!user?.uid) return;
 
-//       const token = await user.getIdToken();
-//       const res = await fetch(`http://localhost:5001/api/upload/selfie/${user.uid}`, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       });
+  //       const token = await user.getIdToken();
+  //       const res = await fetch(`http://localhost:5001/api/upload/selfie/${user.uid}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
 
-//       if (!res.ok) {
-//         console.warn("🟡 No selfie found, using default.");
-//         setDriverImageSrc(defaultDriverImg);
-//         return;
-//       }
+  //       if (!res.ok) {
+  //         console.warn("🟡 No selfie found, using default.");
+  //         setDriverImageSrc(defaultDriverImg);
+  //         return;
+  //       }
 
-//       const blob = await res.blob();
-//       const imageUrl = URL.createObjectURL(blob);
-//       setDriverImageSrc(imageUrl);
-//     } catch (err) {
-//       console.error("❌ Error fetching selfie:", err);
-//       setDriverImageSrc(defaultDriverImg);
-//     }
-//   };
+  //       const blob = await res.blob();
+  //       const imageUrl = URL.createObjectURL(blob);
+  //       setDriverImageSrc(imageUrl);
+  //     } catch (err) {
+  //       console.error("❌ Error fetching selfie:", err);
+  //       setDriverImageSrc(defaultDriverImg);
+  //     }
+  //   };
 
-//   fetchSelfie();
-// }, [user]);
+  //   fetchSelfie();
+  // }, [user]);
 
 
 
@@ -725,39 +727,39 @@ function ShipmentPage() {
     window.open(`tel:${cleaned}`, '_self');
   };
 
- const handleInputChange = (e, type) => {
-  const { name, value } = e.target;
+  const handleInputChange = (e, type) => {
+    const { name, value } = e.target;
 
-  if (name === "phone") {
-    // 1️⃣ Remove everything except digits
-    let cleaned = value.replace(/\D/g, "");
+    if (name === "phone") {
+      // 1️⃣ Remove everything except digits
+      let cleaned = value.replace(/\D/g, "");
 
-    // 2️⃣ Keep only the last 10 digits (ignore +91, 91, 0, etc.)
-    if (cleaned.length > 10) {
-      cleaned = cleaned.slice(-10);
+      // 2️⃣ Keep only the last 10 digits (ignore +91, 91, 0, etc.)
+      if (cleaned.length > 10) {
+        cleaned = cleaned.slice(-10);
+      }
+
+      // 3️⃣ Update state
+      setShipmentData((prev) => ({
+        ...prev,
+        [type]: {
+          ...prev[type],
+          [name]: cleaned,
+        },
+      }));
+
+      return;
     }
 
-    // 3️⃣ Update state
+    // For other fields (name, email, etc.)
     setShipmentData((prev) => ({
       ...prev,
       [type]: {
         ...prev[type],
-        [name]: cleaned,
+        [name]: value,
       },
     }));
-
-    return;
-  }
-
-  // For other fields (name, email, etc.)
-  setShipmentData((prev) => ({
-    ...prev,
-    [type]: {
-      ...prev[type],
-      [name]: value,
-    },
-  }));
-};
+  };
 
 
   const validateStep1 = () => {
@@ -1119,22 +1121,20 @@ function ShipmentPage() {
     // console.log('Moving to next step');
     if (!shipmentData.sender.name || !shipmentData.sender.phone ||
       !shipmentData.receiver.name || !shipmentData.receiver.phone) {
-      // console.warn('Missing sender/receiver details');
-      setError('Please fill all sender and receiver details');
+      setError(t("error_fill_details"));
       return;
     }
 
     if (!shipmentData.sender.address.addressLine1 || !shipmentData.receiver.address.addressLine1) {
-      // console.warn('Missing addresses');
-      setError('Please select both pickup and delivery locations');
+      setError(t("error_select_locations"));
       return;
     }
 
     if (!shipmentData.parcel.description) {
-      // console.warn('Missing parcel description');
-      setError('Please describe your parcel');
+      setError(t("error_parcel_description"));
       return;
     }
+
 
     calculateDistance().then(valid => {
       // console.log('Distance calculation result:', valid);
@@ -1147,16 +1147,15 @@ function ShipmentPage() {
     // console.log('Form submission started');
 
     if (!user) {
-      // console.log('User not authenticated');
-      setError('Please login to create shipments');
+      setError(t("error_login_required"));
       return;
     }
 
     if (!shipmentData.vehicleType) {
-      // console.log('No vehicle type selected');
-      setError('Please select a vehicle type');
+      setError(t("error_select_vehicle"));
       return;
     }
+
 
     setIsSubmitting(true);
     setError(null);
@@ -1268,8 +1267,9 @@ function ShipmentPage() {
       <div className="payment-processing-overlay">
         <div className="payment-processing-content">
           <div className="payment-processing-spinner"></div>
-          <h3>Processing Payment...</h3>
-          <p>Please wait while we process your payment</p>
+          <h3>{t("payment_processing")}</h3>
+          <p>{t("payment_wait_text")}</p>
+
         </div>
       </div>
     );
@@ -1414,14 +1414,14 @@ function ShipmentPage() {
               />
               <h2 className="driver-phone">{driver?.phone}</h2>
               <FaPhone
-                  className="call-icons"
-                  onClick={() => handleCall(driver?.phone)}
-                />
+                className="call-icons"
+                onClick={() => handleCall(driver?.phone)}
+              />
             </div>
 
 
             {/* Title */}
-            <h1 className="shipment-accepted">Shipment accepted</h1>
+            <h1 className="shipment-accepted">{t("shipment_accepted")}</h1>
 
             {/* Total Amount */}
             <h1 className="total-amount">₹{totalFare.toFixed(2)}</h1>
@@ -1445,16 +1445,16 @@ function ShipmentPage() {
             {/* Fare Breakdown */}
             <div className="fare-breakdown">
               <div className="fare-row">
-                <span>Base Fare</span>
+                <span>{t("base_fare")}</span>
                 <span>₹{baseFare.toFixed(2)}</span>
               </div>
               <div className="fare-row">
-                <span>Distance Fare</span>
+                <span>{t("distance_fare")}</span>
                 <span>₹{distanceFare.toFixed(2)}</span>
               </div>
               <hr />
               <div className="fare-row total">
-                <strong>Total Fare</strong>
+                <strong>{t("total_fare")}</strong>
                 <strong>₹{totalFare.toFixed(2)}</strong>
               </div>
             </div>
@@ -1475,13 +1475,13 @@ function ShipmentPage() {
                   className="pay-button"
                   onClick={() => processRazorpayPayment(assignedShipment._id)}
                 >
-                  Pay ₹{totalFare}
+                  {t("pay")} ₹{totalFare}
                 </button>
               ) : (
                 // 🔹 If user has 3 or more → show dropdown (Razorpay + Cash)
                 <>
                   <div className="payment-options">
-                    <label className="payment-label">Select Payment Method:</label>
+                    <label className="payment-label">{t("select_payment_method")}</label>
 
                     <div className="payment-options-inline">
                       <div
@@ -1491,7 +1491,7 @@ function ShipmentPage() {
                         <div className="radio-circle">
                           {selectedPayment === "cash" && <span className="checkmark">✔</span>}
                         </div>
-                        <span className="payment-text">₹ Cash</span>
+                        <span className="payment-text">₹ {t("payment_cash")}</span>
                       </div>
 
                       <div
@@ -1501,7 +1501,7 @@ function ShipmentPage() {
                         <div className="radio-circle">
                           {selectedPayment === "razorpay" && <span className="checkmark">✔</span>}
                         </div>
-                        <span className="payment-text">💳 Online</span>
+                        <span className="payment-text">💳 {t("payment_online")}</span>
                       </div>
                     </div>
 
@@ -1542,8 +1542,9 @@ function ShipmentPage() {
                     }}
                   >
                     {selectedPayment === "razorpay"
-                      ? `Pay ₹${totalFare}`
-                      : "Confirm Cash Payment"}
+                      ? `${t("pay")} ₹${totalFare}`
+                      : t("confirm_cash_payment")}
+
                   </button>
                 </>
               )}
@@ -1560,7 +1561,7 @@ function ShipmentPage() {
                 })
               }
             >
-              Cancel Shipment
+              {t("cancel_shipment")}
             </button>
 
             {/* Razorpay Footer
@@ -1572,8 +1573,9 @@ function ShipmentPage() {
           {confirmModal.visible && (
             <div className="modal-overlay">
               <div className="modal-content">
-                <h3>Confirm Cancellation</h3>
-                <p>Are you sure you want to cancel this shipment?</p>
+                <h3>{t("confirm_cancel_title")}</h3>
+                <p>{t("confirm_cancel_message")}</p>
+
                 <div className="modal-buttons">
                   <button
                     className="confirm-btn"
@@ -1582,20 +1584,22 @@ function ShipmentPage() {
                       setConfirmModal({ visible: false, type: null, id: null });
                     }}
                   >
-                    Yes, Cancel
+                    {t("yes_cancel")}
                   </button>
+
                   <button
                     className="cancel-btn"
                     onClick={() =>
                       setConfirmModal({ visible: false, type: null, id: null })
                     }
                   >
-                    No, Go Back
+                    {t("no_go_back")}
                   </button>
                 </div>
               </div>
             </div>
           )}
+
 
         </div>
 
@@ -1662,18 +1666,18 @@ function ShipmentPage() {
               </div>
             </div>
 
-            <h1 className="success-title">Booking Confirmed</h1>
+            <h1 className="success-title">{t("booking_confirmed")}</h1>
 
             <div className="confirmation-driver">
               {/* <img src={driver} alt="Driver" /> */}
-               <Lottie
-              animationData={driverAnimation}
-              loop={true}
-              style={{
-                width: 300, height: 150, margin: "0 auto",          // 👈 horizontally center
-                display: "block",
-              }}
-            />
+              <Lottie
+                animationData={driverAnimation}
+                loop={true}
+                style={{
+                  width: 300, height: 150, margin: "0 auto",          // 👈 horizontally center
+                  display: "block",
+                }}
+              />
             </div>
 
             {/* <p className="awaiting-text">Awaiting driver confirmation.</p> */}
@@ -1695,7 +1699,7 @@ function ShipmentPage() {
               className="cancel-before-assign-btn"
               onClick={handleCancelBeforeAssign}
             >
-              Cancel Booking
+              {t("cancel_booking")}
             </button>
 
 
@@ -1707,28 +1711,31 @@ function ShipmentPage() {
         {preAssignCancelModal.visible && (
           <div className="modal-overlay">
             <div className="modal-content">
-              <h3>Cancel Booking?</h3>
-              <p>No driver has been assigned yet. Do you really want to cancel this booking?</p>
+              <h3>{t("cancel_booking")}?</h3>
+              <p>{t("confirm_cancel_no_driver")}</p>
+
               <div className="modal-buttons">
                 <button
-                  className="confirm-btn"
+                  className="confirming-btn"
                   onClick={async () => {
                     await handleCancelShipment(preAssignCancelModal.id);
                     setPreAssignCancelModal({ visible: false, id: null });
                   }}
                 >
-                  Yes, Cancel
+                  {t("yes_cancel")}
                 </button>
+
                 <button
-                  className="cancel-btn"
+                  className="cancelling-btn"
                   onClick={() => setPreAssignCancelModal({ visible: false, id: null })}
                 >
-                  No, Go Back
+                  {t("no_go_back")}
                 </button>
               </div>
             </div>
           </div>
         )}
+
 
 
       </div>
@@ -1897,7 +1904,7 @@ function ShipmentPage() {
 
             {/* 🔹 Dynamic Title based on order type */}
             <h3 className="tracking-view-status">
-              {assignedShipment.isShopOrder ? "Receiver OTP" : "Sender OTP"}
+              {assignedShipment.isShopOrder ? t("receiver_otp") : t("sender_otp")}
               <div className="tracking-view-amount">
                 ₹{assignedShipment.cost.toFixed(2)}
               </div>
@@ -1940,7 +1947,7 @@ function ShipmentPage() {
                 })
               }
             >
-              Cancel Shipment
+              {t("cancel_shipment")}
             </button>
 
           </div>
@@ -1950,8 +1957,9 @@ function ShipmentPage() {
         {confirmModal.visible && (
           <div className="modal-overlay">
             <div className="modal-content">
-              <h3>Confirm Cancellation</h3>
-              <p>Are you sure you want to cancel this shipment?</p>
+              <h3>{t("confirm_cancel_title")}</h3>
+              <p>{t("confirm_cancel_message")}</p>
+
               <div className="modal-buttons">
                 <button
                   className="confirm-btn"
@@ -1960,20 +1968,22 @@ function ShipmentPage() {
                     setConfirmModal({ visible: false, type: null, id: null });
                   }}
                 >
-                  Yes, Cancel
+                  {t("yes_cancel")}
                 </button>
+
                 <button
                   className="cancel-btn"
                   onClick={() =>
                     setConfirmModal({ visible: false, type: null, id: null })
                   }
                 >
-                  No, Go Back
+                  {t("no_go_back")}
                 </button>
               </div>
             </div>
           </div>
         )}
+
       </div>
     );
   }
@@ -1989,7 +1999,7 @@ function ShipmentPage() {
         <SearchBar />
         <div className="shipment-page rapido-style">
           <div className="shipment-container">
-            <h2 className="step-title">Enter Sender & Receiver Details</h2>
+            <h2 className="step-title">{t("enter_details")}</h2>
 
             <div className="sender-section">
               <div className="input-group">
@@ -1998,7 +2008,7 @@ function ShipmentPage() {
                   name="name"
                   value={shipmentData.sender.name}
                   onChange={(e) => handleInputChange(e, 'sender')}
-                  placeholder="Sender Name"
+                  placeholder={t("sender_name")}
                   className="form-input"
                 />
               </div>
@@ -2008,7 +2018,7 @@ function ShipmentPage() {
                   name="phone"
                   value={shipmentData.sender.phone}
                   onChange={(e) => handleInputChange(e, 'sender')}
-                  placeholder="Sender Phone"
+                  placeholder={t("sender_phone")}
                   className="form-input"
                 />
               </div>
@@ -2022,7 +2032,7 @@ function ShipmentPage() {
                     type="text"
                     value={shipmentData.sender.address.addressLine1 || ''}
                     readOnly
-                    placeholder="Parcel Pickup location"
+                    placeholder={t("pickup_location")}
                     className="address-text"
                   />
                 </div>
@@ -2041,7 +2051,7 @@ function ShipmentPage() {
                       description: e.target.value
                     }
                   }))}
-                  placeholder="Order Description"
+                  placeholder={t("order_description")}
                   className="form-textarea"
                   rows={1}
                 />
@@ -2127,7 +2137,7 @@ function ShipmentPage() {
                   name="name"
                   value={shipmentData.receiver.name}
                   onChange={(e) => handleInputChange(e, 'receiver')}
-                  placeholder="Receiver Name"
+                  placeholder={t("receiver_name")}
                   className="form-input"
                 />
               </div>
@@ -2137,7 +2147,7 @@ function ShipmentPage() {
                   name="phone"
                   value={shipmentData.receiver.phone}
                   onChange={(e) => handleInputChange(e, 'receiver')}
-                  placeholder="Receiver Phone"
+                  placeholder={t("receiver_phone")}
                   className="form-input"
                 />
               </div>
@@ -2151,7 +2161,7 @@ function ShipmentPage() {
                     type="text"
                     value={shipmentData.receiver.address.addressLine1 || ''}
                     readOnly
-                    placeholder="Parcel Delivery location"
+                    placeholder={t("delivery_location")}
                     className="address-text"
                   />
                 </div>
@@ -2166,7 +2176,7 @@ function ShipmentPage() {
               />
             </div>
 
-            <h6 className='services'>Services</h6>
+            <h6 className='services'>{t("services")}</h6>
             <div className="vehicle-options-container">
               {vehicleTypes.map((vehicle) => (
                 <div
@@ -2174,7 +2184,7 @@ function ShipmentPage() {
                   className={`vehicle-option ${shipmentData.vehicleType === vehicle.type ? 'selected' : ''} ${!vehicle.available ? 'unavailable' : ''}`}
                   onClick={() => vehicle.available && handleVehicleSelect(vehicle.type)}
                 >
-                   <img src={vehicle.image} alt={vehicle.name} className="vehicle-icon" />
+                  <img src={vehicle.image} alt={vehicle.name} className="vehicle-icon" />
                   <div className="vehicle-info">
                     <div className="vehicle-name">{vehicle.name}</div>
                     <div className="vehicle-capacity">{vehicle.capacity}</div>
@@ -2183,7 +2193,7 @@ function ShipmentPage() {
                   {shipmentData.distance > 0 && (
                     <div className="vehicle-price">₹{(shipmentData.distance * vehicle.rate).toFixed(2)}</div>
                   )}
-                  {vehicle.comingSoon && <div className="coming-soon">Coming Soon</div>}
+                  {vehicle.comingSoon && <div className="coming-soon">{t("coming_soon")}</div>}
                 </div>
               ))}
             </div>
@@ -2195,7 +2205,8 @@ function ShipmentPage() {
               onClick={handleNextStep}
               disabled={isSubmitting || !validateStep1()}
             >
-              {isSubmitting ? 'Calculating...' : 'Continue'}
+              {isSubmitting ? t("calculating") : t("continue")}
+
             </button>
           </div>
         </div>
@@ -2208,7 +2219,7 @@ function ShipmentPage() {
               className="upload-bottomsheet"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3>Select Upload Option</h3>
+              <h3>{t("select_upload_option")}</h3>
               <div className="media">
                 <div className="camera">
                   <button
@@ -2220,7 +2231,7 @@ function ShipmentPage() {
                   >
                     📷
                   </button>
-                  <p>Camera</p>
+                 <p>{t("camera")}</p>
                 </div>
 
                 <div className="files">
@@ -2233,7 +2244,7 @@ function ShipmentPage() {
                   >
                     📂
                   </button>
-                  <p>Media picker</p>
+            <p>{t("media_picker")}</p>
                 </div>
               </div>
 
@@ -2241,7 +2252,7 @@ function ShipmentPage() {
                 className="upload-cancel"
                 onClick={() => setShowUploadOptions(false)}
               >
-                Cancel
+                {t("cancel")}
               </button>
             </div>
           </div>
@@ -2269,10 +2280,10 @@ function ShipmentPage() {
           </div>
         </div>
         <div className="shipment-container">
-          <h2 className="step-title">Select Vehicle & Payment</h2>
+          <h2 className="step-title">{t("select_vehicle_payment")}</h2>
 
           <div className="vehicle-selection-section">
-            <h3 className="section-vehicle-title">Choose Your Vehicle</h3>
+            <h3 className="section-vehicle-title">{t("choose_vehicle")}</h3>
             <div className="vehicle-options-container">
               {vehicleTypes.map((vehicle) => (
                 <div
@@ -2280,7 +2291,7 @@ function ShipmentPage() {
                   className={`vehicle-option ${shipmentData.vehicleType === vehicle.type ? 'selected' : ''} ${!vehicle.available ? 'unavailable' : ''}`}
                   onClick={() => vehicle.available && handleVehicleSelect(vehicle.type)}
                 >
-                   <img src={vehicle.image} alt={vehicle.name} className="vehicle-icon" />
+                  <img src={vehicle.image} alt={vehicle.name} className="vehicle-icon" />
                   <div className="vehicle-info">
                     <div className="vehicle-name">{vehicle.name}</div>
                     <div className="vehicle-capacity">{vehicle.capacity}</div>
@@ -2296,17 +2307,17 @@ function ShipmentPage() {
 
           <div className="summary-section">
             <div className="summary-item">
-              <span className="summary-label">Distance:</span>
+              <span className="summary-label">{t("distance")}</span>
               <span className="summary-value">{shipmentData.distance.toFixed(2)} km</span>
             </div>
             <div className="summary-item">
-              <span className="summary-label">Vehicle:</span>
+              <span className="summary-label">{t("vehicle")}:</span>
               <span className="summary-value">
                 {vehicleTypes.find(v => v.type === shipmentData.vehicleType)?.name}
               </span>
             </div>
             <div className="summary-item total">
-              <span className="summary-label">Total Cost:</span>
+              <span className="summary-label">{t("total_cost")}:</span>
               <span className="summary-value">₹{shipmentData.cost.toFixed(2)}</span>
             </div>
           </div>
@@ -2362,14 +2373,15 @@ function ShipmentPage() {
             {error && <div className="error-message">{error}</div>}
           </div> */}
           <div className="payment-section">
-            <h3 className="section-vehicle-title">Confirm Booking</h3>
+            <h3 className="section-vehicle-title">{t("confirm_booking")}</h3>
 
             <button
               className="confirm-button"
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Processing...' : 'Book Vehicle'}
+              {isSubmitting ? t("processing") : t("book_vehicle")}
+
             </button>
 
             {error && <div className="error-message">{error}</div>}

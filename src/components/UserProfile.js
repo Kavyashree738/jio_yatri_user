@@ -495,6 +495,8 @@ import {
 } from "react-icons/fa";
 import "../styles/UserProfile.css";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import i18n from "../i18n";
 
 const USER_API = "https://jio-yatri-user.onrender.com/api/users";
 const ORDERS_API = "https://jio-yatri-user.onrender.com/api/orders/user";
@@ -502,178 +504,161 @@ const ORDERS_API = "https://jio-yatri-user.onrender.com/api/orders/user";
 const UserProfile = () => {
   const { user, setMessage } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [dbUser, setDbUser] = useState(null);
   const [shopOrders, setShopOrders] = useState([]);
 
-  const [showPhotoSheet, setShowPhotoSheet] = useState(false);
   const [localPhoto, setLocalPhoto] = useState("");
   const [localName, setLocalName] = useState("");
   const [localEmail, setLocalEmail] = useState("");
   const [localPhone, setLocalPhone] = useState("");
   const [editing, setEditing] = useState("");
 
+  const [showLangSheet, setShowLangSheet] = useState(false);
+
+
   // =============================
-  // Detect login provider (OTP / Google / Email)
+  // Detect login provider
   // =============================
   const provider = useMemo(() => {
     if (!user) return "unknown";
     const providers = user.providerData.map((p) => p.providerId);
 
-    if (providers.includes("phone")) return "phone";         // OTP login
-    if (providers.includes("google.com")) return "google";   // Google login
-    if (providers.includes("password")) return "emailpw";    // Email+Password
+    if (providers.includes("phone")) return "phone";
+    if (providers.includes("google.com")) return "google";
+    if (providers.includes("password")) return "emailpw";
     return "unknown";
   }, [user]);
 
+  // =============================
+  // Handle Photo Upload
+  // =============================
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
- const handlePhotoChange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64Img = reader.result;
+      setLocalPhoto(base64Img);
 
-  const reader = new FileReader();
-  reader.onloadend = async () => {
-    const base64Img = reader.result;
+      await updateUserInDB({
+        uid: user.uid,
+        name: localName,
+        email: localEmail,
+        phone: localPhone,
+        photo: base64Img,
+      });
 
-    // Update preview
-    setLocalPhoto(base64Img);
+      localStorage.setItem("dbPhoto", base64Img);
+      localStorage.setItem("dbName", localName);
+      localStorage.setItem("dbEmail", localEmail);
 
-    // Save to DB immediately
-    await updateUserInDB({
-      uid: user.uid,
-      name: localName,
-      email: localEmail,
-      phone: localPhone,
-      photo: base64Img,
-    });
+      setMessage?.({ text: t("profile_photo_updated"), isError: false });
+    };
 
-    localStorage.setItem("dbPhoto", base64Img);
-    localStorage.setItem("dbName", localName);
-    localStorage.setItem("dbEmail", localEmail);
-
-    setMessage?.({ text: "Profile photo updated!", isError: false });
+    reader.readAsDataURL(file);
   };
 
-  reader.readAsDataURL(file);
-};
-
-
-
   // =============================
-  // Fetch MongoDB User
+  // Load cached user
   // =============================
-
-
-  // Load cached data instantly
-useEffect(() => {
-  const cachedUser = localStorage.getItem("dbUser");
-  const cachedOrders = localStorage.getItem("shopOrders");
-
-  if (cachedUser) {
-    const parsed = JSON.parse(cachedUser);
-    setDbUser(parsed);
-    setLocalName(parsed.name || "");
-    setLocalEmail(parsed.email || user?.email || "");
-    setLocalPhone(parsed.phone || "");
-    setLocalPhoto(parsed.photo || user?.photoURL || "");
-  }
-
-  if (cachedOrders) {
-    setShopOrders(JSON.parse(cachedOrders));
-  }
-}, []);
-
   useEffect(() => {
-  const fetchDbUser = async () => {
-    if (!user?.uid) return;
+    const cachedUser = localStorage.getItem("dbUser");
+    const cachedOrders = localStorage.getItem("shopOrders");
 
-    try {
-      const res = await fetch(`${USER_API}/${user.uid}`);
-      const data = await res.json();
+    if (cachedUser) {
+      const parsed = JSON.parse(cachedUser);
+      setDbUser(parsed);
+      setLocalName(parsed.name || "");
+      setLocalEmail(parsed.email || user?.email || "");
+      setLocalPhone(parsed.phone || "");
+      setLocalPhoto(parsed.photo || user?.photoURL || "");
+    }
 
-      if (!data.uid) return;
+    if (cachedOrders) {
+      setShopOrders(JSON.parse(cachedOrders));
+    }
+  }, []);
 
-      const cachedUser = localStorage.getItem("dbUser");
-      const parsedCache = cachedUser ? JSON.parse(cachedUser) : null;
+  // =============================
+  // Fetch DB user
+  // =============================
+  useEffect(() => {
+    const fetchDbUser = async () => {
+      if (!user?.uid) return;
 
-      if (JSON.stringify(parsedCache) !== JSON.stringify(data)) {
+      try {
+        const res = await fetch(`${USER_API}/${user.uid}`);
+        const data = await res.json();
+        if (!data.uid) return;
+
         setDbUser(data);
         setLocalName(data.name || "");
-        setLocalEmail(data.email || user.email || "");
+        setLocalEmail(data.email || "");
         setLocalPhone(data.phone || "");
-        setLocalPhoto(data.photo || user.photoURL || "");
-
+        setLocalPhoto(data.photo || "");
         localStorage.setItem("dbUser", JSON.stringify(data));
+      } catch (err) {
+        console.log("❌ Failed to fetch DB user:", err);
       }
+    };
 
-    } catch (err) {
-      console.log("❌ Failed to fetch DB user:", err);
-    }
-  };
-
-  fetchDbUser();
-}, [user]);
-
+    fetchDbUser();
+  }, [user]);
 
   // =============================
   // Fetch Shop Orders
   // =============================
   useEffect(() => {
-  const fetchShopOrders = async () => {
-    if (!user) return;
+    const fetchShopOrders = async () => {
+      if (!user) return;
 
+      try {
+        const token = await user.getIdToken();
+        const res = await fetch(ORDERS_API, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        if (!data.success) return;
+
+        setShopOrders(data.data);
+        localStorage.setItem("shopOrders", JSON.stringify(data.data));
+      } catch (err) {
+        console.log("❌ Failed to fetch shop orders:", err);
+      }
+    };
+
+    fetchShopOrders();
+  }, [user]);
+
+  // =============================
+  // Update User in DB
+  // =============================
+  const updateUserInDB = async (payload) => {
     try {
-      const token = await user.getIdToken();
-      const res = await fetch(ORDERS_API, {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await fetch(USER_API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-      if (!data.success) return;
 
-      const cachedOrders = localStorage.getItem("shopOrders");
-      const parsedCache = cachedOrders ? JSON.parse(cachedOrders) : [];
-
-      if (JSON.stringify(parsedCache) !== JSON.stringify(data.data)) {
-        setShopOrders(data.data);
-        localStorage.setItem("shopOrders", JSON.stringify(data.data));
+      if (data.user) {
+        setDbUser(data.user);
+        localStorage.setItem("dbUser", JSON.stringify(data.user));
+        setMessage?.({ text: t("profile_updated"), isError: false });
       }
-
-    } catch (err) {
-      console.log("❌ Failed to fetch shop orders:", err);
+    } catch (error) {
+      setMessage?.({ text: t("update_failed"), isError: true });
     }
   };
 
-  fetchShopOrders();
-}, [user]);
-
-
   // =============================
-  // Update user in DB
-  // =============================
-  const updateUserInDB = async (payload) => {
-  try {
-    const res = await fetch(USER_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-
-    if (data.user) {
-      setDbUser(data.user);
-      localStorage.setItem("dbUser", JSON.stringify(data.user)); // ⭐ add this
-      setMessage?.({ text: "Profile updated!", isError: false });
-    }
-  } catch (error) {
-    setMessage?.({ text: "Update failed!", isError: true });
-  }
-};
-
-
-  // =============================
-  // Save Name / Email / Phone
+  // Save Edited Field
   // =============================
   const handleSave = async () => {
     await updateUserInDB({
@@ -683,11 +668,12 @@ useEffect(() => {
       phone: localPhone,
       photo: localPhoto,
     });
+
     setEditing("");
   };
 
   // =============================
-  // Stats calculations
+  // Stats Calculations
   // =============================
   const totalShopOrders = shopOrders.length;
   const totalShopSpend = shopOrders.reduce(
@@ -701,7 +687,7 @@ useEffect(() => {
       {/* HEADER */}
       <div className="profile-header">
         <FaArrowLeft className="back-arrow" onClick={() => navigate("/home")} />
-        <h2 className="profile-title">Personal Information</h2>
+        <h2 className="profile-title">{t("profile_title")}</h2>
       </div>
 
       {/* PROFILE PHOTO */}
@@ -714,42 +700,39 @@ useEffect(() => {
           )}
 
           <div
-  className="camera-overlay"
-  onClick={() => document.getElementById("profileFile").click()}
->
-  <FaCamera className="camera-icon" />
-</div>
+            className="camera-overlay"
+            onClick={() => document.getElementById("profileFile").click()}
+          >
+            <FaCamera className="camera-icon" />
+          </div>
 
-<input
-  type="file"
-  id="profileFile"
-  style={{ display: "none" }}
-  accept="image/*"
-  onChange={handlePhotoChange}
-/>
-
-
+          <input
+            type="file"
+            id="profileFile"
+            style={{ display: "none" }}
+            accept="image/*"
+            onChange={handlePhotoChange}
+          />
         </div>
       </div>
 
       {/* USER INFO */}
       <div className="profile-info-section">
-        
+
         {/* NAME */}
         <div className="profile-row">
-          <span className="profile-label">Name</span>
+          <span className="profile-label">{t("field_name")}</span>
           <span className="profile-value">
-            {localName || "Not set"}
+            {localName || t("not_set")}
             <FaEdit className="edit-icon" onClick={() => setEditing("name")} />
           </span>
         </div>
 
         {/* EMAIL */}
         <div className="profile-row">
-          <span className="profile-label">Email</span>
+          <span className="profile-label">{t("field_email")}</span>
           <span className="profile-value">
-            {localEmail || "Not set"}
-
+            {localEmail || t("not_set")}
             {provider === "phone" ? (
               <FaEdit className="edit-icon" onClick={() => setEditing("email")} />
             ) : (
@@ -759,79 +742,75 @@ useEffect(() => {
         </div>
 
         {/* PHONE */}
-        {/* PHONE */}
-<div className="profile-row">
-  <span className="profile-label">Phone</span>
-
-  <span className="profile-value">
-
-    {localPhone || "Not set"}
-
-    {provider === "phone" ? (
-      // OTP Login → show green verified badge, no edit icon
-      <FaCheckCircle className="verified-icon" style={{ color: "green", marginLeft: 6 }} />
-    ) : (
-      // Other logins → phone can be edited
-      <FaEdit className="edit-icon" onClick={() => setEditing("phone")} />
-    )}
-
-  </span>
-</div>
+        <div className="profile-row">
+          <span className="profile-label">{t("field_phone")}</span>
+          <span className="profile-value">
+            {localPhone || t("not_set")}
+            {provider === "phone" ? (
+              <FaCheckCircle className="verified-icon" style={{ color: "green", marginLeft: 6 }} />
+            ) : (
+              <FaEdit className="edit-icon" onClick={() => setEditing("phone")} />
+            )}
+          </span>
+        </div>
 
       </div>
 
       {/* STATS CARDS */}
       <div className="profile-stats-wrapper">
         <div className="profile-stat-card">
-          <h4>Total Shipments</h4>
+          <h4>{t("stat_total_shipments")}</h4>
           <p>{dbUser?.totalShipments || 0}</p>
         </div>
 
         <div className="profile-stat-card">
-          <h4>Shipment Spend</h4>
+          <h4>{t("stat_shipment_spend")}</h4>
           <p>₹{(dbUser?.totalAmountPaid || 0).toFixed(2)}</p>
         </div>
 
         <div className="profile-stat-card">
-          <h4>Total Shop Orders</h4>
+          <h4>{t("stat_total_shop_orders")}</h4>
           <p>{totalShopOrders}</p>
         </div>
 
         <div className="profile-stat-card">
-          <h4>Shop Order Spend</h4>
+          <h4>{t("stat_shop_spend")}</h4>
           <p>₹{totalShopSpend.toFixed(2)}</p>
         </div>
       </div>
 
       {/* LINKS */}
       <div className="profile-links-section">
-        <div
-          className="profile-link-row"
-          onClick={() => navigate("/terms-and-condition")}
-        >
-          <span>📄 Terms & Conditions</span>
+        <div className="profile-link-row" onClick={() => navigate("/terms-and-condition")}>
+          <span>📄 {t("terms_and_conditions")}</span>
+          <FaArrowLeft className="arrow-icon rotate-arrow" />
+        </div>
+
+        <div className="profile-link-row" onClick={() => navigate("/privacy-policy")}>
+          <span>🔒 {t("privacy_policy")}</span>
           <FaArrowLeft className="arrow-icon rotate-arrow" />
         </div>
 
         <div
           className="profile-link-row"
-          onClick={() => navigate("/privacy-policy")}
+          onClick={() => setShowLangSheet(true)}
         >
-          <span>🔒 Privacy Policy</span>
+          <span>🌐 {t("change_language")}</span>
           <FaArrowLeft className="arrow-icon rotate-arrow" />
         </div>
       </div>
+
+
+
+
+
 
       {/* EDIT OVERLAY */}
       {editing && (
         <div className="edit-overlay" onClick={() => setEditing("")}>
           <div className="edit-sheet" onClick={(e) => e.stopPropagation()}>
-            
-            <h3 className="edit-title">
-              {editing === "name" && "Full Name"}
-              {editing === "email" && "Email Address"}
-              {editing === "phone" && "Phone Number"}
-            </h3>
+
+            <h3 className="edit-title">{t(`edit_${editing}`)}</h3>
 
             <input
               type="text"
@@ -840,25 +819,60 @@ useEffect(() => {
                 editing === "name"
                   ? localName
                   : editing === "email"
-                  ? localEmail
-                  : localPhone
+                    ? localEmail
+                    : localPhone
               }
               onChange={(e) =>
                 editing === "name"
                   ? setLocalName(e.target.value)
                   : editing === "email"
-                  ? setLocalEmail(e.target.value)
-                  : setLocalPhone(e.target.value)
+                    ? setLocalEmail(e.target.value)
+                    : setLocalPhone(e.target.value)
               }
             />
 
             <button className="edit-update-btn" onClick={handleSave}>
-              Update
+              {t("btn_update")}
             </button>
 
           </div>
         </div>
       )}
+
+      {showLangSheet && (
+        <div className="lang-overlay" onClick={() => setShowLangSheet(false)}>
+          <div className="lang-sheet" onClick={(e) => e.stopPropagation()}>
+
+            <h3 className="lang-title">{t("select_language")}</h3>
+
+            <button className="lang-btn" onClick={() => {
+              i18n.changeLanguage("en");
+              document.documentElement.setAttribute("lang", "en");
+              setShowLangSheet(false);
+            }}> English</button>
+
+            <button className="lang-btn" onClick={() => {
+              i18n.changeLanguage("hi");
+              document.documentElement.setAttribute("lang", "hi");
+              setShowLangSheet(false);
+            }}> हिंदी</button>
+
+            <button className="lang-btn" onClick={() => {
+              i18n.changeLanguage("kn");
+              document.documentElement.setAttribute("lang", "kn");
+              setShowLangSheet(false);
+            }}> ಕನ್ನಡ</button>
+
+            <button className="lang-btn" onClick={() => {
+              i18n.changeLanguage("te");
+              document.documentElement.setAttribute("lang", "te");
+              setShowLangSheet(false);
+            }}> తెలుగు</button>
+
+          </div>
+        </div>
+      )}
+
 
     </div>
   );

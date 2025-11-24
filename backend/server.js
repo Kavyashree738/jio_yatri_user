@@ -105,6 +105,8 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.json());
 
 
+
+
 // Use it in your routes
 
 app.use('/api', partnerRoutes);

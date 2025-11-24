@@ -5,44 +5,37 @@ import axios from "axios";
 import "../../styles/wallet.css";
 import { useAuth } from "../../context/AuthContext";
 
-// 👉 Import Lottie animation
+// Lottie Animation
 import Lottie from "lottie-react";
 import referAnimation from "../../assets/animations/refer.json";
+
+// 🔥 Multi-language support
+import { useTranslation } from "react-i18next";
 
 const WalletPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
+
   const [balance, setBalance] = useState(0);
   const [history, setHistory] = useState([]);
 
   const uid = user?.uid;
 
   useEffect(() => {
-    if (uid) {
-      console.log("🔹 UID Available:", uid);
-      fetchWalletData();
-    } else {
-      console.log("❌ UID is NULL — user not logged in yet");
-    }
+    if (uid) fetchWalletData();
   }, [uid]);
 
   const fetchWalletData = async () => {
     try {
       const apiUrl = `https://jio-yatri-user.onrender.com/api/users/${uid}/referral-stats`;
-      // console.log("📡 Fetching Wallet From:", apiUrl);
-
       const res = await axios.get(apiUrl);
-
-      // console.log("🟢 Referral Stats Response:", res.data);
 
       setBalance(res.data.totalEarnings);
       setHistory(res.data.rewards);
 
     } catch (err) {
-      // console.log("🔴 Wallet fetch error:", err);
-      if (err.response) {
-        // console.log("❗ Backend Error:", err.response.data);
-      }
+      console.log("Wallet Error:", err);
     }
   };
 
@@ -50,22 +43,22 @@ const WalletPage = () => {
     <div className="wallet-container">
       <div className="wallet-header">
         <FaArrowLeft size={22} onClick={() => navigate("/home")} />
-        <h2>Wallet</h2>
+        <h2>{t("wallet_title")}</h2>
 
         <span
           className="wallet-history"
           onClick={() => navigate("/wallet-history")}
         >
-          History
+          {t("wallet_history")}
         </span>
       </div>
 
       <div className="balance-card">
-        <p className="balance-label">Balance</p>
+        <p className="balance-label">{t("wallet_balance")}</p>
         <h1 className="balance-amount">₹{balance.toFixed(2)}</h1>
       </div>
 
-      {/* 🎉 LOTTIE ANIMATION BELOW BALANCE */}
+      {/* Lottie Animation */}
       <div className="wallet-lottie-wrapper">
         <Lottie
           animationData={referAnimation}

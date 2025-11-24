@@ -13,7 +13,7 @@ import '../../styles/HeroSection.css';
 import { useAuth } from '../../context/AuthContext';
 import delivery from '../../assets/images/delivery-service.png';
 
-
+import { useTranslation } from "react-i18next";
 
 const HeroSection = () => {
   const controls = useAnimation();
@@ -28,13 +28,14 @@ const HeroSection = () => {
   const [referralCode, setReferralCode] = useState('');
   const [showReferralField, setShowReferralField] = useState(false);
   const { ref, inView: isInView } = useInView({ triggerOnce: true });
-   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-     const TEST_GOOGLE_PHONE = "7777777777"; // only your test number
+  const TEST_GOOGLE_PHONE = "7777777777"; // only your test number
   const isGoogleTester = phoneNumber.endsWith(TEST_GOOGLE_PHONE);
 
   const TEST_PHONE = "+911234567898";
   const TEST_OTP = "1234";
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     if (isInView) {
@@ -406,12 +407,12 @@ const signInWithGoogle = async () => {
           transition={{ duration: 0.8 }}
         >
           <div className="text">
-            <h1>JIOYATRI</h1>
-            <h2>Delivery</h2>
+            <h1>{t("title_main")}</h1>
+            <h2>{t("title_sub")}</h2>
           </div>
-          <h2>Door-to-Door Intercity Courier from Bangalore</h2>
+          <h2>{t("tagline")}</h2>
           <p>
-            Connect with 19,000+ destinations across India through our smooth and affordable courier service.
+            {t("description")}
           </p>
         </motion.div>
 
@@ -424,7 +425,7 @@ const signInWithGoogle = async () => {
         >
           {!user ? (
             <form className="registration-form hero-form" onSubmit={(e) => e.preventDefault()}>
-              <h3>Register Now</h3>
+              <h3>{t("register_now")}</h3>
 
               <div className="phone-input-group">
                 <PhoneInput
@@ -448,14 +449,14 @@ const signInWithGoogle = async () => {
                     required
                   />
                   <span className="terms-text">
-                    I have read, understood and accept&nbsp;
+                    {t("terms")}&nbsp;
                     <a
                       href="/terms-and-condition"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="terms-link"
                     >
-                      Terms & Conditions
+                      {t("terms_link")}
                     </a>
                     &nbsp;and&nbsp;
                     <a
@@ -464,7 +465,7 @@ const signInWithGoogle = async () => {
                       rel="noopener noreferrer"
                       className="terms-link"
                     >
-                      Privacy Policy
+                      {t("privacy_link")}
                     </a>
                   </span>
                 </label>
@@ -476,11 +477,11 @@ const signInWithGoogle = async () => {
                 disabled={!isValidPhone || isLoading || !acceptedTerms}
                 className={`button ${isValidPhone && acceptedTerms && !isLoading ? 'enabled' : 'disabled'}`}
               >
-                {isLoading ? 'Sending...' : 'Send Verification Code'}
+                 {isLoading ? t("sending") : t("send_otp")}
               </button>
 
 
-              <div className="divider">or</div>
+              <div className="divider">{t("or")}</div>
 
               <div className="social-buttons">
                 {isGoogleTester && (
@@ -491,7 +492,7 @@ const signInWithGoogle = async () => {
                     disabled={!acceptedTerms || isLoading}
                   >
                     <FcGoogle className="social-icon" />
-                    <span>{isLoading ? "Signing in..." : "Continue with Google"}</span>
+                     <span>{t("continue_google")}</span>
                   </button>
                 )}
 
@@ -509,7 +510,8 @@ const signInWithGoogle = async () => {
               
 
               <div className="referral-toggle" onClick={() => setShowReferralField(!showReferralField)}>
-                {showReferralField ? 'Hide referral code' : 'Have a referral code?'}
+{showReferralField ? t("hide_referral") : t("have_referral")}
+
               </div>
               {showReferralField && (
                 <div className="form-group">
@@ -550,8 +552,8 @@ const signInWithGoogle = async () => {
             </form>
           ) : showWelcomeMessage ? (
             <div className="welcome-message">
-              <h3>Login Successful!</h3>
-              <p>You can now access all features.</p>
+              <h3>{t("login_success")}</h3>
+              <p>{t("access_features")}</p>
             </div>
           ) : (
             <div className="post-login-image">
@@ -569,8 +571,8 @@ const signInWithGoogle = async () => {
         {showOtpComponent && (
           <div className="otp-overlay">
             <div className="otp-modal">
-              <h3 className="otp-title">Enter Verification Code</h3>
-              <p className="otp-subtitle">Sent to {phoneNumber}</p>
+              <h3 className="otp-title">{t("enter_otp_title")}</h3>
+              <p className="otp-subtitle">{t("sent_to")} {phoneNumber}</p>
 
              <div className="otp-container">
   {[...Array(4)].map((_, index) => (
@@ -610,11 +612,11 @@ const signInWithGoogle = async () => {
                 disabled={isLoading || otp.length !== 4}
                 className={`otp-button ${isLoading || otp.length !== 4 ? 'disabled' : ''}`}
               >
-                {isLoading ? <><span className="spinner"></span> Verifying...</> : 'Verify Code'}
+                {isLoading ? <><span className="spinner"></span>t("verify_code") </> : t("verify_code")}
               </button>
 
               <button onClick={resendOtp} disabled={otpResendTime > 0} className="resend-button">
-                {otpResendTime > 0 ? `Resend in ${otpResendTime}s` : 'Resend Code'}
+                {otpResendTime > 0 ? `${t("resend_code")} ${otpResendTime}s` : t("resend_code")}
               </button>
 
               <button
@@ -625,7 +627,7 @@ const signInWithGoogle = async () => {
                 }}
                 className="cancell-button"
               >
-                Cancel
+                 {t("cancel")}
               </button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch, FaMicrophone, FaYoutube, FaShareAlt } from 'react-icons/fa';
+import { useTranslation } from "react-i18next";
 import '../../styles/SearchBar.css';
 
 const secondaryNavItems = [
@@ -16,25 +17,26 @@ const secondaryNavItems = [
 const normalizeText = (text) => text.trim().toLowerCase();
 
 const SearchBar = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [isListening, setIsListening] = useState(false);
-  const [marqueeText, setMarqueeText] = useState('Share');
+  const [marqueeText, setMarqueeText] = useState(t("share"));
   const [marqueeActive, setMarqueeActive] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
       setMarqueeActive(true);
-      setMarqueeText('Earn ₹10 Cashback');
+      setMarqueeText(t("earn_cashback"));
       
       setTimeout(() => {
         setMarqueeActive(false);
-        setMarqueeText('Share');
+        setMarqueeText(t("share"));
       }, 3000);
-    }, 6000); // Full cycle every 6 seconds (3s each text)
+    }, 6000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [t]);
 
   const handleSearchNavigation = (query) => {
     const normalizedQuery = normalizeText(query);
@@ -46,7 +48,7 @@ const SearchBar = () => {
     if (matchedItem) {
       navigate(matchedItem.path);
     } else {
-      alert("No matching category found!");
+      alert(t("no_category_found"));
     }
   };
 
@@ -77,16 +79,8 @@ const SearchBar = () => {
         setIsListening(false);
       };
     } else {
-      alert('Voice recognition not supported in this browser');
+      alert(t("voice_not_supported"));
     }
-  };
-
-  const handleYoutubeClick = () => {
-    window.open('https://youtube.com/@ambaninewstv?si=PBGWaPOKXdjV-Oa4', '_blank');
-  };
-
-  const handleShareClick = () => {
-    navigate('/refferal');
   };
 
   return (
@@ -97,9 +91,10 @@ const SearchBar = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search for Hotels, Groceries..."
+            placeholder={t("search_placeholder")}
           />
         </form>
+
         <button
           type="button"
           className={`voice-search-btn ${isListening ? 'listening' : ''}`}
@@ -108,17 +103,18 @@ const SearchBar = () => {
           <FaMicrophone />
         </button>
       </div>
-      <button className="youtube-btn" onClick={handleYoutubeClick}>
+
+      <button className="youtube-btn" onClick={() => window.open('https://youtube.com/@ambaninewstv', '_blank')}>
         <FaYoutube className='youtube-icon' />
       </button>
-      <button className="share-btn" onClick={handleShareClick}>
+
+      <button className="share-btn" onClick={() => navigate('/refferal')}>
         <div className={`marquee-text ${marqueeActive ? 'active' : ''}`}>
-              {marqueeText}
-            </div>
+          {marqueeText}
+        </div>
       </button>
     </div>
   );
 };
-
 
 export default SearchBar;

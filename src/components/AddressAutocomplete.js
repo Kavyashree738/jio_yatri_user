@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaMapMarkerAlt, FaCrosshairs } from 'react-icons/fa';
 import '../styles/components.css';
+import { useTranslation } from "react-i18next";
 
 function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
     const [query, setQuery] = useState(initialValue);
     const [suggestions, setSuggestions] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const [isGettingLocation, setIsGettingLocation] = useState(false);
+
+    const { t, i18n } = useTranslation();
 
     // Sync with initialValue prop
     useEffect(() => {
@@ -111,7 +114,7 @@ function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
                             type="text"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Enter address..."
+                            placeholder={t("address_placeholder")}
                             required
                             autoComplete="off"
                         />
@@ -124,7 +127,7 @@ function AddressAutocomplete({ onSelect, initialValue = '', onBackClick }) {
                     >
                         <FaMapMarkerAlt className={`current-location-icon ${isGettingLocation ? "spin-icon" : ""}`} />
                         <span className="current-location-text">
-                            {isGettingLocation ? "Detecting location..." : "current location"}
+                            {isGettingLocation ? t("detecting_location") : t("current_location")}
                         </span>
                     </div>
 
