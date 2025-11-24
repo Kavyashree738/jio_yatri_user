@@ -45,7 +45,8 @@
     "react-time-picker": "^7.0.0",
     "react-toastify": "^11.0.5",
     "slick-carousel": "^1.8.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "typescript": "4.9.5"
   },
   "scripts": {
     "start": "react-scripts start",
