@@ -1484,3 +1484,73 @@ body {
   align-items: center;
   gap: 10px;
 }
+
+.top-strip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #0073ff;
+  color: white;
+  font-weight: 600;
+  padding: 8px 10px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* distribute items */
+  height: 45px;
+  gap: 8px;
+  overflow-x: auto; /* prevent hiding */
+  white-space: nowrap;
+}
+
+/* 🔹 Title */
+.top-strip h1 {
+  margin: 0;
+  font-size: 1rem;
+  flex: 1;                   /* allows shrinking */
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 🔹 Language Buttons */
+.top-strip button {
+  padding: 3px 7px;
+  font-size: 12px;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* 🔹 hamburger (make sure visible) */
+.hamburger-menu {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+@media (max-width: 600px) {
+  .top-strip {
+    gap: 4px;
+    padding: 6px;
+    height: 40px;
+  }
+
+  .top-strip button {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+
+  .top-strip h1 {
+    font-size: 12px;
+  }
+
+  .hamburger-menu svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
