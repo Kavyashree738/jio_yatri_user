@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import '../../styles/WelcomeSection.css';
 import courierImage from '../../assets/images/hero-image.jpg';
-import '../../styles/global.css'
 import { useTranslation } from "react-i18next";
 
 const WelcomeSection = () => {
