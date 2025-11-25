@@ -377,7 +377,7 @@ exports.getShopsByCategory = async (req, res) => {
     console.log(`[ShopController] Fetching shops for category: ${category}`);
 
     // Fetch all shops by category (no location filter)
-    const shops = await Shop.find({ category }).sort({ createdAt: -1 }).lean();
+    const shops = await Shop.find({ category ,shopVerification: true }).sort({ createdAt: -1 }).lean();
 
     const baseUrl = "https://jio-yatri-user.onrender.com";
 
@@ -781,6 +781,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const distance = R * c;
   return Math.round(distance * 10) / 10; // Round to 1 decimal place
 }
+
 
 
 
