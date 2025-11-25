@@ -586,6 +586,22 @@ function ShipmentPage() {
             const data = res.data;
             console.log("🔍 Polling data:", data.status);
 
+            if (data.status === "delivered") {
+  console.warn("🚚 Delivered — clearing assigned shipment");
+
+  localStorage.removeItem("assignedShipment");
+
+  setAssignedShipment(null);
+  setTrackingNumber("");
+  setSuccess(false);
+  setCurrentStep(1);
+
+  clearInterval(intervalId);
+
+  navigate("/orders", { replace: true });
+  return;
+}
+
             // ✅ Detect if shipment is picked up
             if (data.status === "picked_up") {
               console.warn("⚠️ Shipment has been picked up — navigating to /orders");
@@ -634,6 +650,8 @@ function ShipmentPage() {
               setAssignedShipment(data);
               localStorage.setItem("assignedShipment", JSON.stringify(data));
             }
+
+            
 
             // 🚫 Driver cancelled
             if (data.status === "cancelled") {
