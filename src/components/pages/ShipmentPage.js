@@ -1877,7 +1877,8 @@ function ShipmentPage() {
     currentStep === 4 &&
     assignedShipment &&
     assignedShipment.status !== "cancelled" &&
-    assignedShipment.status !== "picked_up"
+    assignedShipment.status !== "picked_up" &&
+    assignedShipment.status !== "delivered"
   ) {
     const driver = assignedShipment.assignedDriver;
     const otp = assignedShipment.pickupOtp || "----";
